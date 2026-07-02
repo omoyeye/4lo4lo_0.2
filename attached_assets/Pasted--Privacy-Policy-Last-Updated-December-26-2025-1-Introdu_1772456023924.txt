@@ -1,0 +1,323 @@
+# Privacy Policy
+
+**Last Updated: December 26, 2025**
+
+## 1. Introduction
+
+This Privacy Policy explains how 4lo4lo.site ("Platform", "we", "us", "our") collects, uses, discloses, and protects your personal information when you use our social media task exchange platform.
+
+By using our Platform, you consent to the data practices described in this policy.
+
+## 2. Information We Collect
+
+### 2.1 Information You Provide Directly
+
+**Account Information:**
+- Full name
+- Email address
+- Username
+- Password (encrypted)
+- Date of birth
+- Country/location
+
+**Payment Information:**
+- Payment method details (PayPal, bank account, mobile money)
+- Billing address
+- Tax identification numbers (if required)
+
+**Social Media Information:**
+- Social media account usernames/URLs
+- Profile links for task verification
+- Public social media data necessary for task completion
+
+**Communications:**
+- Messages sent through our Platform
+- Support tickets and correspondence
+- Feedback and survey responses
+
+### 2.2 Information Collected Automatically
+
+**Usage Data:**
+- IP address
+- Browser type and version
+- Device information (type, operating system)
+- Pages visited and time spent
+- Clicks, scrolls, and interactions
+- Referral sources
+
+**Task Activity:**
+- Tasks completed
+- Tasks created
+- Credits earned and spent
+- Withdrawal history
+- Performance metrics
+
+**Cookies and Tracking Technologies:**
+- Session cookies (essential for functionality)
+- Analytics cookies (Google Analytics, etc.)
+- Preference cookies (settings, language)
+- Third-party tracking pixels
+
+### 2.3 Information from Third Parties
+
+**Social Media Platforms:**
+- Public profile information when you link accounts
+- Verification of task completion
+- Publicly available engagement metrics
+
+**Payment Processors:**
+- Transaction confirmation
+- Fraud prevention data
+
+## 3. How We Use Your Information
+
+We use your information for the following purposes:
+
+### 3.1 Platform Operations
+- Create and manage your account
+- Process tasks and credit transactions
+- Verify task completion
+- Process withdrawals and payments
+- Prevent fraud and abuse
+- Enforce our Terms and Conditions
+
+### 3.2 Communication
+- Send transactional emails (account confirmations, withdrawal notifications)
+- Respond to support requests
+- Send important Platform updates
+- Marketing communications (with your consent)
+
+### 3.3 Analytics and Improvement
+- Analyze Platform usage patterns
+- Improve user experience
+- Develop new features
+- Conduct research and testing
+
+### 3.4 Legal and Security
+- Comply with legal obligations
+- Protect against fraud and illegal activities
+- Enforce our rights and agreements
+- Respond to legal requests and prevent harm
+
+## 4. How We Share Your Information
+
+### 4.1 Service Providers
+We share information with third-party service providers who help us operate the Platform:
+- Payment processors (PayPal, Stripe, etc.)
+- Cloud hosting providers
+- Email service providers
+- Analytics providers (Google Analytics)
+- Customer support tools
+- Security and fraud prevention services
+
+### 4.2 Social Media Platforms
+- Limited information shared to verify task completion
+- Only public information or information necessary for verification
+
+### 4.3 Legal Requirements
+We may disclose information when required to:
+- Comply with laws, regulations, or legal processes
+- Respond to government requests
+- Enforce our Terms and Conditions
+- Protect rights, property, or safety
+- Prevent fraud or security threats
+
+### 4.4 Business Transfers
+In the event of a merger, acquisition, or sale of assets, your information may be transferred to the acquiring entity.
+
+### 4.5 With Your Consent
+We may share information for other purposes with your explicit consent.
+
+## 5. Data Retention
+
+- We retain your information as long as your account is active
+- After account deletion, we may retain certain information for:
+  - Legal compliance (tax records, transaction history)
+  - Fraud prevention
+  - Resolving disputes
+  - Enforcing agreements
+- Retention periods vary by data type and legal requirements
+- You may request deletion of your data (see Your Rights section)
+
+## 6. Your Rights and Choices
+
+Depending on your location, you may have the following rights:
+
+### 6.1 Access and Portability
+- Request a copy of your personal data
+- Export your data in a machine-readable format
+
+### 6.2 Correction
+- Update or correct inaccurate information
+- You can edit most information through your account settings
+
+### 6.3 Deletion
+- Request deletion of your account and associated data
+- Some information may be retained for legal reasons
+
+### 6.4 Objection and Restriction
+- Object to certain data processing activities
+- Restrict how we process your data
+
+### 6.5 Withdraw Consent
+- Withdraw consent for marketing communications
+- Opt out of certain data collection (may limit Platform functionality)
+
+### 6.6 Cookie Preferences
+- Manage cookie settings through your browser
+- Note that disabling essential cookies may impair Platform functionality
+
+**To exercise your rights, contact us at [YOUR EMAIL]**
+
+## 7. Security Measures
+
+We implement reasonable security measures to protect your information:
+
+### 7.1 Technical Safeguards
+- Encryption of sensitive data (SSL/TLS)
+- Secure password storage (hashing and salting)
+- Regular security updates and patches
+- Firewalls and intrusion detection systems
+
+### 7.2 Organizational Safeguards
+- Access controls (need-to-know basis)
+- Employee training on data protection
+- Regular security audits
+- Incident response procedures
+
+### 7.3 Your Responsibility
+- Keep your password secure and confidential
+- Do not share account credentials
+- Use strong, unique passwords
+- Enable two-factor authentication (if available)
+- Report suspicious activity immediately
+
+**However, no method of transmission or storage is 100% secure. We cannot guarantee absolute security.**
+
+## 8. International Data Transfers
+
+- Our Platform may be operated from and data stored in [YOUR COUNTRY]
+- If you access from other countries, your data may be transferred internationally
+- We ensure adequate safeguards for international transfers (Standard Contractual Clauses, adequacy decisions, etc.)
+- By using the Platform, you consent to international data transfers
+
+## 9. Children's Privacy
+
+- Our Platform is NOT intended for users under 18 years old
+- We do not knowingly collect information from minors
+- If we discover we have collected data from a minor, we will delete it promptly
+- Parents/guardians who believe we have collected data from a minor should contact us immediately
+
+## 10. Third-Party Links and Services
+
+- Our Platform may contain links to third-party websites or services
+- We are not responsible for the privacy practices of third parties
+- We encourage you to read their privacy policies
+- Third-party social media platforms have their own privacy policies
+
+## 11. Changes to This Privacy Policy
+
+- We may update this Privacy Policy from time to time
+- Material changes will be notified via email or prominent Platform notice
+- The "Last Updated" date will reflect the latest version
+- Continued use after changes constitutes acceptance
+- We encourage you to review this policy periodically
+
+## 12. Region-Specific Information
+
+### 12.1 For European Union (EU) Users (GDPR)
+
+**Legal Basis for Processing:**
+- Contract performance (to provide Platform services)
+- Legitimate interests (fraud prevention, improvement)
+- Legal compliance
+- Consent (marketing, optional features)
+
+**Data Controller:** [YOUR COMPANY NAME AND ADDRESS]
+
+**Data Protection Officer:** [DPO EMAIL if applicable]
+
+**EU Representative:** [IF REQUIRED]
+
+**Right to Lodge a Complaint:**
+You have the right to lodge a complaint with your local data protection authority.
+
+### 12.2 For California Users (CCPA/CPRA)
+
+**Categories of Personal Information Collected:**
+- Identifiers (name, email, IP address)
+- Commercial information (transaction history)
+- Internet activity (browsing behavior)
+- Geolocation data
+- Professional information (social media accounts)
+
+**Business Purpose for Collection:**
+As described in Section 3 (How We Use Your Information)
+
+**Categories of Third Parties We Share With:**
+- Service providers
+- Payment processors
+- Analytics providers
+
+**Sale of Personal Information:**
+We do NOT sell your personal information as defined by CCPA.
+
+**Your California Privacy Rights:**
+- Right to know what information we collect
+- Right to delete your information
+- Right to opt-out of sale (not applicable)
+- Right to non-discrimination
+
+**To exercise your rights:** Contact us at [YOUR EMAIL] or call [YOUR PHONE]
+
+**Verification Process:**
+We will verify your identity before processing requests (may require additional information).
+
+### 12.3 For Nevada Users
+
+We do not sell covered information as defined by Nevada law. If you wish to opt-out of any potential future sales, contact us at [YOUR EMAIL].
+
+## 13. Cookies and Tracking Technologies
+
+### 13.1 Types of Cookies We Use
+
+**Essential Cookies:**
+- Required for Platform functionality
+- Session management
+- Security features
+
+**Analytics Cookies:**
+- Google Analytics
+- Usage statistics
+- Performance monitoring
+
+**Preference Cookies:**
+- Language settings
+- User preferences
+
+### 13.2 Managing Cookies
+- Browser settings allow you to refuse cookies
+- You can delete cookies at any time
+- Disabling certain cookies may affect Platform functionality
+
+### 13.3 Do Not Track
+Currently, we do not respond to Do Not Track (DNT) signals.
+
+## 14. Contact Information
+
+For questions, concerns, or requests regarding this Privacy Policy or your personal information:
+
+**Email:** [YOUR EMAIL]  
+**Website:** https://4lo4lo.site  
+**Mailing Address:** [YOUR BUSINESS ADDRESS]  
+**Data Protection Officer (if applicable):** [DPO EMAIL]
+
+**Response Time:** We will respond to your inquiry within 30 days (or as required by applicable law).
+
+## 15. Consent
+
+By using 4lo4lo, you acknowledge that you have read and understood this Privacy Policy and consent to the collection, use, and disclosure of your information as described herein.
+
+---
+
+**This Privacy Policy was last updated on December 26, 2025.**

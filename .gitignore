@@ -7,4 +7,3 @@ vite.config.ts.*
 .env
 .replit
 dist
-attached_assets

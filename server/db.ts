@@ -24,7 +24,6 @@ const required = (name: string): string => {
 //   charset: "utf8mb4",
 // });
 
-
 // pool
 //   .getConnection()
 //   .then((conn) => {

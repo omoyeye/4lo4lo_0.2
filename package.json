@@ -97,5 +97,8 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
+  },
+  "overrides": {
+    "nodemailer": "$nodemailer"
   }
 }

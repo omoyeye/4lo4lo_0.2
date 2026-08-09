@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "db:introspect": "drizzle-kit introspect",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:check": "node scripts/db-check.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

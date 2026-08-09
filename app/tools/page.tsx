@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import SEO from "@/components/SEO";
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import {
@@ -146,12 +145,6 @@ function ToolsContent() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <SEO
-        title="Free Tools QR Generator & URL Shortener | 4LO4LO"
-        description="Free tools from 4LO4LO: generate QR codes for any URL and shorten long links instantly. No login required."
-        keywords="qr code generator, url shortener, free qr code, free link shortener, 4lo4lo tools"
-        url="/tools"
-      />
       <Sidebar />
       <div className="flex-1 pb-20 md:pb-0">
         <main className="container mx-auto px-4 py-8">

@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useTaskNotifications } from "@/hooks/use-task-notifications";
 import { useWebSocket, useTaskUpdates } from "@/contexts/WebSocketContext";
 import { User, Crown, Award, BookOpen, Wifi, WifiOff, GraduationCap } from "lucide-react";
-import SEO from "@/components/SEO";
 import Link from "next/link";
 import { User as UserType, Task, UserTask } from "@shared/schema.mysql";
 
@@ -54,10 +53,6 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <SEO
-        title="Dashboard - 4LO4LO"
-        description="View your tasks, points, and activity on 4LO4LO. Complete social media tasks, watch Classroom videos, refer friends, and earn real cash rewards."
-      />
       <Sidebar />
       <div className="flex-1 pb-20 md:pb-0">
         <main className="container mx-auto px-4 py-8">

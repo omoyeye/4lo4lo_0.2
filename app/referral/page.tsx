@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import Footer from "@/components/layout/Footer";
-import SEO from "@/components/SEO";
 import { QRCodeSVG } from "qrcode.react";
 import html2canvas from "html2canvas";
 import { useQuery } from "@tanstack/react-query";
@@ -185,12 +184,6 @@ function ReferralContent() {
 
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-foreground">
-      <SEO 
-        title="Referral Program - Invite Friends & Earn Rewards" 
-        description="Invite your friends to join our social media platform and earn rewards. Get bonus points for each friend who joins using your referral link."
-        keywords="referral program, invite friends, earn rewards, referral bonus, referral link"
-        url="/referral"
-      />
       <Sidebar />
 
       <div className="flex-1 overflow-y-auto pb-20 md:pb-0">

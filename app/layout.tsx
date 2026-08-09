@@ -1,11 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
+import { siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
+  // Makes every relative URL in child metadata (canonical, OG images) resolve
+  // against the real origin. Without it Next emits relative OG URLs, which
+  // most scrapers ignore.
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "4lo4lo – Earn Rewards by Growing Your Social Presence",
     template: "%s | 4lo4lo",

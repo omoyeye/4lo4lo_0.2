@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import SEO from "@/components/SEO";
 import {
   QrCode,
   Link2,
@@ -24,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { ToolsGrid } from "@/components/tools/ToolsGrid";
 import type { AdPlacement } from "@shared/schema.mysql";
 
 function AdSlot({ position }: { position: string }) {
@@ -154,12 +154,6 @@ function FreeToolsContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-      <SEO
-        title="Free Tools: QR Code Generator & URL Shortener | 4LO4LO"
-        description="Free creator tools from 4LO4LO: generate QR codes for any URL and shorten long links instantly. No login required. Join to earn points."
-        keywords="qr code generator, url shortener, free qr code, free link shortener, 4lo4lo tools"
-        url="/free-tools"
-      />
 
       {/* Standalone Nav */}
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
@@ -447,6 +441,8 @@ function FreeToolsContent() {
         <div className="mt-8">
           <AdSlot position="bottom" />
         </div>
+
+        <ToolsGrid />
 
         {/* Bio Link / Linktree Section */}
         <div className="mt-12 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 rounded-2xl p-8">

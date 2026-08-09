@@ -14,7 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useTaskNotifications } from "@/hooks/use-task-notifications";
-import SEO from "@/components/SEO";
 import { motion, AnimatePresence } from "framer-motion";
 import { TaskCardSkeleton } from "@/components/ui/loading-states";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -139,12 +138,6 @@ function TasksContent() {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <SEO 
-        title="Social Media Tasks - Complete Tasks and Earn Rewards" 
-        description="Browse and complete social media tasks across YouTube, TikTok, Facebook, Instagram, and Twitter. Each completed task earns you points."
-        keywords="social media tasks, earn points, YouTube tasks, TikTok tasks, Facebook tasks, Instagram tasks, Twitter tasks"
-        url="/tasks"
-      />
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0">

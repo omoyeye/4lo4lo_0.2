@@ -17,8 +17,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useToast } from "@/hooks/use-toast";
-import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { Separator } from "@/components/ui/separator";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -282,18 +280,7 @@ function LoginForm() {
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? "Logging in..." : "Login"}
-            </Button>
-            
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            
-            <GoogleSignInButton />
+            </Button>
           </form>
         </Form>
       </CardContent>
@@ -499,18 +486,7 @@ function RegisterForm() {
               disabled={registerMutation.isPending}
             >
               {registerMutation.isPending ? "Creating account..." : "Register"}
-            </Button>
-            
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            
-            <GoogleSignInButton />
+            </Button>
           </form>
         </Form>
       </CardContent>

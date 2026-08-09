@@ -1,9 +1,7 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
 import { scrypt, timingSafeEqual, randomBytes } from "crypto";
 import { promisify } from "util";
-import { nanoid } from "nanoid";
 import { storage } from "@/lib/core/storage";
 
 const scryptAsync = promisify(scrypt);
@@ -94,50 +92,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
 
-    // Google OAuth — only activated when env vars are set
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? [
-          Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          }),
-        ]
-      : []),
+    /*
+     * Google OAuth is disabled.
+     *
+     * The provider and its signIn branch (which created a user row on first
+     * Google login) were removed here. Nothing else was touched: the
+     * `users.google_id` column, `storage.getUserByGoogleId()` and existing
+     * Google-created rows are all intact, so re-enabling is a revert of this
+     * commit plus setting GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET.
+     *
+     * NOTE: accounts created through Google hold a random password generated
+     * at signup, which their owner has never seen. While this is disabled they
+     * can only get in via the forgot-password flow, and only if their stored
+     * email is real — signups where Google returned no email were given a
+     * synthetic `<googleId>@google.user` address and have no recovery path.
+     * See scripts/sql/004-google-account-audit.sql.
+     */
   ],
 
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // Handle Google OAuth user creation / lookup
-      if (account?.provider === "google" && profile) {
-        try {
-          const googleId = profile.sub as string;
-          let dbUser = await storage.getUserByGoogleId(googleId);
-          if (!dbUser) {
-            const username = `google_${googleId}`;
-            const email =
-              (profile.email as string) ?? `${googleId}@google.user`;
-            const displayName = (profile.name as string) ?? username;
-            const password = randomBytes(32).toString("hex");
-            const hashedPassword = await hashPassword(password);
-            dbUser = await storage.createUser({
-              username,
-              password: hashedPassword,
-              email,
-              displayName,
-              googleId,
-              referralCode: nanoid(8),
-              role: "user",
-              avatar: (profile.picture as string) ?? null,
-              platform: "google",
-            });
-          }
-          // Inject db user id so jwt callback can pick it up
-          user.id = String(dbUser.id);
-          user.role = dbUser.role ?? "user";
-        } catch {
-          return false;
-        }
-      }
+    async signIn() {
       return true;
     },
 

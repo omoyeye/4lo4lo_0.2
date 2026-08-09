@@ -512,6 +512,32 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(userTasks);
   }
 
+  /**
+   * Total number of task completions.
+   *
+   * Prefer this over `(await getAllUserTasks()).length`, which pulls every row
+   * of user_tasks into the process just to read `.length` — on a serverless
+   * host that is a full table transfer per invocation.
+   */
+  async getUserTasksCount(): Promise<number> {
+    const [row] = await db.select({ value: count() }).from(userTasks);
+    return row?.value ?? 0;
+  }
+
+  /**
+   * Completion count per task, as a single GROUP BY.
+   *
+   * Replaces N full-table loads (one per active task) in the allocator.
+   */
+  async getTaskCompletionCounts(): Promise<Map<number, number>> {
+    const rows = await db
+      .select({ taskId: userTasks.taskId, value: count() })
+      .from(userTasks)
+      .groupBy(userTasks.taskId);
+
+    return new Map(rows.map((r) => [r.taskId, Number(r.value)]));
+  }
+
   // Milestone operations
   async getMilestones(): Promise<Milestone[]> {
     return db.select().from(milestones);

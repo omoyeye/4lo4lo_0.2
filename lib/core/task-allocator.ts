@@ -78,35 +78,48 @@ export class TaskAllocator {
     return await storage.getUserDailyTaskCount(userId);
   }
 
+  /**
+   * Completion counts for every active task.
+   *
+   * This used to loop over active tasks calling getTaskCompletionCount(), and
+   * that method loaded the ENTIRE user_tasks table with getAllUserTasks() and
+   * filtered it in JavaScript — so allocating tasks performed one full table
+   * transfer per active task, on every allocation. It is now a single GROUP BY.
+   */
   private async getTaskDistribution(): Promise<Map<number, number>> {
     const distribution = new Map<number, number>();
 
-    // Get all tasks and their completion counts
-    const tasks = await storage.getTasks();
+    const [tasks, counts] = await Promise.all([
+      storage.getTasks(),
+      storage.getTaskCompletionCounts(),
+    ]);
 
     for (const task of tasks) {
       if (task.isActive) {
-        const completionCount = await this.getTaskCompletionCount(task.id);
-        distribution.set(task.id, completionCount);
+        distribution.set(task.id, counts.get(task.id) ?? 0);
       }
     }
 
     return distribution;
   }
 
+  /**
+   * Completion count for a single task.
+   *
+   * The 5-minute cache that used to sit here was removed. It was keyed in a
+   * per-process NodeCache, and this app runs on Vercel serverless where each
+   * concurrent instance holds its own copy — so a task's count could be stale
+   * by up to five minutes on every instance independently, and the
+   * maxCompletions ceiling was enforced against stale numbers. A task could be
+   * allocated well past its cap.
+   *
+   * A COUNT with a WHERE is cheap; correctness here is worth more than the
+   * saved query. If this ever shows up in profiling, add an index on
+   * user_tasks(task_id) rather than reinstating a per-instance cache.
+   */
   private async getTaskCompletionCount(taskId: number): Promise<number> {
-    // Check cache first
-    const cached = taskCache.get(`task_completion_count_${taskId}`) as number | undefined;
-    if (cached !== undefined) return cached;
-
-    // Get from database
-    const allUserTasks = await storage.getAllUserTasks();
-    const count = allUserTasks.filter(ut => ut.taskId === taskId).length;
-
-    // Cache for 5 minutes
-    taskCache.set(`task_completion_count_${taskId}`, count, 300);
-
-    return count;
+    const counts = await storage.getTaskCompletionCounts();
+    return counts.get(taskId) ?? 0;
   }
 
   public async allocateTasksToUser(userId: number): Promise<Task[]> {

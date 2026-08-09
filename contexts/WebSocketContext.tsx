@@ -43,6 +43,8 @@ export function WebSocketProvider({
   const reconnectAttemptsRef = useRef(0);
   const subscribersRef = useRef<Set<MessageHandler>>(new Set());
   const isConnectingRef = useRef(false);
+  /** Set when the server signalled a planned stream cycle rather than a fault. */
+  const plannedCycleRef = useRef(false);
 
   const maxReconnectAttempts = 5;
 
@@ -145,6 +147,20 @@ export function WebSocketProvider({
         }
       };
 
+      /*
+       * The server closes the stream roughly every 45 seconds and sends a
+       * `reconnect` event first — on Vercel an open SSE stream holds a
+       * serverless invocation, so it is cycled deliberately rather than left
+       * to hit the 300-second platform timeout.
+       *
+       * A planned cycle must not consume the error budget: without this the
+       * five reconnect attempts were exhausted in under four minutes and
+       * realtime silently stopped for the rest of the session.
+       */
+      es.addEventListener('reconnect', () => {
+        plannedCycleRef.current = true;
+      });
+
       es.onerror = () => {
         // onerror fires on any connection loss — EventSource auto-retries internally,
         // but we manage our own reconnect logic for backoff control.
@@ -159,21 +175,36 @@ export function WebSocketProvider({
             reconnectTimeoutRef.current = null;
           }
 
+          const wasPlanned = plannedCycleRef.current;
+          plannedCycleRef.current = false;
+
+          // A planned cycle reconnects immediately and does not count as a failure.
+          if (wasPlanned) {
+            reconnectAttemptsRef.current = 0;
+          }
+
           if (
             autoReconnect &&
-            reconnectAttemptsRef.current < maxReconnectAttempts &&
+            (wasPlanned || reconnectAttemptsRef.current < maxReconnectAttempts) &&
             user &&
             subscribersRef.current.size > 0
           ) {
-            reconnectAttemptsRef.current++;
-            const backoffDelay = reconnectInterval * Math.pow(2, reconnectAttemptsRef.current - 1);
-            console.log(`SSE reconnecting in ${backoffDelay}ms... (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`);
+            let delay: number;
+            if (wasPlanned) {
+              delay = 250;
+            } else {
+              reconnectAttemptsRef.current++;
+              delay = reconnectInterval * Math.pow(2, reconnectAttemptsRef.current - 1);
+              console.warn(
+                `SSE reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
+              );
+            }
 
             reconnectTimeoutRef.current = setTimeout(() => {
               if (user && subscribersRef.current.size > 0) {
                 connect();
               }
-            }, backoffDelay);
+            }, delay);
           }
         }
       };

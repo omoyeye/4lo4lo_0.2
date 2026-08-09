@@ -100,17 +100,47 @@ API routes protect themselves independently via `lib/auth-helpers.ts`.
 session**, never from a query parameter. `contexts/WebSocketContext.tsx` is the
 client (the name is historical — the transport is SSE).
 
-### Rate limiting
+---
 
-`lib/rate-limit.ts` is an in-process fixed-window limiter. It protects a single
-Node process. **If you scale to more than one instance, replace the `Map` with
-Redis** — the `rateLimit()` signature is designed so only that file changes.
+## Deployment: Vercel
 
-### File uploads
+This deploys to Vercel serverless (project `4lo4lo-0-2`, team `surpluslink`).
+Several things behave differently there than on a persistent host, and the
+code accounts for them:
 
-`/api/admin/upload` writes to `public/uploads` on local disk. That works under
-`next start` on a persistent host. **On a serverless platform the filesystem is
-ephemeral and uploads will disappear** — move to S3/R2/Cloudinary first.
+**Database connections.** Each concurrent lambda instance keeps its own pool.
+`lib/db.ts` therefore caps at **2 connections per instance** on serverless
+(10 elsewhere), because the old limit of 10 meant ~20 concurrent instances
+could exhaust a typical MySQL `max_connections` of 100–151. Override with
+`DB_CONNECTION_LIMIT` if you know your numbers. TCP keepalive is disabled on
+serverless — a frozen instance cannot send probes, so MySQL closes the socket
+and the pool hands out a dead connection. If you outgrow this, use a
+connection proxy (PlanetScale, ProxySQL) rather than a bigger pool.
+
+**Never cache per-instance state that affects correctness.** Each instance has
+its own memory, so a `NodeCache` entry is stale independently on every one of
+them. A cache on task completion counts previously let `maxCompletions` be
+enforced against five-minute-old numbers; it was removed.
+
+**Realtime is cycled, not persistent.** An open SSE stream pins an invocation,
+so `/api/sse` closes itself after 45s and signals the client to reconnect.
+Left unbounded it hit the 300-second platform timeout — the most frequent
+runtime error on the project. Note also that `lib/sse.ts` keeps its client
+set **in instance memory**, so a broadcast only reaches clients connected to
+that same instance. Realtime is therefore best-effort today; a hosted pub/sub
+service (Ably, Pusher, Supabase Realtime) is the real fix.
+
+**File uploads** go to Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set
+(Storage → Blob in the dashboard connects it automatically). The filesystem is
+read-only apart from `/tmp`, so the old `public/uploads` write failed with
+`EROFS`. Without a blob store the route returns a clear 501 rather than a
+stack trace. Locally it still writes to `public/uploads`.
+
+**Rate limiting is per-instance and therefore approximate.** `lib/rate-limit.ts`
+holds counters in instance memory, so the effective limit is roughly
+`limit × instances`. It stops the simple scripted loop but is not a hard
+guarantee. Provision Upstash Redis and swap the `Map` inside `check()` — it is
+the only function that touches the store.
 
 ---
 
@@ -126,3 +156,6 @@ ephemeral and uploads will disappear** — move to S3/R2/Cloudinary first.
   404ing in production with nothing reporting it.
 - `scripts/sql/001-user-tasks-unique.sql` has not been applied. Until it is,
   duplicate task completions remain possible under concurrency.
+- `scripts/sql/003-indexes.sql` has not been applied. The aggregate queries
+  that replaced the full-table loads want an index on `user_tasks(task_id)`.
+- Run `npm run db:check` first — it reports what 001 and 002 still need.

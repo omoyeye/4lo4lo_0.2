@@ -10,9 +10,13 @@ export async function GET(_req: NextRequest) {
 
     const memoryUsage = process.memoryUsage();
 
-    const userCount = (await storage.getAllUsers()).length;
-    const taskCount = (await storage.getTasks()).length;
-    const completedTaskCount = (await storage.getAllUserTasks()).length;
+    // Counted in SQL. Reading `.length` off getAllUserTasks() transferred the
+    // whole user_tasks table into the function just to size it.
+    const [userCount, taskCount, completedTaskCount] = await Promise.all([
+      storage.getAllUsers().then((u) => u.length),
+      storage.getTasks().then((t) => t.length),
+      storage.getUserTasksCount(),
+    ]);
 
     return NextResponse.json(
       {

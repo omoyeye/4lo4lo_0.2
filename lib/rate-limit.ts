@@ -3,10 +3,24 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * In-process fixed-window rate limiter.
  *
- * Deliberately dependency-free and memory-only: it protects a single Node
- * process, which is what this app runs today. If you scale to more than one
- * instance, swap the `hits` Map for Redis/Upstash — the `rateLimit()` signature
- * is designed so only this file changes.
+ * ── KNOWN LIMITATION ON VERCEL ──────────────────────────────────────────────
+ *
+ * This project deploys to Vercel serverless functions, so this Map lives in a
+ * single lambda instance and each concurrent instance keeps its own counters.
+ * The effective limit is therefore roughly `limit × instances`, and an attacker
+ * generating enough concurrency to be spread across instances gets a
+ * proportionally larger budget.
+ *
+ * It is still worth having — it stops the trivial single-connection loop, which
+ * is the common case for credential stuffing and scripted abuse — but do not
+ * treat these numbers as hard guarantees.
+ *
+ * The real fix is a shared store. Provision Upstash Redis (Vercel dashboard →
+ * Storage → Upstash) and replace the `hits` Map with it; `check()` is the only
+ * function that touches the store, so nothing else in the codebase changes.
+ * Everything below is deliberately synchronous to keep that swap small — if you
+ * move to Redis, `check()` and `rateLimit()` become async and the ~8 call sites
+ * need an `await`.
  */
 
 type Bucket = { count: number; resetAt: number };

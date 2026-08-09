@@ -84,6 +84,10 @@ export interface IStorage {
   completeTask(userId: number, taskId: number): Promise<UserTask>;
   getRecentTasks(userId: number, limit: number): Promise<(UserTask & { task: Task })[]>;
   getAllUserTasks(): Promise<UserTask[]>;
+  /** Total completions, counted in SQL rather than by loading every row. */
+  getUserTasksCount(): Promise<number>;
+  /** Completion count per task id, as a single GROUP BY. */
+  getTaskCompletionCounts(): Promise<Map<number, number>>;
 
   // Milestone operations
   getMilestones(): Promise<Milestone[]>;
@@ -980,6 +984,18 @@ export class MemStorage implements IStorage {
 
   async getAllUserTasks(): Promise<UserTask[]> {
     return Array.from(this.userTasks.values());
+  }
+
+  async getUserTasksCount(): Promise<number> {
+    return this.userTasks.size;
+  }
+
+  async getTaskCompletionCounts(): Promise<Map<number, number>> {
+    const counts = new Map<number, number>();
+    for (const userTask of this.userTasks.values()) {
+      counts.set(userTask.taskId, (counts.get(userTask.taskId) ?? 0) + 1);
+    }
+    return counts;
   }
 
   async getTaskCompletionAnalytics(): Promise<any> {

@@ -9,24 +9,36 @@ export const runtime = "nodejs";
 /**
  * POST /api/admin/upload — image upload for the Email Center composer.
  *
- * DEPLOYMENT NOTE: writes to public/uploads on the server's local disk. That
- * works under `next start` on a persistent host (VPS, container with a volume),
- * which is what this app's pooled MySQL connection implies. On a serverless
- * platform the filesystem is ephemeral and uploads will vanish between
- * invocations — move to S3/R2/Cloudinary before deploying there. See README.
+ * ── Storage backend ─────────────────────────────────────────────────────────
+ *
+ * This project deploys to Vercel, where the filesystem is read-only apart from
+ * /tmp, and /tmp does not survive between invocations and is not web-served.
+ * Writing to public/uploads (what this route did before) fails outright with
+ * EROFS in production, so admin image upload has never worked there.
+ *
+ * So: Vercel Blob when a token is present, local disk otherwise for local dev.
+ * The @vercel/blob import is dynamic so the package is only loaded on the path
+ * that actually uses it.
+ *
+ * To enable in production:
+ *   1. Vercel dashboard → Storage → create a Blob store, connect this project.
+ *   2. That sets BLOB_READ_WRITE_TOKEN automatically. Redeploy.
  */
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
 // Allow-list by MIME *and* extension — an admin session should not be able to
-// drop an executable or an .html file into a publicly served directory.
+// drop an executable or an .html file into a publicly served location.
 const ALLOWED: Record<string, string> = {
   "image/png": ".png",
   "image/jpeg": ".jpg",
   "image/gif": ".gif",
   "image/webp": ".webp",
-  "image/svg+xml": ".svg",
 };
+
+const isServerless = Boolean(
+  process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,7 +54,9 @@ export async function POST(req: NextRequest) {
 
     if (file.size > MAX_BYTES) {
       return NextResponse.json(
-        { message: `File too large. Maximum size is ${MAX_BYTES / 1024 / 1024}MB.` },
+        {
+          message: `File too large. Maximum size is ${MAX_BYTES / 1024 / 1024}MB.`,
+        },
         { status: 413 }
       );
     }
@@ -61,10 +75,44 @@ export async function POST(req: NextRequest) {
 
     // Never derive the stored name from user input — no traversal, no collisions.
     const safeName = `${Date.now()}-${randomBytes(8).toString("hex")}${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-
-    await mkdir(uploadDir, { recursive: true });
     const bytes = Buffer.from(await file.arrayBuffer());
+
+    // ── Vercel Blob ─────────────────────────────────────────────────────────
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const { put } = await import("@vercel/blob");
+      const blob = await put(`email-assets/${safeName}`, bytes, {
+        access: "public",
+        contentType: file.type,
+        addRandomSuffix: false,
+      });
+
+      return NextResponse.json(
+        {
+          url: blob.url,
+          filename: file.name,
+          size: file.size,
+          type: file.type,
+        },
+        { status: 201 }
+      );
+    }
+
+    // ── No blob store configured ────────────────────────────────────────────
+    if (isServerless) {
+      // Fail with an actionable message rather than an EROFS stack trace.
+      return NextResponse.json(
+        {
+          message:
+            "File storage is not configured. In the Vercel dashboard open Storage, create a Blob store and connect it to this project, then redeploy.",
+          code: "BLOB_NOT_CONFIGURED",
+        },
+        { status: 501 }
+      );
+    }
+
+    // ── Local development ───────────────────────────────────────────────────
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
     await writeFile(path.join(uploadDir, safeName), bytes);
 
     return NextResponse.json(

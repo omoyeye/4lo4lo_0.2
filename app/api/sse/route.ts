@@ -5,6 +5,29 @@ import { auth } from "@/auth";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+/*
+ * Deployment reality: this app runs on Vercel serverless functions, where an
+ * open SSE stream pins a function invocation for its entire lifetime. Left
+ * unbounded, each connection ran until the platform killed it —
+ * "Vercel Runtime Timeout Error: Task timed out after 300 seconds" is the most
+ * frequent runtime error on this project.
+ *
+ * Two costs to that: every connected user burned a 300-second invocation
+ * continuously, and each held-open invocation keeps a serverless instance (and
+ * therefore its MySQL connection pool) alive, multiplying database connections.
+ *
+ * So the stream now closes itself well before the limit and asks the client to
+ * reconnect. A planned 45-second cycle is cheap, predictable, and turns a hard
+ * platform timeout into a normal reconnect.
+ *
+ * If realtime becomes central, move it off serverless functions to a hosted
+ * pub/sub service (Ably, Pusher, Supabase Realtime) rather than raising this.
+ */
+export const maxDuration = 60;
+
+/** How long a single stream lives before asking the client to reconnect. */
+const STREAM_LIFETIME_MS = 45_000;
+
 /**
  * GET /api/sse — per-user realtime notification stream.
  *
@@ -27,25 +50,55 @@ export async function GET(_request: NextRequest) {
 
   let cleanup: (() => void) | undefined;
   let heartbeat: ReturnType<typeof setInterval> | undefined;
+  let lifetime: ReturnType<typeof setTimeout> | undefined;
+
+  const release = () => {
+    if (heartbeat) clearInterval(heartbeat);
+    if (lifetime) clearTimeout(lifetime);
+    if (cleanup) cleanup();
+    heartbeat = undefined;
+    lifetime = undefined;
+    cleanup = undefined;
+  };
 
   const stream = new ReadableStream({
     start(controller) {
+      const encoder = new TextEncoder();
       const realTimeService = getRealTimeService();
       cleanup = realTimeService.addClient(controller, userId);
 
-      // Proxies drop idle connections; a comment frame every 25s keeps the
-      // stream alive without the client having to reconnect in a loop.
+      // Proxies drop idle connections; a comment frame keeps the stream alive
+      // for the short time it is open.
       heartbeat = setInterval(() => {
         try {
-          controller.enqueue(new TextEncoder().encode(": keepalive\n\n"));
+          controller.enqueue(encoder.encode(": keepalive\n\n"));
         } catch {
           // Controller already closed — cancel() will clean up.
         }
-      }, 25_000);
+      }, 15_000);
+
+      // Close on our own terms, before the platform does it for us.
+      lifetime = setTimeout(() => {
+        try {
+          // Tell the client this is a planned cycle, not a failure, so it can
+          // reconnect immediately instead of backing off as if it were an error.
+          controller.enqueue(
+            encoder.encode(
+              `event: reconnect\ndata: ${JSON.stringify({
+                reason: "stream-lifetime",
+              })}\n\n`
+            )
+          );
+          controller.close();
+        } catch {
+          // Already closed.
+        } finally {
+          release();
+        }
+      }, STREAM_LIFETIME_MS);
     },
     cancel() {
-      if (heartbeat) clearInterval(heartbeat);
-      if (cleanup) cleanup();
+      release();
     },
   });
 

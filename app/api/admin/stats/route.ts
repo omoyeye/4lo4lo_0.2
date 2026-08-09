@@ -10,16 +10,20 @@ export async function GET(_req: NextRequest) {
     const adminAuth = await requireAdmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
-    const [allUsers, allTasks, userTasks, allPromotionRequests] =
+    // Aggregate in SQL rather than loading every user_tasks row to count it.
+    const [allUsers, allTasks, completionCounts, allPromotionRequests] =
       await Promise.all([
         storage.getAllUsers(),
         storage.getTasks(),
-        storage.getAllUserTasks(),
+        storage.getTaskCompletionCounts(),
         db.select().from(promotionRequests),
       ]);
 
     const activeTasks = allTasks.filter((task) => task.isActive).length;
-    const totalCompletions = Array.from(userTasks).length;
+    const totalCompletions = Array.from(completionCounts.values()).reduce(
+      (sum, n) => sum + n,
+      0
+    );
     const userGrowth = allUsers.reduce(
       (acc, user) => {
         const date = new Date(user.createdAt!).toISOString().split("T")[0];
@@ -32,8 +36,7 @@ export async function GET(_req: NextRequest) {
     const taskCompletionRate = allTasks.map((task) => ({
       taskId: task.id,
       title: task.title,
-      completions: Array.from(userTasks).filter((ut) => ut.taskId === task.id)
-        .length,
+      completions: completionCounts.get(task.id) ?? 0,
     }));
 
     const regionalDistribution = allUsers.reduce(

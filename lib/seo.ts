@@ -17,20 +17,53 @@ export const SITE_DESCRIPTION =
 /**
  * Canonical origin, no trailing slash.
  *
- * Set NEXT_PUBLIC_SITE_URL to your real domain in production, canonical URLs
- * and OG tags pointing at a *.vercel.app preview will split your ranking
- * signals across hostnames.
+ * ORDER MATTERS, AND IT BIT US ONCE ALREADY.
+ *
+ * NEXTAUTH_URL used to sit above the Vercel-provided production URL. That
+ * variable is set to http://localhost:3000 in this project's Vercel
+ * environment, so a production build baked `<link rel="canonical"
+ * href="http://localhost:3000/...">` into every statically generated page.
+ * A canonical pointing at localhost is worse than none at all: it tells search
+ * engines the authoritative copy of the page lives somewhere they cannot
+ * reach, and it breaks every link preview.
+ *
+ * So the resolution order is now:
+ *   1. NEXT_PUBLIC_SITE_URL, an explicit deliberate override
+ *   2. VERCEL_PROJECT_PRODUCTION_URL, which Vercel sets correctly on its own
+ *   3. NEXTAUTH_URL, which is only trustworthy in local development
+ *   4. localhost, for local development
+ *
+ * Set NEXT_PUBLIC_SITE_URL to your apex domain anyway. Without it a build
+ * resolves to the *.vercel.app hostname, which splits ranking signals across
+ * two hostnames even though both are reachable.
  */
 export function siteUrl(): string {
+  const fromVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : undefined;
+
   const raw =
     process.env.NEXT_PUBLIC_SITE_URL ||
+    fromVercel ||
     process.env.NEXTAUTH_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : undefined) ||
     "http://localhost:3000";
 
-  return raw.replace(/\/+$/, "");
+  const normalised = raw.replace(/\/+$/, "");
+
+  // Fail loudly in the build log rather than shipping localhost canonicals.
+  if (
+    process.env.NODE_ENV === "production" &&
+    /^https?:\/\/(localhost|127\.0\.0\.1)/.test(normalised)
+  ) {
+    console.error(
+      "[seo] Canonical origin resolved to " +
+        normalised +
+        " in a production build. Set NEXT_PUBLIC_SITE_URL to the public domain, " +
+        "or canonical tags and Open Graph URLs will point at localhost."
+    );
+  }
+
+  return normalised;
 }
 
 /** Absolute URL for a site-relative path. */

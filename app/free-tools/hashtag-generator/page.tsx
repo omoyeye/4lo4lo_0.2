@@ -18,12 +18,12 @@ const faq: FaqItem[] = [
   {
     question: "How many hashtags should I use on Instagram?",
     answer:
-      "Instagram permits 30, but most accounts do better with 8–15 tightly relevant ones. Thirty loose tags attracts bots and tells the algorithm very little about who should see your post.",
+      "Instagram permits 30, but most accounts do better with 8-15 tightly relevant ones. Thirty loose tags attracts bots and tells the algorithm very little about who should see your post.",
   },
   {
     question: "Do hashtags still work?",
     answer:
-      "Less than they did, and less than captions and on-screen text, which platforms now read directly for topic classification. They still help categorise a post and they still surface content in tag feeds and search — just treat them as one signal rather than a growth strategy.",
+      "Less than they did, and less than captions and on-screen text, which platforms now read directly for topic classification. They still help categorise a post and they still surface content in tag feeds and search, just treat them as one signal rather than a growth strategy.",
   },
   {
     question: "Should I use popular or niche hashtags?",
@@ -31,7 +31,7 @@ const faq: FaqItem[] = [
       "Both, in a mix. Very popular tags bury you within seconds. Niche tags have less traffic but you can realistically stay near the top of them, which is where the views come from. A balanced set gives you a chance in both.",
   },
   {
-    question: "Where should hashtags go — caption or first comment?",
+    question: "Where should hashtags go, caption or first comment?",
     answer:
       "It makes no measurable difference to reach on Instagram. Putting them in the first comment keeps the caption clean, which is the only real argument either way.",
   },
@@ -46,7 +46,7 @@ export default function Page() {
       />
       <ToolPageShell
         tool={tool}
-        intro="Enter a topic and get a structured hashtag set — broad, niche and long-tail — sized to the platform you are posting on."
+        intro="Enter a topic and get a structured hashtag set, broad, niche and long-tail, sized to the platform you are posting on."
         faq={faq}
         explainer={
           <>
@@ -60,16 +60,16 @@ export default function Page() {
             <p>A set that works usually contains three layers:</p>
             <ul>
               <li>
-                <strong>Broad</strong> — large, competitive tags. Low odds, but
+                <strong>Broad</strong>, large, competitive tags. Low odds, but
                 enormous upside if a post takes off.
               </li>
               <li>
-                <strong>Niche</strong> — specific to your subject. This is where
+                <strong>Niche</strong>, specific to your subject. This is where
                 you can realistically rank and stay ranked, and where most of
                 your actual reach will come from.
               </li>
               <li>
-                <strong>Long-tail</strong> — highly specific phrases. Very
+                <strong>Long-tail</strong>, highly specific phrases. Very
                 little traffic, but the people searching them are exactly your
                 audience and they convert far better.
               </li>
@@ -80,7 +80,7 @@ export default function Page() {
               Plenty of hashtag tools display a confident-looking post count or
               &ldquo;popularity score&rdquo; next to every tag. Unless the tool
               is paying for live platform data, those numbers are estimates at
-              best and invented at worst — and creators make real posting
+              best and invented at worst, and creators make real posting
               decisions on them.
             </p>
             <p>
@@ -95,7 +95,7 @@ export default function Page() {
               A small number of hashtags are restricted, and others have been
               overrun by content unrelated to their original meaning. Using one
               can suppress a post&apos;s reach entirely. No offline generator can
-              detect this — search the tag in the app first, and if the results
+              detect this, search the tag in the app first, and if the results
               look nothing like your topic, drop it.
             </p>
 

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * Consumed by <AdminProtectedRoute> and by middleware-adjacent client checks.
  *
  * Always returns 200 so the client can branch on the payload instead of
- * having to distinguish "not an admin" from "endpoint is broken" — the
+ * having to distinguish "not an admin" from "endpoint is broken", the
  * previous behaviour (this route not existing) made every admin page
  * redirect to /admin/login forever.
  */

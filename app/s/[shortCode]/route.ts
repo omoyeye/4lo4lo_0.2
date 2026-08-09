@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
 
-// GET /s/:shortCode — short-link redirect
+// GET /s/:shortCode, short-link redirect
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ shortCode: string }> }

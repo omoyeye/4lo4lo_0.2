@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/admin/promotion-request/:id
  *
- * Single promotion request with the requesting user attached — powers the
+ * Single promotion request with the requesting user attached, powers the
  * "View details" dialog in the admin panel.
  */
 export async function GET(

@@ -18,7 +18,7 @@ const faq: FaqItem[] = [
   {
     question: "What is the best time to post on Instagram?",
     answer:
-      "Broadly, weekday late mornings (11am–1pm) and evenings (7–9pm) local to your audience, with Tuesday to Thursday the strongest days. Treat that as a starting point — your own analytics will beat any published average within two weeks of testing.",
+      "Broadly, weekday late mornings (11am-1pm) and evenings (7-9pm) local to your audience, with Tuesday to Thursday the strongest days. Treat that as a starting point, your own analytics will beat any published average within two weeks of testing.",
   },
   {
     question: "Does posting time actually matter?",
@@ -56,7 +56,7 @@ export default function Page() {
               to a small slice of your audience, and how that slice responds
               decides whether it gets shown to more people. Posting when your
               audience is awake and scrolling gives that first test the best
-              chance of passing. That is the entire mechanism — there is nothing
+              chance of passing. That is the entire mechanism, there is nothing
               magical about a specific clock time.
             </p>
 
@@ -86,7 +86,7 @@ export default function Page() {
             <h2>Platform differences worth knowing</h2>
             <ul>
               <li>
-                <strong>TikTok</strong> has the widest useful window — late
+                <strong>TikTok</strong> has the widest useful window, late
                 evening performs unusually well, and content can surface days
                 after posting, so timing matters less than elsewhere.
               </li>

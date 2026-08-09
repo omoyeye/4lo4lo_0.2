@@ -13,7 +13,7 @@ import mysql from "mysql2/promise";
  * 20 concurrent instances could open up to 200 MySQL connections. Shared MySQL
  * hosts typically cap max_connections between 100 and 151, so a modest traffic
  * spike would exhaust the server and every request would start failing with
- * ER_CON_COUNT_ERROR — including requests from instances that were previously
+ * ER_CON_COUNT_ERROR, including requests from instances that were previously
  * healthy.
  *
  * The fix is to keep each instance's footprint small and let horizontal
@@ -22,7 +22,7 @@ import mysql from "mysql2/promise";
  * enableKeepAlive was also actively harmful here: Vercel freezes an instance
  * between invocations, so keepalive probes never fire, MySQL closes the socket
  * server-side after wait_timeout, and the pool hands out a dead connection on
- * the next request — surfacing as intermittent PROTOCOL_CONNECTION_LOST or
+ * the next request, surfacing as intermittent PROTOCOL_CONNECTION_LOST or
  * ECONNRESET. Short idle timeouts mean connections are dropped before the
  * server kills them.
  *
@@ -66,7 +66,7 @@ function createPool(): mysql.Pool {
     // holding sockets it cannot use.
     idleTimeout: isServerless ? 10_000 : 60_000,
     maxIdle: isServerless ? 1 : connectionLimit,
-    // Deliberately off on serverless — see the note above.
+    // Deliberately off on serverless, see the note above.
     enableKeepAlive: !isServerless,
     keepAliveInitialDelay: 0,
   });

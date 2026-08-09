@@ -649,7 +649,7 @@ function MarketplaceContent() {
                   onChange={(e) => updateMinPoints(e.target.value)}
                   className="w-24 h-8 text-sm"
                 />
-                <span className="text-xs text-muted-foreground">—</span>
+                <span className="text-xs text-muted-foreground">, </span>
                 <Input
                   type="number"
                   min={0}

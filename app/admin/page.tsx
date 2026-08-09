@@ -780,8 +780,7 @@ function AdminDashboardContent() {
           </div>
 
           {/* Main Content Tabs */}
-          {/* Section content. Navigation lives in components/admin/AdminShell.tsx —
-              the TabsList that used to sit here was the second, competing nav. */}
+          {/* Section content. Navigation lives in components/admin/AdminShell.tsx, the TabsList that used to sit here was the second, competing nav. */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
 
             {/* Sections promoted out of System Settings so they have real nav
@@ -1836,7 +1835,7 @@ function AdminDashboardContent() {
                         <p className="text-sm text-muted-foreground mt-1">
                           Backups are not run from this panel. Use your database
                           provider&apos;s scheduled snapshots, or{" "}
-                          <code className="text-xs">mysqldump</code> — see{" "}
+                          <code className="text-xs">mysqldump</code>, see{" "}
                           <code className="text-xs">docs/OPERATIONS.md</code>.
                         </p>
                       </div>
@@ -1891,8 +1890,7 @@ function AdminDashboardContent() {
                     <RewardsSettingsPanel />
 
                     {/* AdminManagementPanel and ReferralTierManager moved to their
-                        own sections (People > Admins, People > Referral Tiers) —
-                        they were buried at the bottom of System Settings, and
+                        own sections (People > Admins, People > Referral Tiers), they were buried at the bottom of System Settings, and
                         referral tiers had no nav entry at all. */}
 
                     {/* Database Cleanup for Launch Preparation */}

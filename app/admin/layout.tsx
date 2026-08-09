@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 /**
  * Admin chrome wrapper.
  *
- * /admin/login must render bare — it is the page you land on when you are NOT
+ * /admin/login must render bare, it is the page you land on when you are NOT
  * authorized, so wrapping it in the guard would loop, and showing it the admin
  * sidebar would be nonsense.
  */

@@ -4,7 +4,7 @@ import { storage } from "@/lib/core/storage";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/admin/admins — list admin directory entries (never returns hashes)
+// GET /api/admin/admins, list admin directory entries (never returns hashes)
 export async function GET(_req: NextRequest) {
   try {
     const auth = await requireSuperadmin();

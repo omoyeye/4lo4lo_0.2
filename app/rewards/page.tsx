@@ -175,7 +175,7 @@ function RewardsContent() {
             </div>
           </div>
 
-          {/* Classroom Rewards Section — always visible */}
+          {/* Classroom Rewards Section, always visible */}
           <div className="mb-8">
             <div className="flex items-center mb-4">
               <GraduationCap className="w-6 h-6 text-purple-500 mr-2" />

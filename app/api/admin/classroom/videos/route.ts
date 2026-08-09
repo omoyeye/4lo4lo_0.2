@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * GET /api/admin/classroom/videos
  *
  * Unlike the public /api/classroom/videos, this returns unpublished and
- * scheduled lessons too — that is the whole point of the manager view.
+ * scheduled lessons too, that is the whole point of the manager view.
  */
 export async function GET(_req: NextRequest) {
   try {

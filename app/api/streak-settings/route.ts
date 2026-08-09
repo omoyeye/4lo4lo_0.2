@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
 
-// GET /api/streak-settings — public, no auth required
+// GET /api/streak-settings, public, no auth required
 export async function GET(_req: NextRequest) {
   try {
     const settings = await storage.getStreakSettings();

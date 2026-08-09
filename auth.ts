@@ -18,7 +18,7 @@ export async function comparePasswords(supplied: string, stored: string) {
   if (!hashed || !salt) return false;
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  // timingSafeEqual throws on length mismatch — treat that as "no match"
+  // timingSafeEqual throws on length mismatch, so treat that as "no match"
   // rather than a 500, which is what a malformed stored hash would cause.
   if (hashedBuf.length !== suppliedBuf.length) return false;
   return timingSafeEqual(hashedBuf, suppliedBuf);
@@ -104,7 +104,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      * NOTE: accounts created through Google hold a random password generated
      * at signup, which their owner has never seen. While this is disabled they
      * can only get in via the forgot-password flow, and only if their stored
-     * email is real — signups where Google returned no email were given a
+     * email is real. Signups where Google returned no email were given a
      * synthetic `<googleId>@google.user` address and have no recovery path.
      * See scripts/sql/004-google-account-audit.sql.
      */

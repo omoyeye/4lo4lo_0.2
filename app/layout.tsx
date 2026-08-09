@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   // most scrapers ignore.
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "4lo4lo – Earn Rewards by Growing Your Social Presence",
+    default: "4lo4lo: Earn Rewards by Growing Your Social Presence",
     template: "%s | 4lo4lo",
   },
   description:
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   keywords: ["social media", "earn points", "tasks", "rewards", "4lo4lo"],
   authors: [{ name: "4lo4lo" }],
   manifest: "/manifest.json",
-  // These files now exist in public/ — the previous values (/favicon.ico and
+  // These files now exist in public/, the previous values (/favicon.ico and
   // /apple-touch-icon.png) both 404'd, so the site shipped with no icon at all.
   icons: {
     icon: [

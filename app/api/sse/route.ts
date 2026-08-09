@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 /*
  * Deployment reality: this app runs on Vercel serverless functions, where an
  * open SSE stream pins a function invocation for its entire lifetime. Left
- * unbounded, each connection ran until the platform killed it —
+ * unbounded, each connection ran until the platform killed it, and
  * "Vercel Runtime Timeout Error: Task timed out after 300 seconds" is the most
  * frequent runtime error on this project.
  *
@@ -29,7 +29,7 @@ export const maxDuration = 60;
 const STREAM_LIFETIME_MS = 45_000;
 
 /**
- * GET /api/sse — per-user realtime notification stream.
+ * GET /api/sse, per-user realtime notification stream.
  *
  * SECURITY: the subscriber id comes from the session, never from the query
  * string. Previously this route read `?userId=` with no authentication at all,
@@ -73,7 +73,7 @@ export async function GET(_request: NextRequest) {
         try {
           controller.enqueue(encoder.encode(": keepalive\n\n"));
         } catch {
-          // Controller already closed — cancel() will clean up.
+          // Controller already closed, cancel() will clean up.
         }
       }, 15_000);
 

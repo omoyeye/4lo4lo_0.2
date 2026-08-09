@@ -32,7 +32,7 @@ export async function PATCH(
       body.scheduledPublishAt = new Date(body.scheduledPublishAt);
     }
 
-    // The manager clears scheduledPublishAt to mean "publish now" — honour that
+    // The manager clears scheduledPublishAt to mean "publish now", honour that
     // explicitly rather than leaving a scheduled lesson stuck unpublished.
     if (body.scheduledPublishAt === null && body.isPublished === undefined) {
       body.isPublished = true;

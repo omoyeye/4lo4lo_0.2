@@ -129,7 +129,7 @@ export function AdminMarketplacePanel() {
                         {listing.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{listing.buyerUsername ? `@${listing.buyerUsername}` : "—"}</TableCell>
+                    <TableCell>{listing.buyerUsername ? `@${listing.buyerUsername}` : ", "}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">
                       {new Date(listing.createdAt).toLocaleDateString()}
                     </TableCell>

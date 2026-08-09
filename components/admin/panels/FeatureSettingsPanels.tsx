@@ -229,7 +229,7 @@ export function MarketplaceSettingsPanel() {
       <div className="border-t px-4 py-3 bg-muted/30 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">Max open listings per user</p>
-          <p className="text-xs text-muted-foreground">Maximum number of open listings a user can have at once (1–50)</p>
+          <p className="text-xs text-muted-foreground">Maximum number of open listings a user can have at once (1-50)</p>
         </div>
         <div className="flex items-center gap-2">
           {isLoading ? (
@@ -366,7 +366,7 @@ export function LeaderboardSettingsPanel() {
       <div className="border-t px-4 py-3 bg-muted/30 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">Max users shown</p>
-          <p className="text-xs text-muted-foreground">Number of top users displayed (1–500)</p>
+          <p className="text-xs text-muted-foreground">Number of top users displayed (1-500)</p>
         </div>
         <div className="flex items-center gap-2">
           {editingLimit ? (

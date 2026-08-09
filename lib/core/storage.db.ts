@@ -158,8 +158,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserPoints(
     userId: number,
-    points: number,
-  ): Promise<User | undefined> {
+    points: number): Promise<User | undefined> {
     // Make sure userId and points are integers
     const userIdInt = Math.floor(Number(userId));
     const pointsInt = Math.floor(Number(points));
@@ -206,9 +205,7 @@ export class DatabaseStorage implements IStorage {
         .where(
           and(
             eq(userMilestones.userId, userIdInt),
-            eq(userMilestones.milestoneId, pointMilestone.id),
-          ),
-        );
+            eq(userMilestones.milestoneId, pointMilestone.id)));
 
       if (userMilestone) {
         await db
@@ -247,8 +244,7 @@ export class DatabaseStorage implements IStorage {
       await db
         .delete(referrals)
         .where(
-          sql`${referrals.referrerId} = ${userId} OR ${referrals.referredId} = ${userId}`,
-        );
+          sql`${referrals.referrerId} = ${userId} OR ${referrals.referredId} = ${userId}`);
 
       // Delete user's payouts
       await db.delete(payouts).where(eq(payouts.userId, userId));
@@ -265,8 +261,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserRole(
     userId: number,
-    role: string,
-  ): Promise<User | undefined> {
+    role: string): Promise<User | undefined> {
     await db
       .update(users)
       .set({ role, updatedAt: new Date() })
@@ -278,8 +273,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserPassword(
     userId: number,
-    password: string,
-  ): Promise<User | undefined> {
+    password: string): Promise<User | undefined> {
     await db
       .update(users)
       .set({ password, updatedAt: new Date() })
@@ -312,8 +306,7 @@ export class DatabaseStorage implements IStorage {
 
     // Filter out completed tasks
     const availableTasks = allTasks.filter(
-      (task) => !completedSet.has(task.id),
-    );
+      (task) => !completedSet.has(task.id));
 
     return availableTasks;
   }
@@ -347,8 +340,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateTask(
     taskId: number,
-    taskData: Partial<Task>,
-  ): Promise<Task | undefined> {
+    taskData: Partial<Task>): Promise<Task | undefined> {
     await db
       .update(tasks)
       .set(taskData)
@@ -387,15 +379,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(userTasks)
       .where(
-        and(eq(userTasks.userId, userId), gte(userTasks.completedAt, today)),
-      );
+        and(eq(userTasks.userId, userId), gte(userTasks.completedAt, today)));
 
     return completions.length;
   }
 
   async completeTask(userId: number, taskId: number): Promise<UserTask> {
     // Reads that don't need to participate in the write transaction. Doing them
-    // up front keeps the transaction — and therefore the row locks — short.
+    // up front keeps the transaction, and therefore the row locks, short.
     const task = await this.getTaskById(taskId);
     if (!task) throw new Error("Task not found");
 
@@ -406,7 +397,7 @@ export class DatabaseStorage implements IStorage {
      * Every write below runs on `tx`, not `db`.
      *
      * This previously took a `SELECT ... FOR UPDATE` on `tx` and then performed
-     * all of its writes on `db` — a different pooled connection. The lock
+     * all of its writes on `db`, a different pooled connection. The lock
      * therefore serialized nothing, and a rollback left the inserted completion
      * and the awarded points committed. Two concurrent requests could both pass
      * the "already completed" check and both award points.
@@ -440,9 +431,7 @@ export class DatabaseStorage implements IStorage {
             eq(dailyTaskAllocation.userId, userId),
             eq(dailyTaskAllocation.taskId, taskId),
             // Use the safest approach for date comparison that works in all environments
-            sql`DATE(${dailyTaskAllocation.allocatedDate}) = ${formattedToday}`,
-          ),
-        );
+            sql`DATE(${dailyTaskAllocation.allocatedDate}) = ${formattedToday}`));
 
       // Create new user task record
       const now = new Date();
@@ -481,19 +470,17 @@ export class DatabaseStorage implements IStorage {
       return userTask;
     });
 
-    // Milestones are derived state — safe to recompute after the commit, and
+    // Milestones are derived state, safe to recompute after the commit, and
     // a failure here must not roll back a completion the user already earned.
     await this.updateMilestones(userId, task).catch((err) =>
-      console.error("Failed to update milestones after completion:", err),
-    );
+      console.error("Failed to update milestones after completion:", err));
 
     return userTask;
   }
 
   async getRecentTasks(
     userId: number,
-    limit: number,
-  ): Promise<(UserTask & { task: Task })[]> {
+    limit: number): Promise<(UserTask & { task: Task })[]> {
     const recentTasks = await db
       .select({
         userTask: userTasks,
@@ -516,7 +503,7 @@ export class DatabaseStorage implements IStorage {
    * Total number of task completions.
    *
    * Prefer this over `(await getAllUserTasks()).length`, which pulls every row
-   * of user_tasks into the process just to read `.length` — on a serverless
+   * of user_tasks into the process just to read `.length`, on a serverless
    * host that is a full table transfer per invocation.
    */
   async getUserTasksCount(): Promise<number> {
@@ -553,8 +540,7 @@ export class DatabaseStorage implements IStorage {
 
   private async createUserMilestone(
     userId: number,
-    milestoneId: number,
-  ): Promise<UserMilestone> {
+    milestoneId: number): Promise<UserMilestone> {
     const [umInsertResult] = await db
       .insert(userMilestones)
       .values({
@@ -584,8 +570,7 @@ export class DatabaseStorage implements IStorage {
       progress: userMilestone.progress,
       percentComplete: Math.min(
         100,
-        Math.round((userMilestone.progress / milestone.target) * 100),
-      ),
+        Math.round((userMilestone.progress / milestone.target) * 100)),
     }));
   }
 
@@ -686,8 +671,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateMilestone(
     milestoneId: number,
-    milestoneData: Partial<Milestone>,
-  ): Promise<Milestone | undefined> {
+    milestoneData: Partial<Milestone>): Promise<Milestone | undefined> {
     await db
       .update(milestones)
       .set(milestoneData)
@@ -736,9 +720,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(userTasks.userId, userId),
-          gte(userTasks.completedAt, oneDayAgo),
-        ),
-      );
+          gte(userTasks.completedAt, oneDayAgo)));
 
     const dailyPoints = dailyPointsResult[0]?.sum || 0;
 
@@ -795,7 +777,7 @@ export class DatabaseStorage implements IStorage {
           const r = rows[idx];
           userEntry = { ...r, displayName: r.displayName ?? null, avatar: r.avatar ?? null, country: r.country ?? null, streakCount: r.streakCount ?? 0, level: computeLevel(r.points), rank: idx + 1 };
         } else {
-          // User is beyond the fetched window — compute their global rank separately
+          // User is beyond the fetched window, compute their global rank separately
           const [uRow] = await db.select({
             id: users.id, username: users.username, displayName: users.displayName,
             avatar: users.avatar, country: users.country, points: users.points, streakCount: users.streakCount,
@@ -876,7 +858,7 @@ export class DatabaseStorage implements IStorage {
         const pts = Number(r.points);
         userEntry = { id: r.id, username: r.username, displayName: r.displayName ?? null, avatar: r.avatar ?? null, country: r.country ?? null, points: pts, streakCount: r.streakCount ?? 0, level: computeLevel(pts), rank: idx + 1 };
       } else {
-        // User had no activity in this period — look up their base info and give rank = total+1
+        // User had no activity in this period, look up their base info and give rank = total+1
         const [uArr] = await db.execute(sql`
           SELECT
             u.id, u.username, u.display_name AS "displayName", u.avatar, u.country, u.streak_count AS "streakCount",
@@ -954,12 +936,10 @@ export class DatabaseStorage implements IStorage {
 
     return {
       completionsByPlatform: Object.fromEntries(
-        platformCompletions.map((p) => [p.platform, p.count]),
-      ),
+        platformCompletions.map((p) => [p.platform, p.count])),
       completionsByDay,
       completionsByType: Object.fromEntries(
-        typeCompletions.map((t) => [t.type, t.count]),
-      ),
+        typeCompletions.map((t) => [t.type, t.count])),
       totalCompletions: dailyCompletions.reduce((sum, d) => sum + d.count, 0),
     };
   }
@@ -1007,8 +987,7 @@ export class DatabaseStorage implements IStorage {
           username: user?.username || "Unknown",
           completions: entry.completions,
         };
-      }),
-    );
+      }));
 
     return {
       totalUsers: allUsers.length,
@@ -1020,8 +999,7 @@ export class DatabaseStorage implements IStorage {
 
   // Referral operations
   async getReferralStats(
-    userId: number,
-  ): Promise<{ totalReferrals: number; totalPoints: number }> {
+    userId: number): Promise<{ totalReferrals: number; totalPoints: number }> {
     const referrals = await db
       .select()
       .from(users)
@@ -1140,14 +1118,12 @@ export class DatabaseStorage implements IStorage {
 
     const totalClaimedReferrals = claims.reduce(
       (sum, claim) => sum + claim.referralCount,
-      0,
-    );
+      0);
 
     // Calculate claimable referrals and amount using dynamic settings + tier multiplier
     const claimableReferrals = Math.max(
       0,
-      totalReferrals - totalClaimedReferrals,
-    );
+      totalReferrals - totalClaimedReferrals);
     const claimableAmount = (claimableReferrals * referralRatePerPerson * multiplier).toFixed(2);
     const eligibleToClaim = totalReferrals >= minimumReferralsToClaim && claimableReferrals > 0;
 
@@ -1162,8 +1138,7 @@ export class DatabaseStorage implements IStorage {
   async createReferralRewardClaim(
     userId: number,
     referralCount: number,
-    amount: string,
-  ): Promise<ReferralRewardClaim> {
+    amount: string): Promise<ReferralRewardClaim> {
     const [rrcInsert] = await db
       .insert(referralRewardClaims)
       .values({
@@ -1179,8 +1154,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReferralRewardClaims(
-    userId: number,
-  ): Promise<ReferralRewardClaim[]> {
+    userId: number): Promise<ReferralRewardClaim[]> {
     return db
       .select()
       .from(referralRewardClaims)
@@ -1222,8 +1196,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateAdminStatus(
     adminId: number,
-    status: string,
-  ): Promise<Admin | undefined> {
+    status: string): Promise<Admin | undefined> {
     await db
       .update(admins)
       .set({
@@ -1238,8 +1211,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateAdminPassword(
     adminId: number,
-    password: string,
-  ): Promise<Admin | undefined> {
+    password: string): Promise<Admin | undefined> {
     await db
       .update(admins)
       .set({
@@ -1282,8 +1254,7 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(dailyTaskAllocation)
       .where(
-        sql`DATE(${dailyTaskAllocation.allocatedDate}) < DATE(${formattedToday})`,
-      );
+        sql`DATE(${dailyTaskAllocation.allocatedDate}) < DATE(${formattedToday})`);
   }
 
   // Task Click Tracking
@@ -1379,8 +1350,7 @@ export class DatabaseStorage implements IStorage {
           uniqueUsers,
           conversionRate,
         };
-      }),
-    );
+      }));
   }
 
   // Payout operations
@@ -1411,8 +1381,7 @@ export class DatabaseStorage implements IStorage {
   async updatePayoutStatus(
     id: number,
     status: string,
-    processedBy?: number,
-  ): Promise<Payout | undefined> {
+    processedBy?: number): Promise<Payout | undefined> {
     const updateData: any = {
       status,
       processedAt: new Date(),
@@ -1632,7 +1601,7 @@ export class DatabaseStorage implements IStorage {
     const lastDate = user.lastLoginDate as string | null;
 
     if (lastDate === today) {
-      // Already checked in today — no update needed
+      // Already checked in today, no update needed
       return user;
     }
 

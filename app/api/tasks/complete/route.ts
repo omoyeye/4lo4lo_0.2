@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const userId = parseInt(session.user.id, 10);
 
-    // Rate limit per account, not per IP — this is the points-earning path and
+    // Rate limit per account, not per IP, this is the points-earning path and
     // the thing worth throttling is one account spamming completions.
     const limited = rateLimit(req, LIMITS.taskAction, `user:${userId}`);
     if (limited) return limited;
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const { taskId, clickId } = validatedData;
 
     // Cheap pre-check so the common "already done" case doesn't hit the
-    // transaction. It is NOT the safety net — completeTask() re-checks under
+    // transaction. It is NOT the safety net, completeTask() re-checks under
     // a row lock, because this check alone is a read-then-write race.
     const completedIds = await storage.getCompletedTaskIds(userId);
     if (completedIds.includes(taskId)) {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // If a clickId is supplied it must belong to this user and this task —
+    // If a clickId is supplied it must belong to this user and this task,
     // otherwise a caller could mark someone else's click as converted.
     if (clickId) {
       const [click] = await db
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       // Lost the race, or the unique index rejected the duplicate. Either way
-      // the user's first completion stands — report success, award nothing.
+      // the user's first completion stands, report success, award nothing.
       if (
         msg.includes("already completed") ||
         msg.includes("Duplicate entry") ||

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 
-// DELETE /api/admin/marketplace/comments/:id — remove an abusive comment
+// DELETE /api/admin/marketplace/comments/:id, remove an abusive comment
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

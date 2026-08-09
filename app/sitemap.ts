@@ -6,7 +6,7 @@ import { STANDALONE_TOOLS } from "@/lib/tools-registry";
  * `db` is imported lazily inside the try block below, not at module scope.
  *
  * lib/db.ts throws when DATABASE_URL is absent, and a module-scope import
- * makes that throw before the handler runs — which took down the entire
+ * makes that throw before the handler runs, which took down the entire
  * sitemap, static routes included, rather than just the profile section it
  * actually affects. A sitemap missing its profiles still tells search engines
  * about the tool pages; a 500 tells them nothing.
@@ -17,7 +17,7 @@ import { STANDALONE_TOOLS } from "@/lib/tools-registry";
  *
  * Public profiles are the bulk of it: every creator who fills in their profile
  * links has a page worth indexing, and each one is a page we did not have to
- * write. Capped so the file stays inside the 50,000-URL / 50MB limit — split
+ * write. Capped so the file stays inside the 50,000-URL / 50MB limit, split
  * into a sitemap index if you ever approach that.
  */
 

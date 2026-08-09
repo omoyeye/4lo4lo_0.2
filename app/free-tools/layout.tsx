@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 // The page itself is a client component and cannot export metadata, so it is
 // declared here. See lib/seo.ts.
 export const metadata: Metadata = pageMetadata({
-  "title": "Free Creator Tools — Hashtags, Captions, Engagement Rate & More",
+  "title": "Free Creator Tools, Hashtags, Captions, Engagement Rate & More",
   "description": "A free toolkit for creators: engagement rate calculator, hashtag generator, caption writer, posting-time planner, growth tracker, image resizer, QR codes and link shortening. No signup required.",
   "path": "/free-tools",
   "keywords": [

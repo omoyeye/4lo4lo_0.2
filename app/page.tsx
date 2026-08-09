@@ -6,13 +6,13 @@ import { TOOLS } from "@/lib/tools-registry";
 /**
  * Server wrapper around the (client) landing page.
  *
- * The landing page needs hooks, so it stays a client component — but a client
+ * The landing page needs hooks, so it stays a client component, but a client
  * component cannot export `metadata`, and the root layout's metadata applies
  * to every route. Splitting it this way gives the homepage its own title,
  * canonical URL and structured data.
  */
 export const metadata: Metadata = pageMetadata({
-  title: "4lo4lo — Earn Rewards and Grow Your Social Presence",
+  title: "4lo4lo: Earn Rewards and Grow Your Social Presence",
   description: SITE_DESCRIPTION,
   path: "/",
   keywords: [

@@ -6,7 +6,7 @@ import { getToken } from "next-auth/jwt";
  * Server-side gate for the admin area.
  *
  * Before this existed, /admin/* was protected only by a client-side useEffect
- * in lib/admin-protected-route.tsx — the HTML was publicly fetchable and the
+ * in lib/admin-protected-route.tsx. The HTML was publicly fetchable and the
  * guard could be skipped by disabling JS. The API routes were (and remain)
  * guarded independently by requireAdmin(), so this is defence in depth rather
  * than the only lock.
@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
   const role = (token?.role as string | undefined) ?? null;
   const isAdmin = !!role && ADMIN_ROLES.has(role);
 
-  // Already signed in as an admin and sitting on the login page — send them in.
+  // Already signed in as an admin and sitting on the login page, so send them in.
   if (pathname === "/admin/login") {
     if (isAdmin) {
       return NextResponse.redirect(new URL("/admin", req.url));

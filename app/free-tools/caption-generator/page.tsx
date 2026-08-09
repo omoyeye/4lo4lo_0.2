@@ -28,7 +28,7 @@ const faq: FaqItem[] = [
   {
     question: "Are these AI-generated captions?",
     answer:
-      "No. They are built from writing templates, so they load instantly and cost nothing to use. They are structured starting points designed to be edited into your own voice — not finished copy you should post as-is.",
+      "No. They are built from writing templates, so they load instantly and cost nothing to use. They are structured starting points designed to be edited into your own voice, not finished copy you should post as-is.",
   },
   {
     question: "What makes a caption get comments?",
@@ -52,7 +52,7 @@ export default function Page() {
           <>
             <h2>Every caption has three jobs</h2>
             <p>
-              Most captions fail because they try to do one thing — describe the
+              Most captions fail because they try to do one thing, describe the
               picture. A caption that earns engagement does three:
             </p>
             <ul>
@@ -83,14 +83,13 @@ export default function Page() {
             <h2>Writing a bio that converts</h2>
             <p>
               A bio has 150 characters to answer one question: why should I
-              follow you? Not who you are — what someone gets by staying. The
+              follow you? Not who you are, what someone gets by staying. The
               strongest bios name a specific audience and a specific benefit,
               then point at one link.
             </p>
             <p>
               Avoid listing unrelated interests, avoid job titles nobody outside
-              your industry recognises, and put the most important line first —
-              on mobile, the rest is often truncated.
+              your industry recognises, and put the most important line first, on mobile, the rest is often truncated.
             </p>
 
             <h2>Edit before you post</h2>

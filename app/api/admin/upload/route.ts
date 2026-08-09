@@ -7,7 +7,7 @@ import path from "path";
 export const runtime = "nodejs";
 
 /**
- * POST /api/admin/upload — image upload for the Email Center composer.
+ * POST /api/admin/upload, image upload for the Email Center composer.
  *
  * ── Storage backend ─────────────────────────────────────────────────────────
  *
@@ -27,7 +27,7 @@ export const runtime = "nodejs";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
-// Allow-list by MIME *and* extension — an admin session should not be able to
+// Allow-list by MIME *and* extension, an admin session should not be able to
 // drop an executable or an .html file into a publicly served location.
 const ALLOWED: Record<string, string> = {
   "image/png": ".png",
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Never derive the stored name from user input — no traversal, no collisions.
+    // Never derive the stored name from user input, no traversal, no collisions.
     const safeName = `${Date.now()}-${randomBytes(8).toString("hex")}${ext}`;
     const bytes = Buffer.from(await file.arrayBuffer());
 

@@ -5,7 +5,7 @@ import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 
-/** Hosts that must never be wrapped — SSRF and internal-network probing. */
+/** Hosts that must never be wrapped, SSRF and internal-network probing. */
 function isDisallowedHost(hostname: string): boolean {
   const h = hostname.toLowerCase();
   return (

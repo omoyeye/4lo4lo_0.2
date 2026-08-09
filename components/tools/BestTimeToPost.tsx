@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 /**
  * Posting-window guidance, converted to the visitor's timezone.
  *
- * IMPORTANT — what this is and is not: the windows below are general guidance
+ * IMPORTANT. What this is and is not: the windows below are general guidance
  * drawn from commonly published industry patterns, expressed in US Eastern
  * because that is the reference most published studies use. They are NOT
  * measurements of this user's audience, and the UI says so plainly rather than
@@ -209,7 +209,7 @@ export function BestTimeToPost() {
             )}
 
             <p className="mt-6 rounded-lg border border-dashed p-4 text-xs text-muted-foreground">
-              These are general industry patterns converted to your timezone — not
+              These are general industry patterns converted to your timezone, not
               measurements of your audience. Treat them as a starting schedule,
               then check your own analytics after two weeks and adjust. Your
               audience&apos;s actual behaviour always beats a generic benchmark.

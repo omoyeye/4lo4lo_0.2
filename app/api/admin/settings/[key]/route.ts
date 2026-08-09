@@ -65,7 +65,7 @@ export async function GET(
 /**
  * PUT /api/admin/settings/:key
  *
- * Upsert — the row may not exist yet on an existing database, and creating it
+ * Upsert, the row may not exist yet on an existing database, and creating it
  * is strictly additive, so this is safe against live data.
  */
 export async function PUT(

@@ -465,7 +465,7 @@ function ProfileContent({ initialProfile }: { initialProfile?: ProfileData }) {
               <div className="bg-card rounded-lg p-4 text-center border">
                 <UserIcon className="w-5 h-5 text-blue-500 mx-auto mb-1" />
                 <p className="text-2xl font-bold">
-                  {profile.user.globalRank ? `#${profile.user.globalRank}` : "—"}
+                  {profile.user.globalRank ? `#${profile.user.globalRank}` : ", "}
                 </p>
                 <p className="text-xs text-muted-foreground">Global Rank</p>
               </div>
@@ -547,7 +547,7 @@ function ProfileContent({ initialProfile }: { initialProfile?: ProfileData }) {
               </div>
             )}
 
-            {/* Level History — only shown to the profile owner */}
+            {/* Level History, only shown to the profile owner */}
             {isOwnProfile && levelHistoryData && levelHistoryData.length > 0 && (
               <div className="bg-card rounded-xl p-6 border">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">

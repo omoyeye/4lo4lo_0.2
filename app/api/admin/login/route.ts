@@ -8,9 +8,9 @@ import { z } from "zod";
  * POST /api/admin/login
  *
  * NOTE ON THE PATH: this used to live at /api/auth/admin/login, which is
- * swallowed by the NextAuth catch-all at app/api/auth/[...nextauth]/route.ts —
- * admin login could never succeed. It lives under /api/admin/* now so it owns
- * its own path.
+ * swallowed by the NextAuth catch-all at app/api/auth/[...nextauth]/route.ts,
+ * so admin login could never succeed. It lives under /api/admin/* now so it
+ * owns its own path.
  *
  * Authorization derives from `users.role`, because that is what every one of
  * the admin API routes enforces via requireAdmin()/requireSuperadmin(). The
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Credentials and role are good — hand off to NextAuth to set the cookie.
+    // Credentials and role are good, hand off to NextAuth to set the cookie.
     await signIn("credentials", { username, password, redirect: false });
 
     // Best-effort: record the login against the legacy admins row if one exists.

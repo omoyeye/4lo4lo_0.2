@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { appSettings } from "@shared/schema.mysql";
 import { eq } from "drizzle-orm";
 
-// GET /api/settings — returns all settings as a key/value map
+// GET /api/settings, returns all settings as a key/value map
 export async function GET(_req: NextRequest) {
   try {
     const settings = await db.select().from(appSettings);

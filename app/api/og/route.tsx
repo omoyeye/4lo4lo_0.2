@@ -6,7 +6,7 @@ export const runtime = "edge";
 /**
  * Dynamic Open Graph image.
  *
- * Every shared link — a profile, a tool page, the homepage — gets a branded
+ * Every shared link, a profile, a tool page, the homepage, gets a branded
  * 1200x630 card instead of nothing. Link previews are a meaningful share-rate
  * multiplier and this is the cheapest way to get them everywhere at once.
  *

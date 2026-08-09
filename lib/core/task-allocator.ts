@@ -83,7 +83,7 @@ export class TaskAllocator {
    *
    * This used to loop over active tasks calling getTaskCompletionCount(), and
    * that method loaded the ENTIRE user_tasks table with getAllUserTasks() and
-   * filtered it in JavaScript — so allocating tasks performed one full table
+   * filtered it in JavaScript, so allocating tasks performed one full table
    * transfer per active task, on every allocation. It is now a single GROUP BY.
    */
   private async getTaskDistribution(): Promise<Map<number, number>> {
@@ -108,7 +108,7 @@ export class TaskAllocator {
    *
    * The 5-minute cache that used to sit here was removed. It was keyed in a
    * per-process NodeCache, and this app runs on Vercel serverless where each
-   * concurrent instance holds its own copy — so a task's count could be stale
+   * concurrent instance holds its own copy, so a task's count could be stale
    * by up to five minutes on every instance independently, and the
    * maxCompletions ceiling was enforced against stale numbers. A task could be
    * allocated well past its cap.

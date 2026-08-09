@@ -337,7 +337,7 @@ function TasksContent() {
                 </Button>
               </div>
 
-              {/* Task Type Filters — only shown when tasks of that type exist; Other catches non-standard types */}
+              {/* Task Type Filters, only shown when tasks of that type exist; Other catches non-standard types */}
               {(() => {
                 const availableTypes = new Set((tasks || []).map(t => t.type.toLowerCase()));
                 const hasOther = (tasks || []).some(t => !KNOWN_TASK_TYPES.has(t.type.toLowerCase()));

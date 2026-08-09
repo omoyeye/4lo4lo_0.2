@@ -13,7 +13,7 @@ import { Copy, Check } from "lucide-react";
  *
  * Deliberately does NOT display search volumes or "popularity" scores. There
  * is no live hashtag-volume API behind this, and inventing numbers would be
- * worse than useless — creators make real posting decisions on them. What it
+ * worse than useless, creators make real posting decisions on them. What it
  * does instead is genuinely useful and honest: it applies the broad/niche/
  * long-tail structure that actually works, sized to each platform's limits.
  */
@@ -24,12 +24,12 @@ const PLATFORM: Record<Platform, { label: string; max: number; advice: string }>
   instagram: {
     label: "Instagram",
     max: 30,
-    advice: "Instagram allows 30. Most accounts see better results with 8–15 relevant ones than with 30 loose ones.",
+    advice: "Instagram allows 30. Most accounts see better results with 8-15 relevant ones than with 30 loose ones.",
   },
   tiktok: {
     label: "TikTok",
     max: 8,
-    advice: "TikTok caption space is tight. 3–5 focused tags is the practical ceiling.",
+    advice: "TikTok caption space is tight. 3-5 focused tags is the practical ceiling.",
   },
   youtube: {
     label: "YouTube",
@@ -210,7 +210,7 @@ export function HashtagGenerator() {
               </div>
 
               <p className="mt-4 text-xs text-muted-foreground">
-                Always check a tag on the platform before using it — a small number
+                Always check a tag on the platform before using it, a small number
                 are banned or have been overrun with unrelated content, and no
                 offline generator can know that.
               </p>

@@ -94,7 +94,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     try {
       await fetch("/api/logout", { method: "POST", credentials: "include" });
     } catch {
-      // Fall through to the redirect regardless — the cookie may already be gone.
+      // Fall through to the redirect regardless, the cookie may already be gone.
     }
     router.push("/admin/login");
     router.refresh();
@@ -118,7 +118,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
       <Separator />
 
-      {/* In normal flow at the end of a flex column — no absolute positioning. */}
+      {/* In normal flow at the end of a flex column, no absolute positioning. */}
       <div className="p-3 space-y-1">
         <Button
           variant="ghost"

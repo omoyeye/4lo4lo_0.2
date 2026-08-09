@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 
 /**
- * DELETE /api/admin/marketplace/listings/:id — moderation removal.
+ * DELETE /api/admin/marketplace/listings/:id, moderation removal.
  *
  * Refuses to remove a listing that has already been sold: the sale moved
  * points between two users, and deleting the record would destroy the only
@@ -38,7 +38,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           message:
-            "Sold listings cannot be deleted — they are the record of a points transfer.",
+            "Sold listings cannot be deleted, they are the record of a points transfer.",
         },
         { status: 409 }
       );

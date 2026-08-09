@@ -24,8 +24,8 @@ interface Preset {
 }
 
 const PRESETS: Preset[] = [
-  { id: "ig-square", group: "Instagram", label: "Post — square (1:1)", width: 1080, height: 1080 },
-  { id: "ig-portrait", group: "Instagram", label: "Post — portrait (4:5)", width: 1080, height: 1350 },
+  { id: "ig-square", group: "Instagram", label: "Square post (1:1)", width: 1080, height: 1080 },
+  { id: "ig-portrait", group: "Instagram", label: "Portrait post (4:5)", width: 1080, height: 1350 },
   { id: "ig-story", group: "Instagram", label: "Story / Reel (9:16)", width: 1080, height: 1920 },
   { id: "tiktok", group: "TikTok", label: "Video cover (9:16)", width: 1080, height: 1920 },
   { id: "yt-thumb", group: "YouTube", label: "Thumbnail (16:9)", width: 1280, height: 720 },
@@ -175,7 +175,7 @@ export function ImageResizer() {
                     <SelectLabel>{g}</SelectLabel>
                     {PRESETS.filter((p) => p.group === g).map((p) => (
                       <SelectItem key={p.id} value={p.id}>
-                        {p.label} — {p.width}×{p.height}
+                        {p.label} · {p.width}×{p.height}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -201,7 +201,7 @@ export function ImageResizer() {
           {image ? (
             <>
               <p className="mb-3 text-sm text-muted-foreground">
-                Preview — output will be {preset.width}×{preset.height}px
+                Preview, output will be {preset.width}×{preset.height}px
                 {image.width < preset.width && (
                   <span className="ml-1 text-amber-600 dark:text-amber-400">
                     (your source is {image.width}px wide, so it will be upscaled and may look soft)

@@ -13,7 +13,7 @@ interface AdminStatus {
 /**
  * Client-side admin guard.
  *
- * middleware.ts is the real gate — this exists so the UI doesn't flash content
+ * middleware.ts is the real gate, this exists so the UI doesn't flash content
  * during client navigations and so a session that expires mid-visit bounces
  * cleanly instead of firing a wall of 401s.
  *

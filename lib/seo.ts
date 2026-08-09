@@ -17,7 +17,7 @@ export const SITE_DESCRIPTION =
 /**
  * Canonical origin, no trailing slash.
  *
- * Set NEXT_PUBLIC_SITE_URL to your real domain in production — canonical URLs
+ * Set NEXT_PUBLIC_SITE_URL to your real domain in production, canonical URLs
  * and OG tags pointing at a *.vercel.app preview will split your ranking
  * signals across hostnames.
  */

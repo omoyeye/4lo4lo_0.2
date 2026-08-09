@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { TOOLS, toolHref } from "@/lib/tools-registry";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,7 +25,14 @@ import {
   Facebook,
   GraduationCap,
   QrCode,
-  Link2
+  Link2,
+  Wrench,
+  Activity,
+  Clock,
+  Hash,
+  PenLine,
+  Crop,
+  type LucideIcon
 } from "lucide-react";
 import { SiTiktok, SiTelegram } from "react-icons/si";
 
@@ -108,6 +116,24 @@ function LandingPageContent() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >
+            {/*
+              Free tools are the main acquisition surface, so they get a
+              first-class nav slot rather than being buried in the footer.
+              The count comes from the registry so it never goes stale.
+            */}
+            <Link href="/free-tools">
+              <Button
+                variant="ghost"
+                className="gap-1.5 font-semibold text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/50"
+                data-testid="nav-tools-btn"
+              >
+                <Wrench className="w-4 h-4" />
+                Free Tools
+                <span className="ml-0.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {TOOLS.length}
+                </span>
+              </Button>
+            </Link>
             <Link href="/auth">
               <Button variant="ghost" className="hidden sm:flex" data-testid="nav-login-btn">
                 Login
@@ -199,7 +225,7 @@ function LandingPageContent() {
               </div>
             </motion.div>
 
-            {/* Hero Right — Free Creator Tools */}
+            {/* Hero Right, Free Creator Tools */}
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
@@ -208,59 +234,63 @@ function LandingPageContent() {
             >
               <div className="mb-1">
                 <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/50 rounded-full text-purple-700 dark:text-purple-300 text-xs font-medium">
-                  <Sparkles className="w-3 h-3" /> Free No Login Needed
+                  <Sparkles className="w-3 h-3" /> Free, no login needed
                 </span>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                  Free <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Creator Tools</span>
+                  {TOOLS.length} Free{" "}
+                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Creator Tools
+                  </span>
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Generate QR codes and shorten links instantly, built for creators.
+                  Hashtags, captions, engagement rate, posting times and more.
+                  Use them right now, no account required.
                 </p>
               </div>
 
-              {[
-                {
-                  icon: QrCode,
-                  title: "QR Code Generator",
-                  description: "Turn any URL or text into a downloadable QR code. Email capture included.",
-                  color: "from-purple-500 to-pink-500",
-                  bgColor: "bg-purple-50 dark:bg-purple-900/20",
-                  href: "/free-tools#qr",
-                },
-                {
-                  icon: Link2,
-                  title: "URL Shortener",
-                  description: "Shorten any long link into a clean, shareable short URL instantly.",
-                  color: "from-blue-500 to-cyan-500",
-                  bgColor: "bg-blue-50 dark:bg-blue-900/20",
-                  href: "/free-tools#shortener",
-                },
-              ].map((tool, i) => (
-                <motion.div
-                  key={tool.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + i * 0.15 }}
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                >
-                  <Link href={tool.href}>
-                    <Card className={`${tool.bgColor} border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer`}>
-                      <CardContent className="p-5 flex items-start gap-4">
-                        <div className={`w-11 h-11 bg-gradient-to-br ${tool.color} rounded-2xl flex items-center justify-center shadow-md shrink-0`}>
-                          <tool.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-base font-bold text-gray-900 dark:text-white mb-0.5">{tool.title}</h3>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">{tool.description}</p>
-                          <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400 text-sm font-medium">
-                            Try it free <ArrowRight className="w-3.5 h-3.5" />
+              {/*
+                Driven by the tool registry rather than a hardcoded pair, so
+                adding a tool automatically surfaces it on the homepage.
+              */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {TOOLS.map((tool, i) => {
+                  const Icon = TOOL_ICONS[tool.icon] ?? Sparkles;
+                  return (
+                    <motion.div
+                      key={tool.slug}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.35 + i * 0.06 }}
+                      whileHover={{ y: -3, transition: { duration: 0.15 } }}
+                    >
+                      <Link href={toolHref(tool)} className="block h-full">
+                        <div
+                          className={`group h-full rounded-2xl border border-gray-200 bg-white p-3.5 shadow-sm transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 ${tool.theme.hover}`}
+                        >
+                          <div
+                            className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${tool.theme.gradient} shadow-sm transition-transform group-hover:scale-110`}
+                          >
+                            <Icon className="h-4.5 w-4.5 text-white" />
                           </div>
+                          <h3 className="mt-2.5 text-sm font-bold leading-tight text-gray-900 dark:text-white">
+                            {tool.name}
+                          </h3>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              <Link href="/free-tools">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 border-purple-200 font-semibold text-purple-700 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/40"
+                >
+                  Open all free tools
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </motion.div>
           </div>
         </div>
@@ -578,6 +608,11 @@ function LandingPageContent() {
 
 
 
+
+/** Lucide icons referenced by name in the tool registry. */
+const TOOL_ICONS: Record<string, LucideIcon> = {
+  Activity, Clock, Hash, PenLine, TrendingUp, Crop, QrCode, Link2,
+};
 
 export default function LandingPage() {
   return <LandingPageContent />;

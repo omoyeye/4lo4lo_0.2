@@ -33,7 +33,7 @@ const faq: FaqItem[] = [
   {
     question: "Why does my image look blurry after resizing?",
     answer:
-      "Because the source was smaller than the target, so it had to be upscaled — enlarging an image cannot add detail that was not captured. The tool warns you when this will happen. Start from the largest original you have.",
+      "Because the source was smaller than the target, so it had to be upscaled, enlarging an image cannot add detail that was not captured. The tool warns you when this will happen. Start from the largest original you have.",
   },
 ];
 
@@ -46,7 +46,7 @@ export default function Page() {
       />
       <ToolPageShell
         tool={tool}
-        intro="Resize and crop any image to the exact dimensions each platform expects. Everything happens in your browser — nothing is uploaded."
+        intro="Resize and crop any image to the exact dimensions each platform expects. Everything happens in your browser, nothing is uploaded."
         faq={faq}
         explainer={
           <>
@@ -72,7 +72,7 @@ export default function Page() {
               </li>
               <li>
                 <strong>Fit whole image</strong> keeps everything visible and pads
-                with white. Right when the edges carry information — text,
+                with white. Right when the edges carry information, text,
                 diagrams, screenshots, product shots where the whole object
                 matters.
               </li>
@@ -80,12 +80,12 @@ export default function Page() {
 
             <h2>Common sizes worth remembering</h2>
             <ul>
-              <li>Instagram portrait post — 1080×1350</li>
-              <li>Instagram story / reel — 1080×1920</li>
-              <li>YouTube thumbnail — 1280×720</li>
-              <li>X post image — 1600×900</li>
-              <li>LinkedIn post — 1200×627</li>
-              <li>Link preview / Open Graph — 1200×630</li>
+              <li>Instagram portrait post, 1080×1350</li>
+              <li>Instagram story / reel, 1080×1920</li>
+              <li>YouTube thumbnail, 1280×720</li>
+              <li>X post image, 1600×900</li>
+              <li>LinkedIn post, 1200×627</li>
+              <li>Link preview / Open Graph, 1200×630</li>
             </ul>
 
             <h2>Design for the small version</h2>
@@ -100,7 +100,7 @@ export default function Page() {
             <h2>Nothing leaves your device</h2>
             <p>
               Most free resizers upload your file to a server, process it there
-              and hand back a link — which means your unreleased content sits on
+              and hand back a link, which means your unreleased content sits on
               someone else&apos;s infrastructure under whatever terms they wrote.
               This tool uses a canvas element in your own browser. Turn off your
               connection after the page loads and it still works.

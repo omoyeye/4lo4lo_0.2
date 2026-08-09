@@ -23,7 +23,7 @@ const faq: FaqItem[] = [
   {
     question: "What is a good monthly growth rate?",
     answer:
-      "For most accounts, 2–5% a month is steady and sustainable. Small accounts routinely see much higher percentages simply because the base is small. Consistency over six months tells you far more than any single month.",
+      "For most accounts, 2-5% a month is steady and sustainable. Small accounts routinely see much higher percentages simply because the base is small. Consistency over six months tells you far more than any single month.",
   },
   {
     question: "Is my data stored anywhere?",
@@ -33,7 +33,7 @@ const faq: FaqItem[] = [
   {
     question: "How often should I log my follower count?",
     answer:
-      "Weekly, on the same day. Daily readings are mostly noise — normal fluctuation will swamp the trend. Weekly points over a few months give you a signal you can actually act on.",
+      "Weekly, on the same day. Daily readings are mostly noise, normal fluctuation will swamp the trend. Weekly points over a few months give you a signal you can actually act on.",
   },
 ];
 
@@ -54,7 +54,7 @@ export default function Page() {
             <p>
               Platform analytics show you the last 30 or 90 days and then forget.
               Growth is a long game, and the useful comparison is this quarter
-              against two quarters ago — which nothing built into the apps will
+              against two quarters ago, which nothing built into the apps will
               show you. Two minutes a week of manual logging gives you a record
               nobody can take away or reset.
             </p>
@@ -70,7 +70,7 @@ export default function Page() {
             <h2>Watch for the inflection, not the number</h2>
             <p>
               The single most useful thing this tool surfaces is when your recent
-              pace diverges from your average — the moment growth starts
+              pace diverges from your average, the moment growth starts
               accelerating or stalling. That is the signal to look at what
               changed: a format, a posting frequency, a topic. A flat total tells
               you nothing about why.
@@ -87,7 +87,7 @@ export default function Page() {
 
             <h2>Track alongside engagement</h2>
             <p>
-              Follower growth on its own is a vanity metric — it is entirely
+              Follower growth on its own is a vanity metric, it is entirely
               possible to grow while your actual reach shrinks. Log your{" "}
               <a href="/free-tools/engagement-rate-calculator">
                 engagement rate

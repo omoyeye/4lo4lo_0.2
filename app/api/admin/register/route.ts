@@ -13,7 +13,7 @@ const createAdminSchema = z.object({
 });
 
 /**
- * POST /api/admin/register — create an admin directory entry.
+ * POST /api/admin/register, create an admin directory entry.
  *
  * Superadmin-only. Note this writes to the `admins` table; panel authorization
  * itself is driven by `users.role`, so a new admin also needs their user row

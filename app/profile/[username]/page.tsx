@@ -5,7 +5,7 @@ import ProfileClient from "@/components/profile/ProfileClient";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
 
 /**
- * Public creator profile — server-rendered.
+ * Public creator profile, server-rendered.
  *
  * This is the growth surface: every creator who puts their profile link in a
  * social bio sends real traffic here, and each profile is a page we did not
@@ -13,7 +13,7 @@ import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
  * it, which means the data has to be fetched on the server.
  *
  * Previously this route was a client component that fetched via useQuery, so
- * the server-rendered HTML was a loading skeleton — no title, no name, no
+ * the server-rendered HTML was a loading skeleton, no title, no name, no
  * links. The data is now loaded here and handed to the client component as
  * `initialProfile`, which both fills the SSR HTML and removes the loading
  * flash for real users.
@@ -85,7 +85,7 @@ export default async function Page({ params }: Params) {
   const data = await loadProfile(username);
 
   // A private or missing profile should be a real 404, not a soft 200 with an
-  // error message — otherwise search engines index the error page.
+  // error message, otherwise search engines index the error page.
   if (!data) notFound();
 
   const u = data.profile.user;

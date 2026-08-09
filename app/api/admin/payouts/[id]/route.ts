@@ -5,14 +5,14 @@ import { notificationService } from "@/lib/core/notification-service";
 import { z } from "zod";
 
 const patchSchema = z.object({
-  // `processedBy` is accepted for backwards compatibility but ignored — the
+  // `processedBy` is accepted for backwards compatibility but ignored, the
   // acting admin is taken from the session, never from the request body.
   status: z.enum(["pending", "processing", "completed", "rejected"]),
   processedBy: z.number().optional(),
 });
 
 /**
- * PATCH /api/admin/payouts/:id — approve / reject / progress a payout.
+ * PATCH /api/admin/payouts/:id, approve / reject / progress a payout.
  */
 export async function PATCH(
   req: NextRequest,
@@ -39,7 +39,7 @@ export async function PATCH(
       return NextResponse.json({ message: "Payout not found" }, { status: 404 });
     }
 
-    // Terminal states are final — re-processing a completed payout is how
+    // Terminal states are final, re-processing a completed payout is how
     // double payments happen.
     if (existing.status === "completed" || existing.status === "rejected") {
       return NextResponse.json(

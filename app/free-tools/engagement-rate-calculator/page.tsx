@@ -18,12 +18,12 @@ const faq: FaqItem[] = [
   {
     question: "How is engagement rate calculated?",
     answer:
-      "Add up your interactions on a post — likes, comments, shares and saves — divide by your follower count, and multiply by 100. This calculator uses followers rather than reach, because reach is not publicly visible for most accounts.",
+      "Add up your interactions on a post, likes, comments, shares and saves, divide by your follower count, and multiply by 100. This calculator uses followers rather than reach, because reach is not publicly visible for most accounts.",
   },
   {
     question: "What is a good engagement rate?",
     answer:
-      "It depends heavily on platform and account size. Roughly, 1–3% is normal on Instagram, 4–9% on TikTok and under 1% on X. Smaller accounts almost always show higher rates than large ones, so compare yourself to creators of a similar size rather than to a global average.",
+      "It depends heavily on platform and account size. Roughly, 1-3% is normal on Instagram, 4-9% on TikTok and under 1% on X. Smaller accounts almost always show higher rates than large ones, so compare yourself to creators of a similar size rather than to a global average.",
   },
   {
     question: "Why is my engagement rate falling as I grow?",
@@ -33,7 +33,7 @@ const faq: FaqItem[] = [
   {
     question: "Should I use reach or followers?",
     answer:
-      "Engagement by reach is the more accurate measure of content quality, and you can calculate it from your own analytics. Engagement by followers is the standard for comparing accounts, because it is the only figure visible from the outside — which is why brands use it when evaluating creators.",
+      "Engagement by reach is the more accurate measure of content quality, and you can calculate it from your own analytics. Engagement by followers is the standard for comparing accounts, because it is the only figure visible from the outside, which is why brands use it when evaluating creators.",
   },
 ];
 
@@ -61,7 +61,7 @@ export default function Page() {
             <p>
               The formula is simple: total interactions divided by followers,
               times 100. The judgement is in what counts as an interaction.
-              Likes are the cheapest signal — a double-tap costs nothing.
+              Likes are the cheapest signal, a double-tap costs nothing.
               Comments, shares and saves take real effort, and every major
               platform weights them far more heavily when deciding what to
               distribute. If you are optimising for one number, optimise for
@@ -72,7 +72,7 @@ export default function Page() {
             <p>
               A 10,000-follower account with 4% engagement and a
               500,000-follower account with 1% engagement are not in different
-              leagues of quality — that gap is mostly arithmetic. Audiences
+              leagues of quality, that gap is mostly arithmetic. Audiences
               broaden as they grow, and broader audiences engage less per head.
               Published benchmarks that quote a single figure for a whole
               platform are hiding this.
@@ -104,7 +104,7 @@ export default function Page() {
             <h2>A caveat about bought engagement</h2>
             <p>
               Engagement pods and purchased likes inflate the number without
-              improving the audience — and because the interactions come from
+              improving the audience, and because the interactions come from
               accounts with no genuine interest, platforms increasingly discount
               them. A brand doing due diligence will look at the comments
               themselves, not just the ratio. A real 2% is worth more than a

@@ -79,7 +79,7 @@ That is what `requireAdmin()`, `requireSuperadmin()`, `middleware.ts` and
 `/api/admin/status` all read.
 
 There is also a legacy **`admins` table**. It is a *directory* that the Admin
-Management section edits — it does **not** grant access. If an operator exists
+Management section edits, it does **not** grant access. If an operator exists
 only in `admins`, they cannot sign in; `/api/admin/login` detects this and
 returns a 409 pointing at
 [`scripts/sql/002-link-legacy-admins.sql`](scripts/sql/002-link-legacy-admins.sql).
@@ -88,8 +88,8 @@ Consolidating these two systems is the main outstanding piece of tech debt.
 
 The admin area is protected in two places, deliberately:
 
-1. `middleware.ts` — server-side, rejects non-admins before any HTML is sent.
-2. `lib/admin-protected-route.tsx` — client-side, prevents content flashing and
+1. `middleware.ts`, server-side, rejects non-admins before any HTML is sent.
+2. `lib/admin-protected-route.tsx`, client-side, prevents content flashing and
    handles a session that expires mid-visit.
 
 API routes protect themselves independently via `lib/auth-helpers.ts`.
@@ -98,7 +98,7 @@ API routes protect themselves independently via `lib/auth-helpers.ts`.
 
 `/api/sse` is a Server-Sent Events stream. The subscriber is taken **from the
 session**, never from a query parameter. `contexts/WebSocketContext.tsx` is the
-client (the name is historical — the transport is SSE).
+client (the name is historical, the transport is SSE).
 
 ---
 
@@ -111,9 +111,9 @@ code accounts for them:
 **Database connections.** Each concurrent lambda instance keeps its own pool.
 `lib/db.ts` therefore caps at **2 connections per instance** on serverless
 (10 elsewhere), because the old limit of 10 meant ~20 concurrent instances
-could exhaust a typical MySQL `max_connections` of 100–151. Override with
+could exhaust a typical MySQL `max_connections` of 100-151. Override with
 `DB_CONNECTION_LIMIT` if you know your numbers. TCP keepalive is disabled on
-serverless — a frozen instance cannot send probes, so MySQL closes the socket
+serverless, a frozen instance cannot send probes, so MySQL closes the socket
 and the pool hands out a dead connection. If you outgrow this, use a
 connection proxy (PlanetScale, ProxySQL) rather than a bigger pool.
 
@@ -124,7 +124,7 @@ enforced against five-minute-old numbers; it was removed.
 
 **Realtime is cycled, not persistent.** An open SSE stream pins an invocation,
 so `/api/sse` closes itself after 45s and signals the client to reconnect.
-Left unbounded it hit the 300-second platform timeout — the most frequent
+Left unbounded it hit the 300-second platform timeout, the most frequent
 runtime error on the project. Note also that `lib/sse.ts` keeps its client
 set **in instance memory**, so a broadcast only reaches clients connected to
 that same instance. Realtime is therefore best-effort today; a hosted pub/sub
@@ -139,7 +139,7 @@ stack trace. Locally it still writes to `public/uploads`.
 **Rate limiting is per-instance and therefore approximate.** `lib/rate-limit.ts`
 holds counters in instance memory, so the effective limit is roughly
 `limit × instances`. It stops the simple scripted loop but is not a hard
-guarantee. Provision Upstash Redis and swap the `Map` inside `check()` — it is
+guarantee. Provision Upstash Redis and swap the `Map` inside `check()`, it is
 the only function that touches the store.
 
 ---
@@ -152,10 +152,10 @@ the only function that touches the store.
   `app/admin/[section]/` is the next step.
 - No automated tests. The points economy (task completion, referral rewards,
   payouts) is the highest-value place to start.
-- No error monitoring. Wire up Sentry or equivalent — several endpoints were
+- No error monitoring. Wire up Sentry or equivalent, several endpoints were
   404ing in production with nothing reporting it.
 - `scripts/sql/001-user-tasks-unique.sql` has not been applied. Until it is,
   duplicate task completions remain possible under concurrency.
 - `scripts/sql/003-indexes.sql` has not been applied. The aggregate queries
   that replaced the full-table loads want an index on `user_tasks(task_id)`.
-- Run `npm run db:check` first — it reports what 001 and 002 still need.
+- Run `npm run db:check` first, it reports what 001 and 002 still need.

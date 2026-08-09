@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
  *
  * We calculate against followers (ER by follower) because reach is not public
  * for most accounts. That is the industry-standard fallback and it is what
- * every comparable calculator uses — but it is an approximation, and the copy
+ * every comparable calculator uses, but it is an approximation, and the copy
  * on the page says so rather than implying precision we do not have.
  */
 
@@ -74,7 +74,7 @@ export function EngagementRateCalculator() {
       verdict = `Above the median for ${PLATFORM_LABEL[platform]}. Healthy.`;
       tone = "good";
     } else {
-      verdict = `Strong — in the upper band for ${PLATFORM_LABEL[platform]}.`;
+      verdict = `Strong, in the upper band for ${PLATFORM_LABEL[platform]}.`;
       tone = "great";
     }
 

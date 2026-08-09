@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/admin/marketplace/listings
  *
- * Listings enriched with seller/buyer usernames and their comment threads —
- * the AdminListing shape the moderation panel renders.
+ * Listings enriched with seller/buyer usernames and their comment threads,
+ * which is the AdminListing shape the moderation panel renders.
  */
 export async function GET(_req: NextRequest) {
   try {

@@ -37,7 +37,7 @@ export async function GET(_req: NextRequest) {
       };
     });
 
-    // Newest first — admins work the queue from the top.
+    // Newest first, admins work the queue from the top.
     withUser.sort(
       (a, b) =>
         new Date(b.requestedAt as any).getTime() -

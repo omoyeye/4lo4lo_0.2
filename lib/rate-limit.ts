@@ -11,14 +11,14 @@ import { NextRequest, NextResponse } from "next/server";
  * generating enough concurrency to be spread across instances gets a
  * proportionally larger budget.
  *
- * It is still worth having — it stops the trivial single-connection loop, which
- * is the common case for credential stuffing and scripted abuse — but do not
+ * It is still worth having, it stops the trivial single-connection loop, which
+ * is the common case for credential stuffing and scripted abuse, but do not
  * treat these numbers as hard guarantees.
  *
  * The real fix is a shared store. Provision Upstash Redis (Vercel dashboard →
  * Storage → Upstash) and replace the `hits` Map with it; `check()` is the only
  * function that touches the store, so nothing else in the codebase changes.
- * Everything below is deliberately synchronous to keep that swap small — if you
+ * Everything below is deliberately synchronous to keep that swap small, if you
  * move to Redis, `check()` and `rateLimit()` become async and the ~8 call sites
  * need an `await`.
  */
@@ -124,11 +124,11 @@ export function rateLimit(
 
 /** Preset windows used across the app, kept in one place so they stay coherent. */
 export const LIMITS = {
-  /** Credential endpoints — tight, keyed by IP. */
+  /** Credential endpoints, tight, keyed by IP. */
   auth: { name: "auth", limit: 10, windowMs: 60_000 },
   /** Account creation. */
   register: { name: "register", limit: 5, windowMs: 60 * 60_000 },
-  /** Points-earning actions — the fraud-sensitive path. */
+  /** Points-earning actions, the fraud-sensitive path. */
   taskAction: { name: "task-action", limit: 60, windowMs: 60_000 },
   /** Anonymous public tools that write rows. */
   publicTool: { name: "public-tool", limit: 20, windowMs: 60 * 60_000 },

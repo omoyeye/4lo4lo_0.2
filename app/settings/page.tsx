@@ -28,7 +28,7 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-// Notification preferences schema — 5 categories aligned with notification-service
+// Notification preferences schema, 5 categories aligned with notification-service
 const notificationSchema = z.object({
   notifyTaskUpdates: z.boolean(),
   notifyReferralActivity: z.boolean(),
@@ -153,7 +153,7 @@ function SettingsContent() {
     }
   }, [user]);
 
-  // Notification form — loads defaults from user.notificationPreferences
+  // Notification form, loads defaults from user.notificationPreferences
   const notifPrefs = (user?.notificationPreferences || {}) as Record<string, boolean>;
   const notificationForm = useForm<NotificationFormValues>({
     resolver: zodResolver(notificationSchema),

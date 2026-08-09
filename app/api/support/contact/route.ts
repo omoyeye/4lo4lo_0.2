@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     if (!isEmailConfigured() || !destination) {
       // Fail loudly rather than telling the user their message was delivered.
       console.error(
-        "Support contact submitted but email is not configured — message dropped:",
+        "Support contact submitted but email is not configured, message dropped:",
         { name, email, subject }
       );
       return NextResponse.json(

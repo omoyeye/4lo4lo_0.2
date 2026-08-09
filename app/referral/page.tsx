@@ -278,7 +278,7 @@ function ReferralContent() {
                           {isActive && <Star className="h-3.5 w-3.5 text-primary" />}
                           <span className={`font-medium ${isActive ? "text-primary" : ""}`}>{tier.label}</span>
                           <span className="text-muted-foreground text-xs">
-                            {tier.minReferrals}–{tier.maxReferrals ?? "∞"} referrals
+                            {tier.minReferrals}-{tier.maxReferrals ?? "∞"} referrals
                           </span>
                         </div>
                         <span className={`font-bold text-xs px-2 py-0.5 rounded ${

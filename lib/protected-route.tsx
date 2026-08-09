@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 /**
- * ProtectedRoute — wraps a page component and redirects to /auth if
+ * ProtectedRoute, wraps a page component and redirects to /auth if
  * the user is not authenticated. Compatible with Next.js App Router.
  */
 export function ProtectedRoute({

@@ -11,7 +11,7 @@ import { Copy, Check, RefreshCcw } from "lucide-react";
 /**
  * Caption and bio starting points.
  *
- * Template-driven, not AI-generated — there is no model call behind this. That
+ * Template-driven, not AI-generated, there is no model call behind this. That
  * is a deliberate trade: it works offline, costs nothing, returns instantly,
  * and the page is honest that these are structured starting points to edit
  * rather than finished copy. The value is the structure (hook → body → CTA)
@@ -38,7 +38,7 @@ const CTAS = [
   "Save this for later.",
   "Follow for more like this.",
   "Send this to someone who needs it.",
-  "Comment your take — I read all of them.",
+  "Comment your take. I read all of them.",
   "Tap the link in bio for the full version.",
 ];
 
@@ -53,13 +53,13 @@ function buildCaptions(topic: string, tone: Tone, seed: number): Parts[] {
       { hook: `Stop making ${t} complicated.`, body: `Three things matter. The rest is noise you picked up from people selling something.`, cta: CTAS[2] },
     ],
     story: [
-      { hook: `Six months ago I was terrible at ${t}.`, body: `I'm not going to pretend it clicked overnight. It didn't. What changed was showing up when it was boring — and boring is most of it.`, cta: CTAS[1] },
+      { hook: `Six months ago I was terrible at ${t}.`, body: `I'm not going to pretend it clicked overnight. It didn't. What changed was showing up when it was boring, and boring is most of it.`, cta: CTAS[1] },
       { hook: `I almost gave up on ${t}.`, body: `Then someone pointed out I was measuring the wrong thing entirely. I switched what I tracked and everything moved within a month.`, cta: CTAS[3] },
       { hook: `The ${t} advice that actually changed things for me:`, body: `"Do less, but do it consistently." I ignored it for a year. I shouldn't have.`, cta: CTAS[0] },
     ],
     question: [
       { hook: `What's the one thing about ${t} nobody warned you about?`, body: `Mine: how much of it is just patience. I expected skill to be the bottleneck. It wasn't.`, cta: CTAS[3] },
-      { hook: `Be honest — how long have you been putting off ${t}?`, body: `No judgement. I sat on it for months. The version of you in six months is deciding right now.`, cta: CTAS[2] },
+      { hook: `Be honest, how long have you been putting off ${t}?`, body: `No judgement. I sat on it for months. The version of you in six months is deciding right now.`, cta: CTAS[2] },
       { hook: `Is ${t} actually worth it in 2026?`, body: `Short answer: yes, but not for the reason most people say. Here's what actually pays off.`, cta: CTAS[4] },
     ],
     listicle: [
@@ -193,7 +193,7 @@ export function CaptionGenerator() {
                       <p className="whitespace-pre-line text-sm">{b}</p>
                       <p className="mt-2 text-xs text-muted-foreground">
                         {b.length} characters
-                        {b.length > 150 ? " — over Instagram's 150 limit, trim it" : ""}
+                        {b.length > 150 ? " (over Instagram's 150 limit, trim it)" : ""}
                       </p>
                       <Button
                         size="sm"
@@ -221,7 +221,7 @@ export function CaptionGenerator() {
 
         <p className="mt-6 text-xs text-muted-foreground">
           These are structured starting points, not finished copy. The hook and
-          the call-to-action are doing most of the work — rewrite the middle in
+          the call-to-action are doing most of the work, rewrite the middle in
           your own voice before you post.
         </p>
       </CardContent>

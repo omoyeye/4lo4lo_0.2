@@ -11,7 +11,7 @@ import { Trash2, Plus, Download } from "lucide-react";
  * Follower growth tracker.
  *
  * Entries are kept in localStorage, not on the server: it means the tool works
- * with no signup (which is the point — it is an acquisition page), and it
+ * with no signup (which is the point, it is an acquisition page), and it
  * means we are not storing third-party platform stats for anonymous visitors.
  * The export button exists so the data is not trapped here.
  */
@@ -62,7 +62,7 @@ export function FollowerGrowthTracker() {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     } catch {
-      // Storage full or blocked — the in-memory session still works.
+      // Storage full or blocked, the in-memory session still works.
     }
   }, [entries, hydrated]);
 
@@ -96,7 +96,7 @@ export function FollowerGrowthTracker() {
       if (perDay > 0) {
         const days = Math.ceil((goalNum - last.count) / perDay);
         const eta = new Date(Date.now() + days * 86_400_000);
-        projection = `About ${days.toLocaleString()} days — around ${eta.toLocaleDateString(
+        projection = `About ${days.toLocaleString()} days, landing around ${eta.toLocaleDateString(
           undefined,
           { month: "long", year: "numeric" }
         )}, if your current pace holds.`;
@@ -169,7 +169,7 @@ export function FollowerGrowthTracker() {
 
         {sorted.length > 0 && (
           <div className="mt-8">
-            {/* Simple inline bar chart — no charting dependency needed. */}
+            {/* Simple inline bar chart, no charting dependency needed. */}
             <div className="flex h-32 items-end gap-1.5" role="img" aria-label="Follower counts over time">
               {sorted.map((e) => (
                 <div key={e.id} className="flex flex-1 flex-col items-center gap-1">
@@ -242,7 +242,7 @@ export function FollowerGrowthTracker() {
                   <span className="font-medium">Recent trend differs:</span>{" "}
                   your latest interval is running at {fmt(stats.recentPerDay)}/day
                   versus a {fmt(stats.perDay)}/day average
-                  {stats.recentPerDay > stats.perDay ? " — accelerating." : " — slowing down."}
+                  {stats.recentPerDay > stats.perDay ? ", and accelerating." : ", and slowing down."}
                 </p>
               )}
 
@@ -269,7 +269,7 @@ export function FollowerGrowthTracker() {
         </div>
 
         <p className="mt-5 text-xs text-muted-foreground">
-          Entries are stored in this browser only — nothing is uploaded, and
+          Entries are stored in this browser only, nothing is uploaded, and
           clearing your browser data will clear them. Export to CSV to keep a copy.
         </p>
       </CardContent>

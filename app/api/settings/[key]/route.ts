@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { appSettings } from "@shared/schema.mysql";
 import { eq } from "drizzle-orm";
 
-// GET /api/settings/:key — returns a single setting value
+// GET /api/settings/:key, returns a single setting value
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ key: string }> }

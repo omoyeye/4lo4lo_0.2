@@ -32,6 +32,7 @@ import {
   Hash,
   PenLine,
   Crop,
+  BookOpen,
   type LucideIcon
 } from "lucide-react";
 import { SiTiktok, SiTelegram } from "react-icons/si";
@@ -132,6 +133,16 @@ function LandingPageContent() {
                 <span className="ml-0.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                   {TOOLS.length}
                 </span>
+              </Button>
+            </Link>
+            <Link href="/learn">
+              <Button
+                variant="ghost"
+                className="hidden gap-1.5 font-semibold text-purple-700 hover:bg-purple-50 hover:text-purple-800 sm:inline-flex dark:text-purple-300 dark:hover:bg-purple-950/50"
+                data-testid="nav-learn-btn"
+              >
+                <BookOpen className="w-4 h-4" />
+                Learn
               </Button>
             </Link>
             <Link href="/auth">

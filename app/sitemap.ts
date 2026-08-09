@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl } from "@/lib/seo";
 import { STANDALONE_TOOLS } from "@/lib/tools-registry";
+import { GUIDES } from "@/lib/learn-content";
 
 /*
  * `db` is imported lazily inside the try block below, not at module scope.
@@ -31,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: absoluteUrl("/free-tools"), lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: absoluteUrl("/learn"), lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: absoluteUrl("/leaderboard"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: absoluteUrl("/classroom"), lastModified: now, changeFrequency: "weekly", priority: 0.6 },
     { url: absoluteUrl("/support"), lastModified: now, changeFrequency: "monthly", priority: 0.4 },
@@ -46,6 +48,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly",
     priority: 0.8,
   }));
+
+  const guideRoutes: MetadataRoute.Sitemap = GUIDES.map((guide) => ({
+    url: absoluteUrl(`/learn/${guide.slug}`),
+    lastModified: new Date(guide.updated ?? guide.published),
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
+  // Published classroom lessons are public pages, so they belong here too.
+  let lessonRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const { getPublicLessons } = await import("@/lib/classroom-public");
+    const lessons = await getPublicLessons();
+    lessonRoutes = lessons.map((lesson) => ({
+      url: absoluteUrl(`/learn/lessons/${lesson.id}`),
+      lastModified: lesson.createdAt ?? now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    }));
+  } catch (error) {
+    console.error("sitemap: could not load classroom lessons:", error);
+  }
 
   let profileRoutes: MetadataRoute.Sitemap = [];
   try {
@@ -74,5 +98,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("sitemap: could not load public profiles:", error);
   }
 
-  return [...staticRoutes, ...toolRoutes, ...profileRoutes];
+  return [...staticRoutes, ...toolRoutes, ...guideRoutes, ...lessonRoutes, ...profileRoutes];
 }

@@ -65,6 +65,10 @@ lib/
   core/storage.db.ts  DatabaseStorage implementation
   rate-limit.ts   In-process fixed-window limiter
   auth-helpers.ts requireAuth / requireAdmin / requireSuperadmin
+  seo.ts          Canonical URLs, Open Graph, JSON-LD helpers
+  tools-registry.ts   Free tool definitions, drives /free-tools
+  learn-content.ts    Guide articles for /learn (source, not database)
+  classroom-public.ts Public view of classroom_videos
 shared/
   schema.mysql.ts The schema. Single source of truth for types.
 scripts/sql/      Reviewed DDL, run manually against production
@@ -93,6 +97,34 @@ The admin area is protected in two places, deliberately:
    handles a session that expires mid-visit.
 
 API routes protect themselves independently via `lib/auth-helpers.ts`.
+
+### Public content and SEO
+
+Three public surfaces exist to be found in search, and all three are server
+rendered:
+
+- `/free-tools/*` from `lib/tools-registry.ts`
+- `/learn/*` guides from `lib/learn-content.ts`, kept in source so they are
+  version controlled and build statically
+- `/learn/lessons/<id>` from the `classroom_videos` table
+
+Classroom lessons are public at the metadata and transcript level for every
+published lesson, because that text is what search engines can index. The
+video only plays for lessons in the free set, and the video URL is withheld
+from the HTML for the rest, so the gate is real rather than cosmetic. Which
+lessons are free is configured in `app_settings.classroom_free_lesson_ids`,
+not in the schema, so it needs no migration. The default is the first three by
+display order. See
+[`scripts/sql/005-classroom-free-lessons.sql`](scripts/sql/005-classroom-free-lessons.sql).
+
+To add a guide, add an entry to `lib/learn-content.ts`. The hub, the metadata,
+the sitemap and the cross-links all derive from that array.
+
+**Anything that reads the database from a public page imports `db` lazily
+inside a try block.** `lib/db.ts` throws when DATABASE_URL is missing, and a
+module-scope import throws during module evaluation, before any handler runs.
+That takes down pages whose content does not need the database at all, which
+is how `/learn` and `/sitemap.xml` both briefly 500'd.
 
 ### Realtime
 

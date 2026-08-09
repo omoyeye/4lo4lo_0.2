@@ -89,7 +89,8 @@ export default function Page() {
             </p>
             <p>
               Avoid listing unrelated interests, avoid job titles nobody outside
-              your industry recognises, and put the most important line first, on mobile, the rest is often truncated.
+              your industry recognises, and put the most important line first.
+              On mobile, the rest is often truncated.
             </p>
 
             <h2>Edit before you post</h2>

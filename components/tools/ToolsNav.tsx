@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Wrench,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import { TOOLS, toolHref } from "@/lib/tools-registry";
@@ -57,6 +58,14 @@ export function ToolsNav({ activeSlug }: { activeSlug?: string }) {
         >
           <Wrench className="h-3.5 w-3.5" />
           Free tools
+        </Link>
+
+        <Link
+          href="/learn"
+          className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
+        >
+          <BookOpen className="h-3.5 w-3.5" />
+          Learn
         </Link>
 
         {/* Desktop tool strip */}

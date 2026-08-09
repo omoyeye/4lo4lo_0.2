@@ -39,7 +39,7 @@ function AdminLoginContent() {
     setError("");
     
     try {
-      const response = await fetch("/api/auth/admin/login", {
+      const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -56,9 +56,11 @@ function AdminLoginContent() {
         title: "Login successful",
         description: `Welcome back, ${responseData.username}!`,
       });
-      
-      // Redirect to admin dashboard - server session handles authentication
-      setLocation("/admin/dashboard");
+
+      // Honour ?from= set by middleware, otherwise land on the admin home.
+      const from = new URLSearchParams(window.location.search).get("from");
+      setLocation(from && from.startsWith("/admin") ? from : "/admin");
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid admin credentials");
     } finally {

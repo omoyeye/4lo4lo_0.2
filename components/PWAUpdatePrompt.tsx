@@ -75,7 +75,7 @@ export function PWAUpdatePrompt() {
                     Update Available
                   </h3>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                    A new version of GrowSocial is available. Update now for the latest features and improvements!
+                    A new version of 4lo4lo is available. Update now for the latest features and improvements!
                   </p>
                   <div className="flex gap-2">
                     <Button 

@@ -24,7 +24,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SimpleThemeToggle } from "@/components/theme-toggle";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import MobileBottomNav from "./MobileBottomNav";
 import MobileHeader from "./MobileHeader";
@@ -446,7 +446,7 @@ export default function Sidebar() {
         "border-t border-border/30 py-3",
         collapsed ? "flex justify-center" : "px-4"
       )}>
-        <ThemeToggle />
+        <SimpleThemeToggle />
       </div>
 
       {/* User Info */}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { signIn } from "@/auth";
 import { storage } from "@/lib/core/storage";
 import { AuthError } from "next-auth";
+import { rateLimit, LIMITS } from "@/lib/rate-limit";
 
 /**
  * POST /api/login
@@ -9,6 +10,9 @@ import { AuthError } from "next-auth";
  * Uses NextAuth credentials provider under the hood.
  */
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, LIMITS.auth);
+  if (limited) return limited;
+
   try {
     const { username, password } = await req.json();
 

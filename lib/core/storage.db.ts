@@ -65,7 +65,7 @@ import {
   type InsertAdPlacement,
 } from "@shared/schema.mysql";
 import { IStorage, LeaderboardEntry } from "./storage";
-import { db } from "./db";
+import { db } from "@/lib/db";
 import { eq, and, desc, sql, gte, count, inArray, or, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 // Session store imports removed
@@ -394,14 +394,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async completeTask(userId: number, taskId: number): Promise<UserTask> {
-    // Use a transaction to ensure data consistency under high load
-    return await db.transaction(async (tx) => {
-      const task = await this.getTaskById(taskId);
-      if (!task) throw new Error("Task not found");
+    // Reads that don't need to participate in the write transaction. Doing them
+    // up front keeps the transaction — and therefore the row locks — short.
+    const task = await this.getTaskById(taskId);
+    if (!task) throw new Error("Task not found");
 
-      const user = await this.getUser(userId);
-      if (!user) throw new Error("User not found");
+    const user = await this.getUser(userId);
+    if (!user) throw new Error("User not found");
 
+    /*
+     * Every write below runs on `tx`, not `db`.
+     *
+     * This previously took a `SELECT ... FOR UPDATE` on `tx` and then performed
+     * all of its writes on `db` — a different pooled connection. The lock
+     * therefore serialized nothing, and a rollback left the inserted completion
+     * and the awarded points committed. Two concurrent requests could both pass
+     * the "already completed" check and both award points.
+     *
+     * The lock is only fully effective with a unique index on
+     * user_tasks(user_id, task_id); see scripts/sql/001-user-tasks-unique.sql,
+     * which must be applied to close the race for good.
+     */
+    const userTask = await db.transaction(async (tx) => {
       // Check if already completed - use FOR UPDATE to prevent race conditions
       const existingCompletion = await tx
         .select()
@@ -418,7 +432,7 @@ export class DatabaseStorage implements IStorage {
       today.setHours(0, 0, 0, 0);
 
       const formattedToday = today.toISOString().split("T")[0];
-      await db
+      await tx
         .update(dailyTaskAllocation)
         .set({ isCompleted: true })
         .where(
@@ -432,7 +446,7 @@ export class DatabaseStorage implements IStorage {
 
       // Create new user task record
       const now = new Date();
-      const [utInsertResult] = await db
+      const [utInsertResult] = await tx
         .insert(userTasks)
         .values({
           userId,
@@ -441,10 +455,10 @@ export class DatabaseStorage implements IStorage {
           pointsEarned: task.points,
           verificationStatus: "pending",
         });
-      const [userTask] = await db.select().from(userTasks).where(eq(userTasks.id, (utInsertResult as any).insertId));
+      const [userTask] = await tx.select().from(userTasks).where(eq(userTasks.id, (utInsertResult as any).insertId));
 
       // Update user's daily tasks completed count
-      await db
+      await tx
         .update(users)
         .set({
           dailyTasksCompleted: user.dailyTasksCompleted + 1,
@@ -454,14 +468,26 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(users.id, userId));
 
-      // Update user points
-      await this.updateUserPoints(userId, task.points);
-
-      // Update milestones
-      await this.updateMilestones(userId, task);
+      // Award points atomically against the current row value. Reading points
+      // into JS and writing back a computed total loses concurrent awards.
+      await tx
+        .update(users)
+        .set({
+          points: sql`${users.points} + ${task.points}`,
+          updatedAt: now,
+        })
+        .where(eq(users.id, userId));
 
       return userTask;
     });
+
+    // Milestones are derived state — safe to recompute after the commit, and
+    // a failure here must not roll back a completion the user already earned.
+    await this.updateMilestones(userId, task).catch((err) =>
+      console.error("Failed to update milestones after completion:", err),
+    );
+
+    return userTask;
   }
 
   async getRecentTasks(

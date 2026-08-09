@@ -1,6 +1,6 @@
 "use client";
 
-import { UserTask, Task, User } from "@shared/schema";
+import { UserTask, Task, User } from "@shared/schema.mysql";
 
 type RecentTasksProps = {
   recentTasks: (UserTask & { task: Task })[];

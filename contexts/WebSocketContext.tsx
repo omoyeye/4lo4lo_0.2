@@ -117,20 +117,19 @@ export function WebSocketProvider({
   const connect = useCallback(() => {
     if (esRef.current && esRef.current.readyState !== EventSource.CLOSED) return;
     if (isConnectingRef.current) return;
+    // Anonymous visitors have nothing to subscribe to, and the endpoint now
+    // requires a session — don't open a socket that will only 401.
+    if (!user) return;
 
     isConnectingRef.current = true;
 
     try {
-      // Pass userId as query param so the server can target this client
-      const url = user
-        ? `/api/sse?userId=${user.id}`
-        : '/api/sse';
-
-      const es = new EventSource(url);
+      // The server derives the subscriber from the session cookie. Passing a
+      // userId here used to let any client subscribe to any account's stream.
+      const es = new EventSource('/api/sse');
       esRef.current = es;
 
       es.onopen = () => {
-        console.log('SSE connected');
         setIsConnected(true);
         reconnectAttemptsRef.current = 0;
         isConnectingRef.current = false;

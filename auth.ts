@@ -8,19 +8,29 @@ import { storage } from "@/lib/core/storage";
 
 const scryptAsync = promisify(scrypt);
 
-async function hashPassword(password: string) {
+export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return `${buf.toString("hex")}.${salt}`;
 }
 
-async function comparePasswords(supplied: string, stored: string) {
+export async function comparePasswords(supplied: string, stored: string) {
   if (!stored || !stored.includes(".")) return false;
   const [hashed, salt] = stored.split(".");
   if (!hashed || !salt) return false;
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  // timingSafeEqual throws on length mismatch — treat that as "no match"
+  // rather than a 500, which is what a malformed stored hash would cause.
+  if (hashedBuf.length !== suppliedBuf.length) return false;
   return timingSafeEqual(hashedBuf, suppliedBuf);
+}
+
+/** Roles permitted to use the admin panel. Single source of truth. */
+export const ADMIN_ROLES = ["admin", "superadmin"] as const;
+
+export function isAdminRole(role: string | null | undefined): boolean {
+  return !!role && (ADMIN_ROLES as readonly string[]).includes(role);
 }
 
 // Augment the session type to include our custom fields

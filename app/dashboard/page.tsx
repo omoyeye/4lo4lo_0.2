@@ -10,7 +10,7 @@ import { useWebSocket, useTaskUpdates } from "@/contexts/WebSocketContext";
 import { User, Crown, Award, BookOpen, Wifi, WifiOff, GraduationCap } from "lucide-react";
 import SEO from "@/components/SEO";
 import Link from "next/link";
-import { User as UserType, Task, UserTask } from "@shared/schema";
+import { User as UserType, Task, UserTask } from "@shared/schema.mysql";
 
 // Define interfaces for type safety
 interface TaskWithTask extends UserTask {

@@ -6,9 +6,31 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-10-29.clover" as any,
-});
+/**
+ * Stripe is constructed lazily.
+ *
+ * At module scope, `new Stripe(process.env.STRIPE_SECRET_KEY!)` threw
+ * "Neither apiKey nor config.authenticator provided" during `next build`,
+ * because collecting page data imports the module and the key is not present
+ * in a build environment. That made a production build depend on a runtime
+ * secret. Building it on first request also means a missing key surfaces as a
+ * clean 503 on this one endpoint instead of breaking the whole deploy.
+ */
+let stripeClient: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (stripeClient) return stripeClient;
+
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+
+  stripeClient = new Stripe(key, {
+    apiVersion: "2025-10-29.clover" as any,
+  });
+  return stripeClient;
+}
 
 const checkoutSchema = z.object({
   planId: z.number().int().positive(),
@@ -55,7 +77,7 @@ export async function POST(req: NextRequest) {
     const amountInCents = Math.round(totalPrice * 100);
 
     // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
         {

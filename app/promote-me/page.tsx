@@ -25,7 +25,7 @@ import {
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { PromotionPlan } from "@shared/schema";
+import { PromotionPlan } from "@shared/schema.mysql";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { generatePDFReceipt, downloadPDF, type PurchaseDetails } from "@/lib/pdf-receipt";

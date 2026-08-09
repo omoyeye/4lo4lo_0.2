@@ -8,7 +8,7 @@ import { SiTiktok, SiWhatsapp, SiTelegram, SiSnapchat, SiPinterest, SiDiscord, S
 import Sidebar from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Task } from "@shared/schema";
+import { Task } from "@shared/schema.mysql";
 import TaskCard from "@/components/tasks/TaskCard";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";

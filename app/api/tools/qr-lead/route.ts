@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
+import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
 
-// POST /api/tools/qr-lead
+// POST /api/tools/qr-lead — public lead capture, throttled per IP so the
+// leads table can't be flooded by an unauthenticated caller.
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, LIMITS.publicTool);
+  if (limited) return limited;
+
   try {
     const { email, originalUrl } = await req.json();
 

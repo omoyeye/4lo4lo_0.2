@@ -24,7 +24,7 @@ import {
   Mail,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import type { AdPlacement } from "@shared/schema";
+import type { AdPlacement } from "@shared/schema.mysql";
 import { useAuth } from "@/hooks/use-auth";
 
 function AdSlot({ position }: { position: string }) {

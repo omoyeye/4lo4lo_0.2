@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { storage } from "@/lib/core/storage";
 import { signIn } from "@/auth";
 import { sendWelcomeEmail } from "@/lib/core/services/email";
+import { rateLimit, LIMITS } from "@/lib/rate-limit";
 
 const scryptAsync = promisify(scrypt);
 
@@ -19,6 +20,9 @@ async function hashPassword(password: string) {
  * Registers a new user and returns their profile.
  */
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(req, LIMITS.register);
+  if (limited) return limited;
+
   try {
     const body = await req.json();
 

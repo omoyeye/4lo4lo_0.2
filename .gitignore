@@ -1,10 +1,29 @@
+# dependencies
 node_modules
+
+# next.js
 .next
+out
 dist
-.DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+
+# typescript build cache
+*.tsbuildinfo
+
+# env
 .env
+.env.local
+.env.*.local
+
+# runtime uploads (see app/api/admin/upload/route.ts)
+public/uploads
+
+# scratch / working material, not source
+attached_assets
+
+# os
+.DS_Store
+Thumbs.db
+
+# misc
 .replit
-dist
+*.tar.gz

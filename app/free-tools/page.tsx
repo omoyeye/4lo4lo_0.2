@@ -24,7 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import type { AdPlacement } from "@shared/schema";
+import type { AdPlacement } from "@shared/schema.mysql";
 
 function AdSlot({ position }: { position: string }) {
   const containerRef = useRef<HTMLDivElement>(null);

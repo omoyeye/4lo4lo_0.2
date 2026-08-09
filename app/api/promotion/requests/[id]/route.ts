@@ -42,7 +42,7 @@ export async function PATCH(
     const body = await req.json();
     const validatedData = updatePromotionRequestSchema.parse(body);
 
-    let updates: Record<string, unknown> = {
+    const updates: Record<string, unknown> = {
       ...validatedData,
       updatedAt: new Date(),
     };

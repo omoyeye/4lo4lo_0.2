@@ -7,22 +7,27 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: {
-    default: "GrowSocial – Earn Rewards by Growing Your Social Presence",
-    template: "%s | GrowSocial",
+    default: "4lo4lo – Earn Rewards by Growing Your Social Presence",
+    template: "%s | 4lo4lo",
   },
   description:
-    "Complete social media tasks, earn points, and grow your online presence with GrowSocial.",
-  keywords: ["social media", "earn points", "tasks", "rewards", "grow social"],
-  authors: [{ name: "GrowSocial" }],
+    "Complete social media tasks, earn points, and grow your online presence with 4lo4lo.",
+  keywords: ["social media", "earn points", "tasks", "rewards", "4lo4lo"],
+  authors: [{ name: "4lo4lo" }],
   manifest: "/manifest.json",
+  // These files now exist in public/ — the previous values (/favicon.ico and
+  // /apple-touch-icon.png) both 404'd, so the site shipped with no icon at all.
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "GrowSocial",
+    siteName: "4lo4lo",
   },
 };
 

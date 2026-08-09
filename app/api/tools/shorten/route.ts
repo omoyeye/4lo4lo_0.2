@@ -1,11 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
+import { auth } from "@/auth";
+import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 
-// POST /api/tools/shorten
+/** Hosts that must never be wrapped — SSRF and internal-network probing. */
+function isDisallowedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return (
+    h === "localhost" ||
+    h === "0.0.0.0" ||
+    h.endsWith(".localhost") ||
+    h.endsWith(".internal") ||
+    h.endsWith(".local") ||
+    /^127\./.test(h) ||
+    /^10\./.test(h) ||
+    /^192\.168\./.test(h) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(h) ||
+    /^169\.254\./.test(h) || // link-local / cloud metadata
+    h === "[::1]"
+  );
+}
+
+/**
+ * POST /api/tools/shorten
+ *
+ * Stays open to anonymous callers because /free-tools is a public lead-gen
+ * page. The abuse vector (an unlimited anonymous redirector on your own domain,
+ * which is how legitimate sites land on phishing blocklists) is closed by the
+ * per-IP rate limit plus the destination blocklist above, rather than by
+ * putting the public feature behind a login.
+ *
+ * Signed-in users get the higher per-account budget.
+ */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+
+    const limited = session?.user?.id
+      ? rateLimit(req, LIMITS.publicTool, `user:${session.user.id}`)
+      : rateLimit(req, { ...LIMITS.publicTool, name: "shorten-anon", limit: 5 });
+    if (limited) return limited;
+
     const body = await req.json();
     const { originalUrl } = body;
 
@@ -29,6 +66,13 @@ export async function POST(req: NextRequest) {
     if (!["http:", "https:"].includes(parsedUrl.protocol)) {
       return NextResponse.json(
         { message: "Only http and https URLs are allowed" },
+        { status: 400 }
+      );
+    }
+
+    if (isDisallowedHost(parsedUrl.hostname)) {
+      return NextResponse.json(
+        { message: "That destination is not allowed" },
         { status: 400 }
       );
     }

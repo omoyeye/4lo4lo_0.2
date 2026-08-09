@@ -8,7 +8,7 @@ import {
   Award,
   LucideIcon
 } from "lucide-react";
-import { type MilestoneWithProgress } from "@shared/schema";
+import { type MilestoneWithProgress } from "@shared/schema.mysql";
 
 type MilestoneCardProps = {
   title: string;

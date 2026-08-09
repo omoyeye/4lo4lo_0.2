@@ -103,7 +103,7 @@ export function PWAInstallPrompt() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Download className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold">Install GrowSocial</h3>
+                    <h3 className="font-semibold">Install 4lo4lo</h3>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
                     Install our app for a better experience, offline access, and quick launch from your home screen!

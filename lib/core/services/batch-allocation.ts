@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "@/lib/db";
 import { users, tasks, taskBatches, batchTaskAllocations, userAnalytics, allocationAnalytics } from "@shared/schema.mysql";
 import { eq, and, gte, lte, desc, asc, sql, inArray } from "drizzle-orm";
 import type { AllocationCriteria, AllocationPreview } from "@shared/schema.mysql";

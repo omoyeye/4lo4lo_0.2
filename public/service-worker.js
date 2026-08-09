@@ -1,5 +1,5 @@
-const CACHE_NAME = 'growsocial-v2';
-const RUNTIME_CACHE = 'growsocial-runtime-v2';
+const CACHE_NAME = '4lo4lo-v3';
+const RUNTIME_CACHE = '4lo4lo-runtime-v3';
 const urlsToCache = [
   '/',
   '/tasks',
@@ -8,18 +8,29 @@ const urlsToCache = [
   '/settings',
   '/rewards',
   '/promote-me',
-  '/logo.png',
-  '/favicon.ico'
+  '/icon-192.png',
+  '/favicon-32x32.png'
 ];
 
 // Install service worker and cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+      .then((cache) =>
+        // cache.addAll() rejects the whole batch if a single URL fails, which
+        // aborts the install and leaves the app with no service worker at all.
+        // This list previously contained /logo.png and /favicon.ico, neither of
+        // which existed, so installation failed every time and offline support
+        // never worked. Cache entries individually so one bad URL cannot take
+        // the rest down with it.
+        Promise.all(
+          urlsToCache.map((url) =>
+            cache.add(url).catch((err) => {
+              console.warn('[sw] skipped precache for', url, err);
+            })
+          )
+        )
+      )
       .then(() => self.skipWaiting()) // Activate immediately
   );
 });
@@ -161,7 +172,7 @@ async function syncPendingTasks() {
 // Push notifications
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'GrowSocial Notification';
+  const title = data.title || '4lo4lo Notification';
   const options = {
     body: data.body || 'You have a new notification',
     icon: '/logo.png',

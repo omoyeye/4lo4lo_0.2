@@ -60,7 +60,7 @@ export default function TutorialOverlay() {
       const position = currentStepData.position || "bottom";
       const tooltipWidth = 340;
       const tooltipHeight = 200;
-      let style: React.CSSProperties = { position: "fixed" };
+      const style: React.CSSProperties = { position: "fixed" };
 
       switch (position) {
         case "top":

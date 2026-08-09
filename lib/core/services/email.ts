@@ -1,4 +1,5 @@
-import nodemailer, { Transporter } from "nodemailer";
+import { Transporter } from "nodemailer";
+import { getTransport } from "./mailer";
 
 export interface WelcomeEmailData {
   username: string;
@@ -39,19 +40,7 @@ export async function sendWelcomeEmail(
   //   textContent,
   // };
 
-  const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
-    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
-    secure: false, //process.env.EMAIL_SECURE === 'true',
-    auth: {
-      user: process.env.EMAIL_USER || "9a685a001@smtp-brevo.com",
-      pass: process.env.EMAIL_PASSWORD || "",
-    },
-    tls: {
-      rejectUnauthorized: false, // Only for development
-    },
-    debug: true, // Enable debug output
-  });
+  const transporter: Transporter = getTransport();
 
   const mailOptions = {
     from: '"4LO4LO - Social Growth Platform" <noreply@4lo4lo.site>', //process.env.EMAIL_FROM,
@@ -92,19 +81,7 @@ export async function sendPasswordResetEmail(data: PasswordResetEmailData): Prom
   const htmlContent = generatePasswordResetEmailHTML(data);
   const textContent = generatePlainTextPasswordReset(data);
   
-  const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
-    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER || "9a685a001@smtp-brevo.com",
-      pass: process.env.EMAIL_PASSWORD || "",
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-    debug: true,
-  });
+  const transporter: Transporter = getTransport();
 
   const mailOptions = {
     from: '"4LO4LO - Social Growth Platform" <noreply@4lo4lo.site>',
@@ -128,19 +105,7 @@ export async function sendPasswordResetConfirmationEmail(data: PasswordResetConf
   const htmlContent = generatePasswordResetConfirmationHTML(data);
   const textContent = generatePlainTextPasswordResetConfirmation(data);
   
-  const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
-    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER || "9a685a001@smtp-brevo.com",
-      pass: process.env.EMAIL_PASSWORD || "",
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-    debug: true,
-  });
+  const transporter: Transporter = getTransport();
 
   const mailOptions = {
     from: '"4LO4LO - Social Growth Platform" <noreply@4lo4lo.site>',
@@ -815,21 +780,7 @@ export interface BulkEmailData {
 }
 
 export async function sendBulkEmail(data: BulkEmailData): Promise<{ success: number; failed: number; errors: string[] }> {
-  const transporter: Transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp-relay.brevo.com",
-    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER || "9a685a001@smtp-brevo.com",
-      pass: process.env.EMAIL_PASSWORD || "",
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-  });
+  const transporter: Transporter = getTransport();
 
   let success = 0;
   let failed = 0;

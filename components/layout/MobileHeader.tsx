@@ -34,7 +34,7 @@ export default function MobileHeader() {
             />
             <div className="hidden w-full h-full flex items-center justify-center">
               <img 
-                src="/4lo4lo-logo.png" 
+                src="/logo-128.webp" 
                 alt="4lo4lo Logo" 
                 className="w-full h-full object-contain"
                 onError={(e) => {

@@ -5,6 +5,7 @@ import { GUIDES, GUIDE_CATEGORIES } from "@/lib/learn-content";
 import { getPublicLessons } from "@/lib/classroom-public";
 import { pageMetadata, jsonLd, absoluteUrl } from "@/lib/seo";
 import { LearnNav } from "@/components/learn/LearnNav";
+import { BrandWatermark } from "@/components/BrandLogo";
 import { TOOLS, toolHref } from "@/lib/tools-registry";
 
 export const metadata: Metadata = pageMetadata({
@@ -62,6 +63,11 @@ export default async function Page() {
         <div
           aria-hidden
           className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl"
+        />
+        {/* Brand mark as hero decoration, sized down from the 1.2MB original. */}
+        <BrandWatermark
+          size={320}
+          className="absolute -right-16 -top-10 hidden opacity-[0.07] dark:opacity-[0.12] lg:block"
         />
         <div className="relative mx-auto max-w-5xl px-4 py-12 sm:py-16">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-950/50 dark:text-purple-300">
@@ -156,8 +162,31 @@ export default async function Page() {
                 <Link
                   key={lesson.id}
                   href={`/learn/lessons/${lesson.id}`}
-                  className="group rounded-xl border bg-card p-5 transition-all hover:border-purple-400 hover:shadow-md dark:hover:border-purple-600"
+                  className="group overflow-hidden rounded-xl border bg-card transition-all hover:border-purple-400 hover:shadow-md dark:hover:border-purple-600"
                 >
+                  {/*
+                    classroom_videos.thumbnailUrl was already being fetched and
+                    never rendered. A plain img rather than next/image because
+                    these are operator-supplied URLs on arbitrary hosts, and
+                    routing those through the image optimiser is both a cost and
+                    a fetch-anything surface.
+                  */}
+                  <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500">
+                    {lesson.thumbnailUrl ? (
+                      <img
+                        src={lesson.thumbnailUrl}
+                        alt=""
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <PlayCircle className="h-10 w-10 text-white/80" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-5">
                   <div className="flex items-center justify-between">
                     {lesson.isFree ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
@@ -177,14 +206,15 @@ export default async function Page() {
                     )}
                   </div>
 
-                  <h3 className="mt-3 font-semibold leading-snug">
-                    {lesson.title}
-                  </h3>
-                  {lesson.description && (
-                    <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-                      {lesson.description}
-                    </p>
-                  )}
+                    <h3 className="mt-3 font-semibold leading-snug">
+                      {lesson.title}
+                    </h3>
+                    {lesson.description && (
+                      <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                        {lesson.description}
+                      </p>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>

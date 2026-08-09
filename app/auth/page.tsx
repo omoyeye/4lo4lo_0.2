@@ -97,7 +97,7 @@ function AuthPageContent() {
         <div className="w-full max-w-sm mx-auto lg:w-96">
           <div className="mb-8">
             <img
-              src="/4lo4lo-logo.png"
+              src="/logo-128.webp"
               alt="4lo4lo Logo"
               className="w-16 h-16 mb-4"
             />

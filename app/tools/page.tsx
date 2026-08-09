@@ -250,7 +250,7 @@ function ToolsContent() {
                           level="H"
                           includeMargin
                           imageSettings={{
-                            src: "/4lo4lo-logo.png",
+                            src: "/logo-128.webp",
                             width: 36,
                             height: 36,
                             excavate: true,

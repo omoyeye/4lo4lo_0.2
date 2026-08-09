@@ -167,9 +167,22 @@ export default async function Page({ params }: Params) {
           </div>
         ) : (
           <div className="relative overflow-hidden rounded-2xl border">
+            {/*
+              The lesson's own thumbnail behind the gate, blurred and dimmed.
+              It shows what is behind the lock without giving away the video,
+              and it uses image data the record already carries.
+            */}
+            {lesson.thumbnailUrl ? (
+              <img
+                src={lesson.thumbnailUrl}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-md"
+              />
+            ) : null}
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-[0.1] dark:opacity-[0.18]"
+              className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-500 opacity-[0.18] dark:opacity-[0.3]"
             />
             <div className="relative flex flex-col items-center px-6 py-12 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 shadow-lg">

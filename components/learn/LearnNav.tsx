@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BookOpen, Wrench, ArrowLeft } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 /**
  * Header for /learn pages.
@@ -14,12 +15,7 @@ export function LearnNav({ showBack = false }: { showBack?: boolean }) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-pink-500 text-sm text-white">
-            4
-          </span>
-          <span className="hidden sm:inline">4LO4LO</span>
-        </Link>
+        <BrandLogo priority />
 
         <Link
           href="/learn"

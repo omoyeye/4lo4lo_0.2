@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { otherTools, toolHref, type ToolDefinition } from "@/lib/tools-registry";
 import { ToolsNav } from "@/components/tools/ToolsNav";
+import { BrandWatermark } from "@/components/BrandLogo";
 
 /**
  * Shared chrome for a public tool page.
@@ -91,6 +92,11 @@ export function ToolPageShell({
             backgroundSize: "28px 28px",
             color: "rgb(148 163 184 / 0.4)",
           }}
+        />
+        {/* Brand mark as hero decoration. */}
+        <BrandWatermark
+          size={280}
+          className="absolute -right-12 -top-8 hidden opacity-[0.07] dark:opacity-[0.12] lg:block"
         />
 
         <div className="relative mx-auto max-w-5xl px-4 py-10 sm:py-14">

@@ -18,12 +18,14 @@ import {
   Shield,
   Sparkles,
   ArrowRight,
+  BookOpen,
   Mail,
   Menu,
   X,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ToolsGrid } from "@/components/tools/ToolsGrid";
+import { TOOLS } from "@/lib/tools-registry";
 import type { AdPlacement } from "@shared/schema.mysql";
 
 function AdSlot({ position }: { position: string }) {
@@ -159,12 +161,23 @@ function FreeToolsContent() {
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-purple-600 dark:text-purple-400">
-            <img src="/4lo4lo-logo.png" alt="4LO4LO" className="w-8 h-8 rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            {/*
+              logo-64.webp, not 4lo4lo-logo.png. The original is 774x784 and
+              1.2MB, which was being downloaded in full to render a 32px mark
+              on the site's highest-traffic landing page. This one is 1.8KB.
+            */}
+            <img src="/logo-64.webp" alt="4LO4LO" width={32} height={32} className="w-8 h-8 rounded-lg object-contain" />
             4LO4LO
           </Link>
 
           {/* Desktop nav */}
           <div className="hidden sm:flex items-center gap-3">
+            <Link href="/learn">
+              <Button variant="ghost" size="sm" className="gap-1.5 font-semibold text-purple-700 dark:text-purple-300">
+                <BookOpen className="w-4 h-4" />
+                Learn
+              </Button>
+            </Link>
             <Link href="/auth">
               <Button variant="ghost" size="sm">Log In</Button>
             </Link>
@@ -184,6 +197,12 @@ function FreeToolsContent() {
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="sm:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 flex flex-col gap-2">
+            <Link href="/learn">
+              <Button variant="ghost" className="w-full justify-start gap-1.5">
+                <BookOpen className="w-4 h-4" />
+                Learn
+              </Button>
+            </Link>
             <Link href="/auth">
               <Button variant="ghost" className="w-full justify-start">Log In</Button>
             </Link>
@@ -193,6 +212,59 @@ function FreeToolsContent() {
           </div>
         )}
       </header>
+
+      {/* Hero */}
+      <div className="relative overflow-hidden border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-500 opacity-[0.08] dark:opacity-[0.16]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-20 blur-3xl"
+        />
+        <img
+          src="/logo-320.webp"
+          alt=""
+          aria-hidden
+          width={320}
+          height={320}
+          className="pointer-events-none absolute -right-16 -top-10 hidden w-72 select-none opacity-[0.07] dark:opacity-[0.12] lg:block"
+        />
+        <div className="relative max-w-6xl mx-auto px-4 py-10 sm:py-14">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-950/50 dark:text-purple-300">
+            <Sparkles className="h-3.5 w-3.5" />
+            {TOOLS.length} tools, free forever, no signup
+          </span>
+          <h1 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Free tools for{" "}
+            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              creators
+            </span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-base sm:text-lg text-gray-600 dark:text-gray-300">
+            Work out your engagement rate, build a hashtag set, plan your
+            posting schedule, resize images for any platform. Everything runs in
+            your browser and nothing is uploaded.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href="#all-tools"
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02]"
+            >
+              Browse all {TOOLS.length} tools
+              <ArrowRight className="h-4 w-4" />
+            </a>
+            <Link
+              href="/learn"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+            >
+              <BookOpen className="h-4 w-4" />
+              Read the guides
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Top Ad */}
       <div className="max-w-6xl mx-auto w-full px-4 mt-4">
@@ -294,7 +366,7 @@ function FreeToolsContent() {
                           level="H"
                           includeMargin
                           imageSettings={{
-                            src: "/4lo4lo-logo.png",
+                            src: "/logo-128.webp",
                             width: 36,
                             height: 36,
                             excavate: true,

@@ -294,7 +294,7 @@ export default function Sidebar() {
         />
         <div className="hidden w-full h-full rounded-full flex items-center justify-center">
           <img 
-            src="/4lo4lo-logo.png" 
+            src="/logo-128.webp" 
             alt="4lo4lo Logo" 
             className="w-full h-full object-cover rounded-full"
           />

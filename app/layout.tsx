@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { siteUrl } from "@/lib/seo";
+import { GtmScript, GtmNoScript } from "@/components/GoogleTagManager";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -53,6 +54,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
+        {/* Must be the first thing inside <body>, per Google's install. */}
+        <GtmNoScript />
+        <GtmScript />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -596,6 +596,35 @@ export const adPlacements = mysqlTable("ad_placements", {
 
 // ---------------------------------------------------------------------------
 // Insert Schemas (re-exported so storage layer can use them)
+
+// ---------------------------------------------------------------------------
+// user_follows
+//
+// The only new table the community features need. Everything the activity
+// feed shows is derived from rows that already exist: user_tasks,
+// user_badges and level_history.
+//
+// NOT CREATED AUTOMATICALLY. This app runs against a live database, so the
+// DDL is in scripts/sql/006-community-tables.sql for a human to apply. Every
+// code path that touches this table tolerates its absence.
+// ---------------------------------------------------------------------------
+export const userFollows = mysqlTable(
+  "user_follows",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    // The user doing the following.
+    followerId: int("follower_id").notNull(),
+    // The user being followed.
+    followingId: int("following_id").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => ({
+    // A follow is idempotent: one row per pair, enforced by the database
+    // rather than by a read-then-write check in application code.
+    uniqueFollow: unique().on(table.followerId, table.followingId),
+  })
+);
+
 // ---------------------------------------------------------------------------
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
 export const insertTaskSchema = createInsertSchema(tasks).omit({ id: true });
@@ -683,6 +712,7 @@ export type ReferralTier = typeof referralTiers.$inferSelect;
 export type QrEmailLead = typeof qrEmailLeads.$inferSelect;
 export type ShortenedUrl = typeof shortenedUrls.$inferSelect;
 export type LevelHistory = typeof levelHistory.$inferSelect;
+export type UserFollow = typeof userFollows.$inferSelect;
 export type ProfileLink = typeof profileLinks.$inferSelect;
 export type AdPlacement = typeof adPlacements.$inferSelect;
 export type AppSetting = typeof appSettings.$inferSelect;

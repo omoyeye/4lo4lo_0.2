@@ -171,6 +171,21 @@ export default async function Page({ params }: Params) {
                   {section.callout}
                 </p>
               )}
+
+              {section.links && section.links.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {section.links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${guide.theme.hover} ${guide.theme.accent}`}
+                    >
+                      {link.label}
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  ))}
+                </div>
+              )}
             </section>
           ))}
         </article>

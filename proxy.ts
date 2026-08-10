@@ -5,6 +5,9 @@ import { getToken } from "next-auth/jwt";
 /**
  * Server-side gate for the admin area.
  *
+ * Named proxy.ts, not middleware.ts: Next 16 deprecated the middleware file
+ * convention and warns on every build. Same behaviour, same matcher.
+ *
  * Before this existed, /admin/* was protected only by a client-side useEffect
  * in lib/admin-protected-route.tsx. The HTML was publicly fetchable and the
  * guard could be skipped by disabling JS. The API routes were (and remain)
@@ -17,7 +20,7 @@ import { getToken } from "next-auth/jwt";
 
 const ADMIN_ROLES = new Set(["admin", "superadmin"]);
 
-export async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
   const token = await getToken({

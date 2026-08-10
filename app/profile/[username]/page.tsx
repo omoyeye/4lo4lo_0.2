@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { storage } from "@/lib/core/storage";
 import ProfileClient from "@/components/profile/ProfileClient";
+import { FollowButton } from "@/components/community/FollowButton";
+import { getFollowCounts } from "@/lib/core/community";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
 
 /**
@@ -130,12 +132,29 @@ export default async function Page({ params }: Params) {
     links: data.links,
   };
 
+  /*
+   * Follower count is the same for every viewer, so it is safe to resolve here
+   * and be cached along with the page.
+   *
+   * Whether YOU follow this person is not. This page sets revalidate = 3600
+   * because it is the site's main SEO surface and must stay cacheable, and
+   * anything read from the session inside a cached render would either force
+   * the page dynamic or, worse, cache one viewer's follow state and serve it
+   * to everyone. So FollowButton resolves that part client side.
+   */
+  const counts = await getFollowCounts(u.id);
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
       />
+
+      <div className="mx-auto max-w-4xl px-4 pt-6">
+        <FollowButton username={u.username} initialFollowers={counts.followers} />
+      </div>
+
       <ProfileClient initialProfile={initialProfile as never} />
     </>
   );

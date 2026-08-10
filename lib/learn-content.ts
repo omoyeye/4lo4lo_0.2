@@ -23,6 +23,12 @@ export interface GuideSection {
   bullets?: string[];
   /** Optional callout rendered as a highlighted aside. */
   callout?: string;
+  /**
+   * Contextual links rendered under the section. Real in-content links,
+   * which is what actually distributes authority between pages, rather than
+   * only a related-posts row at the very bottom that few readers reach.
+   */
+  links?: { label: string; href: string }[];
 }
 
 export interface Guide {
@@ -137,6 +143,10 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Cadence: how often to post",
+        links: [
+          { label: "Plan a schedule you can keep", href: "/learn/content-calendar-that-works" },
+          { label: "Best time to post tool", href: "/free-tools/best-time-to-post" },
+        ],
         body: [
           "The advice to post three times a day is mostly repeated by people selling scheduling software. In practice, posting more only helps if quality holds, and for almost everyone it does not.",
           "Three to five videos a week, sustained for three months, will teach you more than thirty videos in a fortnight followed by burnout. You need enough volume to learn what works and enough care that each video is a real test.",
@@ -168,6 +178,10 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "What to measure",
+        links: [
+          { label: "Engagement rate calculator", href: "/free-tools/engagement-rate-calculator" },
+          { label: "Follower growth tracker", href: "/free-tools/follower-growth-tracker" },
+        ],
         body: [
           "Views are the least useful number in your analytics because they are an outcome, not a lever. Track the things upstream of them.",
           "Retention graph first: where do people drop off. Then completion rate, then shares. Shares in particular are the strongest predictor of a video breaking out, because a share is someone spending their own social capital on you.",
@@ -226,6 +240,9 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Captions: the first line is the whole game",
+        links: [
+          { label: "Caption and bio generator", href: "/free-tools/caption-generator" },
+        ],
         body: [
           "Instagram truncates captions after roughly two lines. Everything past the more link is read by a small fraction of the people who saw the post, so the first line has to earn the expansion.",
           "Write it last. Draft the caption, then work out which sentence in it is the most interesting, and move that to the top.",
@@ -233,6 +250,9 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Hashtags in 2026",
+        links: [
+          { label: "Free hashtag generator", href: "/free-tools/hashtag-generator" },
+        ],
         body: [
           "Hashtags matter less than they did and far less than most guides claim. Instagram now reads your caption, your on-screen text and your audio to classify a post, and those signals dominate.",
           "They are still worth using, just stop treating them as a strategy. Eight to fifteen genuinely relevant tags beats thirty loose ones, which mostly attracts bots and tells the classifier nothing useful.",
@@ -285,6 +305,10 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Narrow the topic further than feels comfortable",
+        links: [
+          { label: "How to grow on TikTok", href: "/learn/how-to-grow-on-tiktok" },
+          { label: "How to grow on Instagram", href: "/learn/how-to-grow-on-instagram" },
+        ],
         body: [
           "Fitness is not a topic, it is a category with millions of competitors. Kettlebell training for people with desk jobs is a topic. Narrow enough that someone can describe you in one sentence.",
           "Narrowness feels like it limits your ceiling. In practice it is the only way to get off the ground, because a specific promise is what makes a stranger follow. You can broaden once people are already listening.",
@@ -355,6 +379,9 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Brand deals",
+        links: [
+          { label: "Know your engagement rate first", href: "/free-tools/engagement-rate-calculator" },
+        ],
         body: [
           "This is where most serious creator income comes from, and it starts far earlier than people expect. Brands increasingly prefer smaller accounts with tight, engaged audiences over large ones with diffuse reach.",
           "Pricing is driven by engagement rate, niche commercial value and usage rights, not by follower count on its own. A tight audience in a high-value niche can charge multiples of what a larger general account can.",
@@ -382,6 +409,9 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Paid tasks and micro-earning",
+        links: [
+          { label: "Get your first 1,000 followers", href: "/learn/first-1000-followers" },
+        ],
         body: [
           "Platforms that pay for completing social actions sit at the entry level of creator income. The rates are modest by design and it will not replace a salary, but it starts immediately, requires no audience, and pays while you are building one.",
           "It works best as a floor rather than a ceiling: something that covers small costs during the months when nothing else is earning yet.",
@@ -443,6 +473,10 @@ export const GUIDES: Guide[] = [
       },
       {
         heading: "Batch by task, not by post",
+        links: [
+          { label: "Resize images for every platform", href: "/free-tools/image-resizer" },
+          { label: "Caption generator", href: "/free-tools/caption-generator" },
+        ],
         body: [
           "Making one post start to finish, then the next, is the slowest possible method because you pay the setup cost every time.",
           "Batch by stage instead. Write six captions in one sitting. Film four videos in one session while the lighting is already right. Edit them together. The saving is large enough that it usually decides whether a schedule survives.",

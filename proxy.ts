@@ -20,15 +20,44 @@ import { getToken } from "next-auth/jwt";
 
 const ADMIN_ROLES = new Set(["admin", "superadmin"]);
 
+const SECRET = process.env.NEXTAUTH_SECRET ?? process.env.SESSION_SECRET;
+
+/**
+ * Read the session token without assuming which cookie name was used.
+ *
+ * THIS IS WHY ADMIN LOGIN APPEARED TO FAIL.
+ *
+ * This used to pass `secureCookie: NODE_ENV === "production"`, which makes
+ * getToken look for `__Secure-authjs.session-token`. But NextAuth chooses the
+ * cookie name from the URL protocol, not from NODE_ENV, and this deployment
+ * has NEXTAUTH_URL set to http://localhost:3000. Seeing an http URL, NextAuth
+ * wrote the unprefixed `authjs.session-token`.
+ *
+ * So sign-in genuinely worked, set one cookie, and this gate then looked for a
+ * different one, found nothing, decided the visitor was not an admin and
+ * redirected back to /admin/login. An endless bounce that looks exactly like
+ * "my password is not accepted".
+ *
+ * Trying both names removes the dependency on NEXTAUTH_URL being correct.
+ * Fixing NEXTAUTH_URL is still worth doing (it is used for callbacks and
+ * Stripe return URLs) but admin access no longer hinges on it.
+ */
+async function readToken(req: NextRequest) {
+  for (const secureCookie of [true, false]) {
+    try {
+      const token = await getToken({ req, secret: SECRET, secureCookie });
+      if (token) return token;
+    } catch {
+      // Wrong cookie name or undecodable; try the other variant.
+    }
+  }
+  return null;
+}
+
 export default async function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
-  const token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET ?? process.env.SESSION_SECRET,
-    // NextAuth v5 prefixes the cookie with `__Secure-` behind HTTPS.
-    secureCookie: process.env.NODE_ENV === "production",
-  });
+  const token = await readToken(req);
 
   const role = (token?.role as string | undefined) ?? null;
   const isAdmin = !!role && ADMIN_ROLES.has(role);

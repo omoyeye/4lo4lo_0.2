@@ -113,7 +113,7 @@ function LandingPageContent() {
           </motion.div>
 
           <motion.div
-            className="flex items-center gap-4"
+            className="flex items-center gap-1.5 sm:gap-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >
@@ -122,10 +122,26 @@ function LandingPageContent() {
               first-class nav slot rather than being buried in the footer.
               The count comes from the registry so it never goes stale.
             */}
-            <Link href="/free-tools">
+            {/*
+              Icon-only below sm, full label above.
+              This button previously had no responsive rule while Login and
+              Learn both hid on small screens, so at 375px the row overflowed
+              and pushed "Join Now" partly off the right edge of the screen,
+              where it could not be tapped. Losing the primary call to action
+              on mobile is the worst possible place for a layout bug.
+            */}
+            <Link href="/free-tools" aria-label="Free tools">
               <Button
                 variant="ghost"
-                className="gap-1.5 font-semibold text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/50"
+                size="icon"
+                className="sm:hidden text-purple-700 hover:bg-purple-50 dark:text-purple-300 dark:hover:bg-purple-950/50"
+                data-testid="nav-tools-btn-compact"
+              >
+                <Wrench className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="hidden sm:inline-flex gap-1.5 font-semibold text-purple-700 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-300 dark:hover:bg-purple-950/50"
                 data-testid="nav-tools-btn"
               >
                 <Wrench className="w-4 h-4" />
@@ -178,18 +194,18 @@ function LandingPageContent() {
               </motion.div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                <span className="text-gray-900 dark:text-white">A Global </span>
+                <span className="text-foreground">A Global </span>
                 <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
                   Planned Community
                 </span>
                 <br />
-                <span className="text-gray-900 dark:text-white">for </span>
+                <span className="text-foreground">for </span>
                 <span className="bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">
                   Creators & Influencers
                 </span>
               </h1>
 
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl text-balance">
+              <p className="text-lg text-muted-foreground mb-8 max-w-xl text-balance">
                 Where content creators come for knowledge, friendship, and a community that pushes each other to grow and make money together.
                 Complete social tasks, learn from the Classroom, refer friends, and cash out, all in one place.
               </p>
@@ -220,7 +236,7 @@ function LandingPageContent() {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
                   <span>Free to Join</span>
@@ -247,13 +263,13 @@ function LandingPageContent() {
                 <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/50 rounded-full text-purple-700 dark:text-purple-300 text-xs font-medium">
                   <Sparkles className="w-3 h-3" /> Free, no login needed
                 </span>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
+                <h2 className="text-2xl font-bold text-foreground mt-2">
                   {TOOLS.length} Free{" "}
                   <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Creator Tools
                   </span>
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Hashtags, captions, engagement rate, posting times and more.
                   Use them right now, no account required.
                 </p>
@@ -283,7 +299,7 @@ function LandingPageContent() {
                           >
                             <Icon className="h-4.5 w-4.5 text-white" />
                           </div>
-                          <h3 className="mt-2.5 text-sm font-bold leading-tight text-gray-900 dark:text-white">
+                          <h3 className="mt-2.5 text-sm font-bold leading-tight text-foreground">
                             {tool.name}
                           </h3>
                         </div>
@@ -310,7 +326,7 @@ function LandingPageContent() {
       <section className="relative z-10 py-12 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6">
           <motion.p
-            className="text-center text-gray-500 dark:text-gray-400 mb-8"
+            className="text-center text-muted-foreground mb-8"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -341,7 +357,7 @@ function LandingPageContent() {
                 <div className={`w-14 h-14 bg-gradient-to-br ${platform.color} rounded-2xl flex items-center justify-center shadow-lg`}>
                   <platform.icon className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{platform.name}</span>
+                <span className="text-sm text-muted-foreground">{platform.name}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -356,10 +372,10 @@ function LandingPageContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Why Choose <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">4LO4LO?</span>
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Join thousands of users who are already turning their social media time into real income
             </p>
           </motion.div>
@@ -425,8 +441,8 @@ function LandingPageContent() {
                     <div className={`w-14 h-14 bg-gradient-to-br ${benefit.color} rounded-2xl flex items-center justify-center mb-4 shadow-lg`}>
                       <benefit.icon className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{benefit.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{benefit.description}</p>
+                    <h3 className="text-xl font-bold text-foreground mb-2">{benefit.title}</h3>
+                    <p className="text-muted-foreground">{benefit.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -528,7 +544,7 @@ function LandingPageContent() {
                 >
                   {stat.value}
                 </motion.div>
-                <div className="text-gray-600 dark:text-gray-400">{stat.label}</div>
+                <div className="text-muted-foreground">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -587,7 +603,7 @@ function LandingPageContent() {
         </div>
       </section>
       {/* Footer */}
-      <footer className="relative z-10 py-12 px-6 border-t border-gray-200 dark:border-gray-700">
+      <footer className="relative z-10 py-12 px-6 border-t border-border">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
@@ -601,13 +617,13 @@ function LandingPageContent() {
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-6 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
               <Link href="/terms" className="hover:text-purple-600 transition-colors">Terms of Service</Link>
               <Link href="/privacy" className="hover:text-purple-600 transition-colors">Privacy Policy</Link>
               <Link href="/free-tools" className="hover:text-purple-600 transition-colors">Free Tools</Link>
             </div>
 
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} 4LO4LO. All rights reserved.
             </p>
           </div>

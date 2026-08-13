@@ -13,6 +13,7 @@ import TutorialOverlay from "@/components/tutorial/TutorialOverlay";
 import { NewUserTutorialPrompt } from "@/components/tutorial/TutorialTrigger";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
+import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
 import { OfflineFallback } from "@/components/OfflineFallback";
 import { usePWAAnalytics } from "@/hooks/use-pwa-analytics";
 import { initBackgroundSync } from "@/lib/background-sync";
@@ -60,6 +61,7 @@ export function Providers({ children }: { children: ReactNode }) {
                 <DailyCheckin />
                 {children}
                 <Toaster />
+                <ServiceWorkerRegistrar />
                 <PWAInstallPrompt />
                 <PWAUpdatePrompt />
                 <OfflineFallback />

@@ -45,7 +45,7 @@ export function ToolsNav({ activeSlug }: { activeSlug?: string }) {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
         <BrandLogo priority />
 
         <Link
@@ -114,7 +114,7 @@ export function ToolsNav({ activeSlug }: { activeSlug?: string }) {
       {/* Mobile / tablet tool list */}
       {open && (
         <nav aria-label="Free tools" className="border-t lg:hidden">
-          <ul className="mx-auto grid max-w-6xl gap-1 px-4 py-3 sm:grid-cols-2">
+          <ul className="mx-auto grid max-w-5xl gap-1 px-4 py-3 sm:grid-cols-2">
             {TOOLS.map((tool) => {
               const Icon = ICONS[tool.icon] ?? Activity;
               const isActive = tool.slug === activeSlug;

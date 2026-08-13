@@ -155,10 +155,10 @@ function FreeToolsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
 
       {/* Standalone Nav */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+      <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-purple-600 dark:text-purple-400">
             {/*
@@ -196,7 +196,7 @@ function FreeToolsContent() {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="sm:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 flex flex-col gap-2">
+          <div className="sm:hidden border-t border-border bg-card px-4 py-3 flex flex-col gap-2">
             <Link href="/learn">
               <Button variant="ghost" className="w-full justify-start gap-1.5">
                 <BookOpen className="w-4 h-4" />
@@ -214,7 +214,7 @@ function FreeToolsContent() {
       </header>
 
       {/* Hero */}
-      <div className="relative overflow-hidden border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div className="relative overflow-hidden border-b border-border bg-card">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-500 opacity-[0.08] dark:opacity-[0.16]"
@@ -236,13 +236,13 @@ function FreeToolsContent() {
             <Sparkles className="h-3.5 w-3.5" />
             {TOOLS.length} tools, free forever, no signup
           </span>
-          <h1 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h1 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
             Free tools for{" "}
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               creators
             </span>
           </h1>
-          <p className="mt-3 max-w-2xl text-base sm:text-lg text-gray-600 dark:text-gray-300">
+          <p className="mt-3 max-w-2xl text-base sm:text-lg text-muted-foreground">
             Work out your engagement rate, build a hashtag set, plan your
             posting schedule, resize images for any platform. Everything runs in
             your browser and nothing is uploaded.
@@ -282,10 +282,10 @@ function FreeToolsContent() {
             <Sparkles className="w-4 h-4" />
             <span>100% Free No Login Required</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
             Free Creator <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Tools</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+          <p className="text-muted-foreground max-w-xl mx-auto">
             Generate QR codes and shorten links instantly. Built for creators and influencers by 4LO4LO.
           </p>
         </motion.div>
@@ -326,7 +326,7 @@ function FreeToolsContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
+              <Card className="shadow-lg border-0 bg-card">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
@@ -429,7 +429,7 @@ function FreeToolsContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
+              <Card className="shadow-lg border-0 bg-card">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -487,7 +487,7 @@ function FreeToolsContent() {
             </motion.div>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400 justify-center">
+            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground justify-center">
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-green-500" />
                 <span>Privacy Focused</span>
@@ -522,16 +522,16 @@ function FreeToolsContent() {
             <div className="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mx-auto mb-4">
               <Link2 className="w-7 h-7 text-purple-600 dark:text-purple-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+            <h2 className="text-2xl font-bold text-foreground mb-3">
               Your Free Bio Link Page Like Linktree
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+            <p className="text-muted-foreground mb-4 leading-relaxed">
               Every 4LO4LO account comes with a <strong>free public profile page</strong> you can use as your social media bio link.
               Add any links you want: your YouTube, Instagram, website, store, or anything else, and share one link everywhere.
             </p>
-            <div className="bg-white dark:bg-gray-900 border rounded-xl p-4 mb-6 text-left space-y-3">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">How to set it up:</p>
-              <ol className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="bg-card border rounded-xl p-4 mb-6 text-left space-y-3">
+              <p className="text-sm font-semibold text-foreground">How to set it up:</p>
+              <ol className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2"><span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs flex items-center justify-center font-bold flex-shrink-0">1</span>Sign in and go to <strong>My Profile</strong> in the menu</li>
                 <li className="flex gap-2"><span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs flex items-center justify-center font-bold flex-shrink-0">2</span>Click <strong>Add Link</strong> to add your URLs (YouTube, Instagram, website, etc.)</li>
                 <li className="flex gap-2"><span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs flex items-center justify-center font-bold flex-shrink-0">3</span>Copy your profile link, it looks like <code className="bg-muted px-1 rounded text-xs">4lo4lo.site/profile/yourname</code></li>
@@ -572,8 +572,8 @@ function FreeToolsContent() {
       </div>
 
       {/* Standalone Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
+      <footer className="bg-card border-t border-border mt-auto">
+        <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <Link href="/" className="font-bold text-purple-600 dark:text-purple-400">
             4LO4LO
           </Link>

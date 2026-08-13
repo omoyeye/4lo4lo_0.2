@@ -55,10 +55,10 @@ export function ToolsGrid({
             <Sparkles className="h-3.5 w-3.5" />
             {tools.length} free tools
           </span>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {heading}
           </h2>
-          <p className="mt-2 max-w-2xl text-gray-600 dark:text-gray-400">
+          <p className="mt-2 max-w-2xl text-muted-foreground">
             {subheading}
           </p>
         </div>
@@ -86,10 +86,10 @@ export function ToolsGrid({
                   <Icon className="h-6 w-6 text-white" />
                 </div>
 
-                <h3 className="mt-4 font-semibold text-gray-900 dark:text-white">
+                <h3 className="mt-4 font-semibold text-foreground">
                   {tool.name}
                 </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                   {tool.tagline}
                 </p>
 

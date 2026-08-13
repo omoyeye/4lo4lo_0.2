@@ -13,7 +13,8 @@
     "db:introspect": "drizzle-kit introspect",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:check": "node scripts/db-check.mjs"
+    "db:check": "node scripts/db-check.mjs",
+    "admin:create": "node scripts/create-superadmin.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -45,6 +46,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.3",
     "@sendgrid/mail": "^8.1.4",
+    "@sentry/nextjs": "^10.70.0",
     "@tanstack/react-query": "^5.60.5",
     "@vercel/blob": "^2.7.0",
     "axios": "^1.13.5",

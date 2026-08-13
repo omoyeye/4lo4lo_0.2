@@ -72,9 +72,16 @@ export async function GET(req: NextRequest) {
     fix =
       "Sign out and back in so a fresh token is issued with the role claim.";
   } else if (!isAdminRole(role)) {
+    const id = (token?.id as string | undefined) ?? session?.user?.id;
     verdict = `You are signed in, but your role is "${role}", which is not an admin role.`;
-    fix =
-      "Promote the account: UPDATE users SET role = 'superadmin' WHERE username = '<you>' LIMIT 1; then sign out and back in. See scripts/sql/002-link-legacy-admins.sql.";
+    // Key the statement on the id, which is known exactly. The display name
+    // shown elsewhere is not the username, and guessing it produces an UPDATE
+    // that silently matches nothing.
+    fix = id
+      ? `Run: UPDATE users SET role = 'superadmin' WHERE id = ${id} LIMIT 1; ` +
+        "Then SIGN OUT AND BACK IN. The role is carried inside the session " +
+        "token, so an existing session keeps the old role until it is reissued."
+      : "Promote the account in the users table, then sign out and back in.";
   } else {
     verdict = "Everything checks out. This session should have admin access.";
     fix =

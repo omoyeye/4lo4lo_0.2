@@ -342,10 +342,27 @@ function NotificationsContent() {
 
 
 ﻿import { ProtectedRoute } from "@/lib/protected-route";
+import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer";
 export default function Page() {
   return (
     <ProtectedRoute>
-      <NotificationsContent />
+      {/*
+        Same shell as every other signed-in page. Without it this route
+        rendered with no navigation at all: no sidebar on desktop, and on
+        mobile no bottom bar either, which is where sign out lives. The
+        sidebar linked here, so opening it made the navigation disappear.
+        pb-20 md:pb-0 keeps content clear of the fixed mobile bottom nav.
+      */}
+      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0">
+          <div className="flex-grow">
+            <NotificationsContent />
+          </div>
+          <Footer />
+        </div>
+      </div>
     </ProtectedRoute>
   );
 }

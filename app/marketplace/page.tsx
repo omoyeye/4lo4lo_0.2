@@ -16,6 +16,7 @@ import { Store, Plus, MessageCircle, ShoppingBag, User, Clock, CheckCircle2, Sli
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import Sidebar from "@/components/layout/Sidebar";
+import Footer from "@/components/layout/Footer";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 
 type StatusFilter = "all" | "open" | "sold";
@@ -579,10 +580,14 @@ function MarketplaceContent() {
   const soldCount = allListings.filter((l) => l.status === "sold").length;
   const userOpenListingsCount = allListings.filter((l) => l.status === "open" && l.sellerId === user.id).length;
 
+  // Was: flex h-screen overflow-hidden. On mobile that pinned the page to the
+  // viewport height with no clearance, so the fixed bottom navigation covered
+  // the end of the listing. This matches the shell the other signed-in pages
+  // use, including the pb-20 md:pb-0 clearance.
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <Sidebar />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0">
         <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
           {/* Page header */}
           <div className="flex items-center gap-3">
@@ -701,6 +706,7 @@ function MarketplaceContent() {
             )}
           </div>
         </div>
+        <Footer />
       </div>
     </div>
   );

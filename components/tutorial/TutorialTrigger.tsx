@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTutorial } from "@/contexts/TutorialContext";
 import { useAuth } from "@/hooks/use-auth";
+import { isTutorialRoute } from "@/lib/tutorial-routes";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, X, Play, HelpCircle } from "lucide-react";
 
@@ -12,15 +14,29 @@ export function NewUserTutorialPrompt() {
   const { hasCompletedTutorial, startTutorial, skipTutorial } = useTutorial();
   const [showPrompt, setShowPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const pathname = usePathname();
+
+  /*
+   * Being signed in is not enough. This component is mounted in
+   * app/providers.tsx, which wraps every route, so a signed-in visitor
+   * reading a public marketing page such as /learn or /free-tools was shown
+   * the prompt there. Every step of the tour targets an element that only
+   * exists in the signed-in app, so it had nothing to point at.
+   */
+  const onAppRoute = isTutorialRoute(pathname);
 
   useEffect(() => {
-    if (user && !hasCompletedTutorial && !dismissed) {
+    if (user && onAppRoute && !hasCompletedTutorial && !dismissed) {
       const timer = setTimeout(() => {
         setShowPrompt(true);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [user, hasCompletedTutorial, dismissed]);
+
+    // Navigating away from the app (to a public page, or signing out) hides
+    // the prompt rather than leaving it floating over marketing content.
+    setShowPrompt(false);
+  }, [user, onAppRoute, hasCompletedTutorial, dismissed]);
 
   const handleStart = () => {
     setShowPrompt(false);

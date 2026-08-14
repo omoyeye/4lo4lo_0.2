@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { X, ChevronLeft, ChevronRight, Sparkles, SkipForward, RotateCcw } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
+import { isTutorialRoute } from "@/lib/tutorial-routes";
 
 interface SpotlightPosition {
   top: number;
@@ -26,7 +27,18 @@ export default function TutorialOverlay() {
   } = useTutorial();
 
   const router = useRouter();
+  const pathname = usePathname();
   const setLocation = (p: string) => router.push(p);
+
+  /*
+   * Every step points at an element that only exists in the signed-in app, so
+   * the overlay is hidden on public pages. This is a render guard rather than a
+   * call to skipTutorial: leaving the tour state alone means a visitor who
+   * wanders onto /learn mid-tour picks up where they left off when they come
+   * back, and a transient pathname mismatch while a step navigates cannot
+   * destroy their progress.
+   */
+  const onAppRoute = isTutorialRoute(pathname);
   const [spotlightPos, setSpotlightPos] = useState<SpotlightPosition | null>(null);
   const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
 
@@ -123,7 +135,7 @@ export default function TutorialOverlay() {
     };
   }, [isActive, currentStep, currentStepData, setLocation, updateSpotlight]);
 
-  if (!isActive) return null;
+  if (!isActive || !onAppRoute) return null;
 
   return (
     <AnimatePresence>

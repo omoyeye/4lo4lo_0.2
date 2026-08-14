@@ -19,7 +19,7 @@ const profileSchema = z.object({
   username: z.string().min(3).max(30),
   email: z.string().email(),
   displayName: z.string().max(160).optional(),
-  isPublic: z.boolean().default(false),
+  isPublic: z.boolean().default(true),
   facebook_handle: z.string().optional().nullable(),
   instagram_handle: z.string().optional().nullable(),
   tiktok_handle: z.string().optional().nullable(),
@@ -123,13 +123,73 @@ function SettingsContent() {
   const { user, refetchUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
+  /*
+   * Search engine visibility lives on its own endpoint rather than in the
+   * profile form, because is_indexable is not a Drizzle column. See
+   * lib/profile-visibility.ts. `indexingEnabled` is false until the migration
+   * that adds it has been run, which the UI explains rather than offering a
+   * switch that cannot save.
+   */
+  const [indexable, setIndexable] = useState(false);
+  const [indexingEnabled, setIndexingEnabled] = useState(false);
+  const [indexingBusy, setIndexingBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/user/indexing")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return;
+        setIndexingEnabled(Boolean(d.enabled));
+        setIndexable(Boolean(d.indexable));
+      })
+      .catch(() => {
+        /* Leave it off. Failing closed matches the server. */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  const onIndexableChange = async (next: boolean) => {
+    setIndexingBusy(true);
+    const previous = indexable;
+    setIndexable(next);
+    try {
+      const res = await fetch("/api/user/indexing", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ indexable: next }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || "Could not save that");
+      }
+      toast({
+        title: next ? "Profile listed publicly" : "Profile removed from search",
+        description: next
+          ? "Signed out visitors and search engines can now find your profile. It can take a few days for search engines to pick it up."
+          : "Your profile is now visible only to signed in members.",
+      });
+    } catch (err) {
+      setIndexable(previous);
+      toast({
+        title: "Could not save",
+        description: err instanceof Error ? err.message : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIndexingBusy(false);
+    }
+  };
+
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       username: user?.username || "",
       email: user?.email || "",
       displayName: user?.displayName || "",
-      isPublic: user?.isPublic ?? false,
+      isPublic: user?.isPublic ?? true,
       facebook_handle: user?.facebook_handle || "",
       instagram_handle: user?.instagram_handle || "",
       tiktok_handle: user?.tiktok_handle || "",
@@ -144,7 +204,7 @@ function SettingsContent() {
         username: user.username || "",
         email: user.email || "",
         displayName: user.displayName || "",
-        isPublic: user.isPublic ?? false,
+        isPublic: user.isPublic ?? true,
         facebook_handle: user.facebook_handle || "",
         instagram_handle: user.instagram_handle || "",
         tiktok_handle: user.tiktok_handle || "",
@@ -371,18 +431,62 @@ function SettingsContent() {
                           ) : (
                             <Lock className="h-4 w-4 text-muted-foreground" />
                           )}
-                          <label className="text-sm font-medium">Public Profile</label>
+                          <label className="text-sm font-medium">
+                            Visible to other members
+                          </label>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {profileForm.watch("isPublic")
-                            ? `Anyone on the internet can see your profile at /profile/${user?.username || "you"}, and search engines can index it. That covers your display name, country, level, points, streak, rank, badges and any links you add.`
-                            : "Your profile is private. Only you can see it, and it will not appear in search engines."}
+                            ? "Signed in members can view your profile, follow you, and see your activity in the feed."
+                            : "Your profile is hidden from other members. Nobody can follow you and your activity stays out of the feed."}
                         </p>
                       </div>
                       <Switch
                         checked={profileForm.watch("isPublic")}
                         onCheckedChange={(val) => profileForm.setValue("isPublic", val)}
                         data-testid="switch-is-public"
+                      />
+                    </div>
+                  </div>
+
+                  {/*
+                    Separate from the toggle above on purpose. Being visible to
+                    the community and being published on the open web are
+                    different decisions, and merging them is what put every
+                    member in the sitemap.
+                  */}
+                  <div className="pt-4 border-t">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          {indexable ? (
+                            <Globe className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          <label className="text-sm font-medium">
+                            Show my profile in search engines
+                          </label>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {!indexingEnabled
+                            ? "Not available yet. This site is still set up so that no profile is published to the open web."
+                            : !profileForm.watch("isPublic")
+                              ? "Turn on “Visible to other members” first. A profile hidden from members is not published to strangers."
+                              : indexable
+                                ? `Anyone can find you at /profile/${user?.username || "you"} without signing in, including Google. This shows your display name, country, level, points, streak, rank, badges and any links you add.`
+                                : "Off. Only signed in members can see your profile, and it stays out of search results."}
+                        </p>
+                      </div>
+                      <Switch
+                        checked={indexable}
+                        disabled={
+                          !indexingEnabled ||
+                          !profileForm.watch("isPublic") ||
+                          indexingBusy
+                        }
+                        onCheckedChange={onIndexableChange}
+                        data-testid="switch-is-indexable"
                       />
                     </div>
                   </div>

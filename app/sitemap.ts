@@ -71,35 +71,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("sitemap: could not load classroom lessons:", error);
   }
 
+  /*
+   * Only profiles whose owner opted in to being on the public web.
+   *
+   * This used to list everyone with is_public, which is every account, and so
+   * published the entire member list. listIndexableUsernames requires both
+   * is_public and is_indexable, drops usernames that must never be published,
+   * and returns an empty list on any failure, including before the migration
+   * that adds the column has been run.
+   */
   let profileRoutes: MetadataRoute.Sitemap = [];
   try {
-    const [{ db }, { users }, { and, eq, isNotNull, desc }] = await Promise.all([
-      import("@/lib/db"),
-      import("@shared/schema.mysql"),
-      import("drizzle-orm"),
-    ]);
+    const { listIndexableUsernames } = await import("@/lib/profile-visibility");
+    const usernames = await listIndexableUsernames(PROFILE_LIMIT);
 
-    const rows = await db
-      .select({ username: users.username, updatedAt: users.updatedAt })
-      .from(users)
-      .where(and(eq(users.isPublic, true), isNotNull(users.username)))
-      .orderBy(desc(users.updatedAt))
-      .limit(PROFILE_LIMIT);
-
-    const { isPublishableUsername } = await import("@/lib/profile-visibility");
-
-    profileRoutes = rows
-      .filter((row) => isPublishableUsername(row.username))
-      .map((row) => ({
-        url: absoluteUrl(`/profile/${encodeURIComponent(row.username)}`),
-        lastModified: row.updatedAt ?? now,
-        changeFrequency: "weekly" as const,
-        priority: 0.6,
-      }));
+    profileRoutes = usernames.map((username) => ({
+      url: absoluteUrl(`/profile/${encodeURIComponent(username)}`),
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
   } catch (error) {
     // A sitemap missing its profile section is far better than a 500 that
     // makes search engines drop the whole file.
-    console.error("sitemap: could not load public profiles:", error);
+    console.error("sitemap: could not load indexable profiles:", error);
   }
 
   return [...staticRoutes, ...toolRoutes, ...guideRoutes, ...lessonRoutes, ...profileRoutes];

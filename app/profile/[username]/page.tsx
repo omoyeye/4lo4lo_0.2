@@ -5,7 +5,8 @@ import ProfileClient from "@/components/profile/ProfileClient";
 import { FollowButton } from "@/components/community/FollowButton";
 import { getFollowCounts } from "@/lib/core/community";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
-import { isUnsafePublicUsername } from "@/lib/profile-visibility";
+import { isUnsafePublicUsername, isUserIndexable } from "@/lib/profile-visibility";
+import { auth } from "@/auth";
 
 /**
  * Public creator profile, server-rendered.
@@ -21,17 +22,34 @@ import { isUnsafePublicUsername } from "@/lib/profile-visibility";
  * `initialProfile`, which both fills the SSR HTML and removes the loading
  * flash for real users.
  *
- * Profiles are PRIVATE by default (`users.is_public` defaults to false) and a
- * user opts in from settings. This reversed after the original public default
- * put the whole member list in the sitemap, including an account whose
- * username was their email address. getPublicProfile enforces the flag, and
- * lib/profile-visibility.ts enforces a floor underneath it that opting in
- * cannot override.
+ * WHO CAN SEE THIS PAGE
+ *
+ *   signed-in member    any profile with is_public, which is the default. This
+ *                       keeps profile browsing, following and the feed working.
+ *   signed-out visitor  only profiles whose owner opted in to is_indexable.
+ *                       Everything else 404s.
+ *
+ * So the member list is no longer on the open web, while the community still
+ * functions. Search engines crawl signed out, so they see exactly the opted-in
+ * set, and non-indexed profiles additionally carry robots noindex in case one
+ * is reached some other way.
+ *
+ * lib/profile-visibility.ts sits underneath both as a floor that opting in
+ * cannot override: email-shaped and reserved usernames never render.
  */
 
-// Profiles change when their owner edits them; an hour is a reasonable
-// compromise between freshness and hammering the database from crawlers.
-export const revalidate = 3600;
+/*
+ * Dynamic, not ISR.
+ *
+ * This page used to be cached for an hour, which is no longer possible now
+ * that what it renders depends on whether the viewer is signed in: a cached
+ * copy would serve one audience's version to the other, and the direction that
+ * fails is a member's page being handed to an anonymous visitor.
+ *
+ * The cost is a database read per view, which is the right trade at this scale
+ * and is the same read the page already did.
+ */
+export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ username: string }> };
 
@@ -45,11 +63,24 @@ async function loadProfile(rawUsername: string) {
   if (isUnsafePublicUsername(username)) return null;
 
   try {
+    // getPublicProfile enforces is_public, so a profile hidden from members is
+    // already excluded here for every audience.
     const profile = await storage.getPublicProfile(username);
     if (!profile) return null;
 
-    const links = await storage.getPublicProfileLinks(profile.user.id).catch(() => []);
-    return { profile, links };
+    const [links, indexable, viewer] = await Promise.all([
+      storage.getPublicProfileLinks(profile.user.id).catch(() => []),
+      isUserIndexable(profile.user.id),
+      auth().catch(() => null),
+    ]);
+
+    // The one rule that separates the two audiences. A signed-out visitor,
+    // which includes every search engine crawler, only ever sees profiles
+    // whose owner asked to be on the public web.
+    const signedIn = Boolean(viewer?.user?.id);
+    if (!indexable && !signedIn) return null;
+
+    return { profile, links, indexable };
   } catch (error) {
     console.error("profile page: failed to load", username, error);
     return null;
@@ -90,6 +121,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     ogTag: `Level ${u.level ?? 1}`,
     ogSubtitle: `@${u.username}${u.country ? ` · ${u.country}` : ""}`,
     keywords: [u.username, name, "creator profile", `${name} social links`],
+    // Belt and braces. A member-only profile is already unreachable while
+    // signed out, so a crawler should never get this far, but if one does by
+    // some other route it is told not to index rather than relying on the
+    // 404 alone.
+    index: data.indexable,
   });
 }
 

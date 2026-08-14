@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
-import { isUnsafePublicUsername } from "@/lib/profile-visibility";
+import { isUnsafePublicUsername, isUserIndexable } from "@/lib/profile-visibility";
+import { auth } from "@/auth";
 
 // GET /api/profile/:username  (Public)
 export async function GET(
@@ -22,6 +23,23 @@ export async function GET(
 
     const profile = await storage.getPublicProfile(username);
     if (!profile) {
+      return NextResponse.json(
+        { message: "Profile not found or private" },
+        { status: 404 }
+      );
+    }
+
+    /*
+     * Same audience split as the page. Without it this endpoint would be the
+     * way round the whole thing: an anonymous scraper could walk the member
+     * list here even though the page and the sitemap no longer expose it.
+     */
+    const [indexable, session] = await Promise.all([
+      isUserIndexable(profile.user.id),
+      auth().catch(() => null),
+    ]);
+
+    if (!indexable && !session?.user?.id) {
       return NextResponse.json(
         { message: "Profile not found or private" },
         { status: 404 }

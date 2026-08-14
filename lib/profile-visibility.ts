@@ -87,3 +87,148 @@ export function isUnsafePublicUsername(username: string | null | undefined): boo
 export function isPublishableUsername(username: string | null | undefined): boolean {
   return !isUnsafePublicUsername(username);
 }
+
+/* -------------------------------------------------------------------------
+ * Two different questions, previously answered by one flag
+ *
+ * `users.is_public` used to mean both "other members can see me" and "publish
+ * me to the open web". Collapsing those forced a bad trade: making profiles
+ * private to stop search engines indexing the member list would also have shut
+ * down the follow button and the activity feed, since both gate on the same
+ * column.
+ *
+ * They are now separate:
+ *
+ *   is_public     visible to other signed-in members, followable, appears in
+ *                 the feed. Defaults to true, because that is what a community
+ *                 is for. Unchanged behaviour, so nothing that works today
+ *                 stops working.
+ *
+ *   is_indexable  additionally published on the open web: reachable by signed
+ *                 out visitors, listed in sitemap.xml, indexable by search
+ *                 engines. Defaults to FALSE, so being on the public internet
+ *                 is something a user asks for.
+ *
+ * Both are required for the public web. is_indexable alone means nothing: a
+ * user hidden from members is not published to strangers.
+ *
+ * COLUMN MAY NOT EXIST YET. is_indexable is added by
+ * scripts/sql/007-profile-indexing.sql, which a human runs against the live
+ * database. Until then every read here returns false, so the site behaves as
+ * if nobody has opted in: correct, and safe in the direction that matters.
+ *
+ * It is deliberately NOT in the Drizzle users schema. Drizzle expands
+ * `select().from(users)` into an explicit column list, so declaring a column
+ * that does not exist yet would break every query against the users table,
+ * including sign in. Reading it by raw SQL keeps the failure contained to this
+ * file.
+ * ------------------------------------------------------------------------- */
+
+/** Rows come back as an array whose shape varies by driver. */
+function firstRow(result: unknown): Record<string, unknown> | null {
+  const rows = Array.isArray(result) ? result[0] : null;
+  if (Array.isArray(rows)) return (rows[0] as Record<string, unknown>) ?? null;
+  if (rows && typeof rows === "object") return rows as Record<string, unknown>;
+  return null;
+}
+
+function truthy(value: unknown): boolean {
+  return value === 1 || value === true || value === "1";
+}
+
+/**
+ * Whether this user has opted in to being on the public web.
+ *
+ * Fails closed. A missing column, an unreachable database or any other error
+ * returns false, which withholds the page rather than publishing someone who
+ * never asked to be published.
+ */
+export async function isUserIndexable(userId: number): Promise<boolean> {
+  try {
+    const [{ db }, { sql }] = await Promise.all([
+      import("@/lib/db"),
+      import("drizzle-orm"),
+    ]);
+
+    const result = await db.execute(
+      sql`SELECT is_public, is_indexable FROM users WHERE id = ${userId} LIMIT 1`
+    );
+    const row = firstRow(result);
+    if (!row) return false;
+
+    return truthy(row.is_public) && truthy(row.is_indexable);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Usernames that may appear in sitemap.xml.
+ *
+ * Returns an empty list on any failure, which drops the profile section from
+ * the sitemap. A sitemap missing a section is a far smaller problem than one
+ * listing people who did not opt in.
+ */
+export async function listIndexableUsernames(limit: number): Promise<string[]> {
+  try {
+    const [{ db }, { sql }] = await Promise.all([
+      import("@/lib/db"),
+      import("drizzle-orm"),
+    ]);
+
+    const result = await db.execute(
+      sql`SELECT username FROM users
+          WHERE is_public = 1 AND is_indexable = 1 AND username IS NOT NULL
+          ORDER BY updated_at DESC
+          LIMIT ${limit}`
+    );
+
+    const rows = Array.isArray(result) ? result[0] : null;
+    if (!Array.isArray(rows)) return [];
+
+    return rows
+      .map((r) => (r as { username?: unknown }).username)
+      .filter((u): u is string => typeof u === "string")
+      .filter(isPublishableUsername);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Set the indexing preference. Returns false when the column is not there yet,
+ * so the caller can tell the user why nothing happened instead of reporting a
+ * save that did not occur.
+ */
+export async function setUserIndexable(
+  userId: number,
+  indexable: boolean
+): Promise<boolean> {
+  try {
+    const [{ db }, { sql }] = await Promise.all([
+      import("@/lib/db"),
+      import("drizzle-orm"),
+    ]);
+
+    await db.execute(
+      sql`UPDATE users SET is_indexable = ${indexable ? 1 : 0} WHERE id = ${userId} LIMIT 1`
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** True once scripts/sql/007-profile-indexing.sql has been run. */
+export async function isIndexingEnabled(): Promise<boolean> {
+  try {
+    const [{ db }, { sql }] = await Promise.all([
+      import("@/lib/db"),
+      import("drizzle-orm"),
+    ]);
+    await db.execute(sql`SELECT is_indexable FROM users LIMIT 1`);
+    return true;
+  } catch {
+    return false;
+  }
+}

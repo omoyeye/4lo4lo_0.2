@@ -60,13 +60,17 @@ export const users = mysqlTable("users", {
   streakCount: int("streak_count").notNull().default(0),
   lastLoginDate: date("last_login_date", { mode: 'string' }),
   notificationPreferences: json("notification_preferences").$type<Record<string, boolean>>().default({}),
-  // Private by default. Opting in is the user's choice, made in settings.
-  // This was `true`, which published every member's points, level, streak,
-  // rank, country and social handles to the open web without them asking, and
-  // put the whole member list in the sitemap. Note that changing the Drizzle
-  // default only affects inserts this app makes; the column default in the
-  // live database is changed by scripts/sql/007-profiles-private-by-default.sql.
-  isPublic: boolean("is_public").notNull().default(false),
+  // Visible to other SIGNED-IN members: followable, appears in the activity
+  // feed. True by default, which is what a community needs.
+  //
+  // This column used to mean that AND "publish to the open web", which is how
+  // the whole member list ended up in sitemap.xml. Public web exposure is now
+  // a separate opt-in, `is_indexable`, added by
+  // scripts/sql/007-profile-indexing.sql. That column is deliberately absent
+  // from this schema: Drizzle expands select().from(users) into an explicit
+  // column list, so declaring a column before the migration runs would break
+  // every query against this table, sign in included. See lib/profile-visibility.ts.
+  isPublic: boolean("is_public").notNull().default(true),
   bio: text("bio"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

@@ -19,7 +19,7 @@ const profileSchema = z.object({
   username: z.string().min(3).max(30),
   email: z.string().email(),
   displayName: z.string().max(160).optional(),
-  isPublic: z.boolean().default(true),
+  isPublic: z.boolean().default(false),
   facebook_handle: z.string().optional().nullable(),
   instagram_handle: z.string().optional().nullable(),
   tiktok_handle: z.string().optional().nullable(),
@@ -129,7 +129,7 @@ function SettingsContent() {
       username: user?.username || "",
       email: user?.email || "",
       displayName: user?.displayName || "",
-      isPublic: user?.isPublic ?? true,
+      isPublic: user?.isPublic ?? false,
       facebook_handle: user?.facebook_handle || "",
       instagram_handle: user?.instagram_handle || "",
       tiktok_handle: user?.tiktok_handle || "",
@@ -144,7 +144,7 @@ function SettingsContent() {
         username: user.username || "",
         email: user.email || "",
         displayName: user.displayName || "",
-        isPublic: user.isPublic ?? true,
+        isPublic: user.isPublic ?? false,
         facebook_handle: user.facebook_handle || "",
         instagram_handle: user.instagram_handle || "",
         tiktok_handle: user.tiktok_handle || "",
@@ -375,8 +375,8 @@ function SettingsContent() {
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {profileForm.watch("isPublic")
-                            ? "Your profile is visible to everyone at /profile/" + (user?.username || "you")
-                            : "Your profile is private and hidden from other users"}
+                            ? `Anyone on the internet can see your profile at /profile/${user?.username || "you"}, and search engines can index it. That covers your display name, country, level, points, streak, rank, badges and any links you add.`
+                            : "Your profile is private. Only you can see it, and it will not appear in search engines."}
                         </p>
                       </div>
                       <Switch

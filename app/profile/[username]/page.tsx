@@ -5,6 +5,7 @@ import ProfileClient from "@/components/profile/ProfileClient";
 import { FollowButton } from "@/components/community/FollowButton";
 import { getFollowCounts } from "@/lib/core/community";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
+import { isUnsafePublicUsername } from "@/lib/profile-visibility";
 
 /**
  * Public creator profile, server-rendered.
@@ -20,8 +21,12 @@ import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
  * `initialProfile`, which both fills the SSR HTML and removes the loading
  * flash for real users.
  *
- * Profiles are public by default (`users.is_public` defaults to true). A user
- * who turns that off 404s here, and getPublicProfile enforces it.
+ * Profiles are PRIVATE by default (`users.is_public` defaults to false) and a
+ * user opts in from settings. This reversed after the original public default
+ * put the whole member list in the sitemap, including an account whose
+ * username was their email address. getPublicProfile enforces the flag, and
+ * lib/profile-visibility.ts enforces a floor underneath it that opting in
+ * cannot override.
  */
 
 // Profiles change when their owner edits them; an hour is a reasonable
@@ -33,6 +38,12 @@ type Params = { params: Promise<{ username: string }> };
 /** Shared loader so generateMetadata and the page don't query twice. */
 async function loadProfile(rawUsername: string) {
   const username = decodeURIComponent(rawUsername);
+
+  // Checked before the query, not after. An email-shaped or reserved username
+  // must not produce a page even if its owner has opted in, and refusing here
+  // means the address never reaches metadata, JSON-LD or the rendered handle.
+  if (isUnsafePublicUsername(username)) return null;
+
   try {
     const profile = await storage.getPublicProfile(username);
     if (!profile) return null;

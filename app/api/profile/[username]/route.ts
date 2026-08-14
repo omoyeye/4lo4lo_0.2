@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
+import { isUnsafePublicUsername } from "@/lib/profile-visibility";
 
 // GET /api/profile/:username  (Public)
 export async function GET(
@@ -8,6 +9,17 @@ export async function GET(
 ) {
   try {
     const { username } = await params;
+
+    // Same floor as the page. Without it this endpoint stays a way to confirm
+    // that a given email address holds an account here, which is exactly the
+    // disclosure the page guard exists to prevent.
+    if (isUnsafePublicUsername(username)) {
+      return NextResponse.json(
+        { message: "Profile not found or private" },
+        { status: 404 }
+      );
+    }
+
     const profile = await storage.getPublicProfile(username);
     if (!profile) {
       return NextResponse.json(

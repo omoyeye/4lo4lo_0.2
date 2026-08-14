@@ -60,7 +60,13 @@ export const users = mysqlTable("users", {
   streakCount: int("streak_count").notNull().default(0),
   lastLoginDate: date("last_login_date", { mode: 'string' }),
   notificationPreferences: json("notification_preferences").$type<Record<string, boolean>>().default({}),
-  isPublic: boolean("is_public").notNull().default(true),
+  // Private by default. Opting in is the user's choice, made in settings.
+  // This was `true`, which published every member's points, level, streak,
+  // rank, country and social handles to the open web without them asking, and
+  // put the whole member list in the sitemap. Note that changing the Drizzle
+  // default only affects inserts this app makes; the column default in the
+  // live database is changed by scripts/sql/007-profiles-private-by-default.sql.
+  isPublic: boolean("is_public").notNull().default(false),
   bio: text("bio"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

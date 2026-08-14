@@ -86,12 +86,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .orderBy(desc(users.updatedAt))
       .limit(PROFILE_LIMIT);
 
-    profileRoutes = rows.map((row) => ({
-      url: absoluteUrl(`/profile/${encodeURIComponent(row.username)}`),
-      lastModified: row.updatedAt ?? now,
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
+    const { isPublishableUsername } = await import("@/lib/profile-visibility");
+
+    profileRoutes = rows
+      .filter((row) => isPublishableUsername(row.username))
+      .map((row) => ({
+        url: absoluteUrl(`/profile/${encodeURIComponent(row.username)}`),
+        lastModified: row.updatedAt ?? now,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      }));
   } catch (error) {
     // A sitemap missing its profile section is far better than a 500 that
     // makes search engines drop the whole file.

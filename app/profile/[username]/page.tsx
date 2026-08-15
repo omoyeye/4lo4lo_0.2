@@ -6,7 +6,6 @@ import { FollowButton } from "@/components/community/FollowButton";
 import { getFollowCounts } from "@/lib/core/community";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { isUnsafePublicUsername, isUserIndexable } from "@/lib/profile-visibility";
-import { auth } from "@/auth";
 
 /**
  * Public creator profile, server-rendered.
@@ -22,34 +21,37 @@ import { auth } from "@/auth";
  * `initialProfile`, which both fills the SSR HTML and removes the loading
  * flash for real users.
  *
- * WHO CAN SEE THIS PAGE
+ * REACHABLE IS NOT THE SAME AS LISTED
  *
- *   signed-in member    any profile with is_public, which is the default. This
- *                       keeps profile browsing, following and the feed working.
- *   signed-out visitor  only profiles whose owner opted in to is_indexable.
- *                       Everything else 404s.
+ * These are three separate questions, and an earlier version of this file
+ * collapsed the last two, which broke every creator's bio link:
  *
- * So the member list is no longer on the open web, while the community still
- * functions. Search engines crawl signed out, so they see exactly the opted-in
- * set, and non-indexed profiles additionally carry robots noindex in case one
- * is reached some other way.
+ *   is_public     the owner shows a profile at all. Off means 404 for
+ *                 everyone. Default on.
+ *   reachable     anyone holding the URL can open it, account or not. This is
+ *                 the product: a creator pastes /profile/<name> into their
+ *                 TikTok bio and their audience taps through. Always true for
+ *                 a public profile. NOT something to gate.
+ *   is_indexable  the page is advertised: listed in sitemap.xml and allowed
+ *                 into search results. Opt-in, default off.
  *
- * lib/profile-visibility.ts sits underneath both as a floor that opting in
- * cannot override: email-shaped and reserved usernames never render.
+ * The original complaint was that the member list was being published and
+ * crawled, with an email address among the URLs. That is fixed by controlling
+ * what gets ADVERTISED, not by making pages unreachable. Nobody is enumerable
+ * through the sitemap or search, while shared links keep working.
+ *
+ * lib/profile-visibility.ts sits underneath all of it as a floor that opting
+ * in cannot override: email-shaped and reserved usernames never render.
  */
 
 /*
- * Dynamic, not ISR.
+ * Cacheable again.
  *
- * This page used to be cached for an hour, which is no longer possible now
- * that what it renders depends on whether the viewer is signed in: a cached
- * copy would serve one audience's version to the other, and the direction that
- * fails is a member's page being handed to an anonymous visitor.
- *
- * The cost is a database read per view, which is the right trade at this scale
- * and is the same read the page already did.
+ * What this page renders depends only on database state, not on who is asking,
+ * so it can be shared by every viewer. An hour is the usual compromise between
+ * freshness and hammering the database from crawlers and bio-link traffic.
  */
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type Params = { params: Promise<{ username: string }> };
 
@@ -68,18 +70,23 @@ async function loadProfile(rawUsername: string) {
     const profile = await storage.getPublicProfile(username);
     if (!profile) return null;
 
-    const [links, indexable, viewer] = await Promise.all([
+    const [links, indexable] = await Promise.all([
       storage.getPublicProfileLinks(profile.user.id).catch(() => []),
       isUserIndexable(profile.user.id),
-      auth().catch(() => null),
     ]);
 
-    // The one rule that separates the two audiences. A signed-out visitor,
-    // which includes every search engine crawler, only ever sees profiles
-    // whose owner asked to be on the public web.
-    const signedIn = Boolean(viewer?.user?.id);
-    if (!indexable && !signedIn) return null;
-
+    /*
+     * Anyone holding the link can view this, signed in or not. That is the
+     * entire point of the page: a creator puts /profile/<name> in their TikTok
+     * or Instagram bio and their audience, who have no account here, tap
+     * through to their links.
+     *
+     * `indexable` does NOT gate access. It only decides whether the page is
+     * advertised: listed in sitemap.xml and allowed into search results. That
+     * is the distinction that matters, because the original complaint was
+     * about the member list being published and crawlable, not about links
+     * working when someone shares them.
+     */
     return { profile, links, indexable };
   } catch (error) {
     console.error("profile page: failed to load", username, error);

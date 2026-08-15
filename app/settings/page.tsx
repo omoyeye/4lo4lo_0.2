@@ -166,10 +166,10 @@ function SettingsContent() {
         throw new Error(body.message || "Could not save that");
       }
       toast({
-        title: next ? "Profile listed publicly" : "Profile removed from search",
+        title: next ? "Listed in search engines" : "Removed from search engines",
         description: next
-          ? "Signed out visitors and search engines can now find your profile. It can take a few days for search engines to pick it up."
-          : "Your profile is now visible only to signed in members.",
+          ? "Your profile can now turn up in search results. It usually takes a few days for search engines to pick it up."
+          : "Your profile will drop out of search results. Your bio link still works for anyone you share it with.",
       });
     } catch (err) {
       setIndexable(previous);
@@ -432,13 +432,13 @@ function SettingsContent() {
                             <Lock className="h-4 w-4 text-muted-foreground" />
                           )}
                           <label className="text-sm font-medium">
-                            Visible to other members
+                            Profile page
                           </label>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {profileForm.watch("isPublic")
-                            ? "Signed in members can view your profile, follow you, and see your activity in the feed."
-                            : "Your profile is hidden from other members. Nobody can follow you and your activity stays out of the feed."}
+                            ? `On. Share ${typeof window !== "undefined" ? window.location.host : "4lo4lo.site"}/profile/${user?.username || "you"} in your bio and anyone can open it, no account needed. Members can also follow you and see your activity in the feed.`
+                            : "Off. Your profile page does not load for anyone, your bio link will not work, and nobody can follow you."}
                         </p>
                       </div>
                       <Switch
@@ -450,10 +450,11 @@ function SettingsContent() {
                   </div>
 
                   {/*
-                    Separate from the toggle above on purpose. Being visible to
-                    the community and being published on the open web are
-                    different decisions, and merging them is what put every
-                    member in the sitemap.
+                    Separate from the toggle above on purpose. Having a
+                    shareable page and being listed in Google are different
+                    decisions. Merging them is what put every member in the
+                    sitemap, and gating the page on the second one is what
+                    briefly broke everybody's bio link.
                   */}
                   <div className="pt-4 border-t">
                     <div className="flex items-start justify-between gap-4">
@@ -470,12 +471,12 @@ function SettingsContent() {
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {!indexingEnabled
-                            ? "Not available yet. This site is still set up so that no profile is published to the open web."
+                            ? "Not available yet. Your bio link still works; profiles are simply not being listed in search engines on this site yet."
                             : !profileForm.watch("isPublic")
-                              ? "Turn on “Visible to other members” first. A profile hidden from members is not published to strangers."
+                              ? "Turn your profile page on first."
                               : indexable
-                                ? `Anyone can find you at /profile/${user?.username || "you"} without signing in, including Google. This shows your display name, country, level, points, streak, rank, badges and any links you add.`
-                                : "Off. Only signed in members can see your profile, and it stays out of search results."}
+                                ? "On. Your profile can appear in Google results and is listed in the site map, so people can discover you without being given the link."
+                                : "Off. Your link still works for anyone you share it with. Your profile just will not show up in search results, and is not listed anywhere on the site."}
                         </p>
                       </div>
                       <Switch

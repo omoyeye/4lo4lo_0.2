@@ -6,16 +6,23 @@
 -- including a user's email address as a URL and the admin username.
 --
 -- The obvious fix, making everyone private, would also have shut down the
--- follow button and the activity feed, because both gate on that same column.
--- So the two questions are now asked separately:
+-- follow button and the activity feed, because both gate on that same column,
+-- AND would have killed every creator's link-in-bio, which is the product.
 --
---   is_public     visible to other SIGNED-IN members, followable, appears in
---                 the feed. Existing column, meaning preserved, still defaults
---                 to true. NOT CHANGED BY THIS SCRIPT.
+-- The fix is to control what gets ADVERTISED rather than what is reachable:
 --
---   is_indexable  additionally published on the open web: reachable while
---                 signed out, listed in sitemap.xml, indexable by Google.
---                 New column, defaults to 0.
+--   is_public     the user shows a profile at all. Anyone holding the link can
+--                 open it, account or not, which is what makes a bio link
+--                 work. Members can also follow them and see them in the feed.
+--                 Existing column, meaning preserved, still defaults to true.
+--                 NOT CHANGED BY THIS SCRIPT.
+--
+--   is_indexable  the profile is additionally ADVERTISED: listed in
+--                 sitemap.xml and allowed into search results. New column,
+--                 defaults to 0.
+--
+-- Nobody can be enumerated through the sitemap or search, while shared links
+-- keep working. A profile that is not indexed is unlisted, not unreachable.
 --
 -- WHAT THIS DOES TO YOUR DATA: adds one column with a default of 0. It updates
 -- no existing rows. Nothing any user has today is altered, and the community
@@ -36,9 +43,10 @@
 
 -- STEP 1, add the column.
 --
--- Default 0: opting in to the public internet is a decision a user makes, not
--- a state they wake up in. Existing rows all get 0, so the moment this runs,
--- sitemap.xml has no profiles in it and signed out visitors can reach none.
+-- Default 0: being advertised to search engines is a decision a user makes,
+-- not a state they wake up in. Existing rows all get 0, so sitemap.xml lists
+-- no profiles and none are indexable until someone opts in. Every profile URL
+-- keeps working when shared, which is the point of the feature.
 
 ALTER TABLE users
   ADD COLUMN is_indexable BOOLEAN NOT NULL DEFAULT 0;
@@ -47,9 +55,9 @@ ALTER TABLE users
 -- STEP 2, verify. Expect indexable = 0 and total unchanged.
 
 SELECT
-  COUNT(*)                                        AS total_users,
-  SUM(CASE WHEN is_public    = 1 THEN 1 ELSE 0 END) AS visible_to_members,
-  SUM(CASE WHEN is_indexable = 1 THEN 1 ELSE 0 END) AS on_the_public_web
+  COUNT(*)                                          AS total_users,
+  SUM(CASE WHEN is_public    = 1 THEN 1 ELSE 0 END) AS have_a_profile_page,
+  SUM(CASE WHEN is_indexable = 1 THEN 1 ELSE 0 END) AS listed_in_search
 FROM users;
 
 

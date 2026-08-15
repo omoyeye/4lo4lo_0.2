@@ -99,18 +99,23 @@ export function isPublishableUsername(username: string | null | undefined): bool
  *
  * They are now separate:
  *
- *   is_public     visible to other signed-in members, followable, appears in
- *                 the feed. Defaults to true, because that is what a community
- *                 is for. Unchanged behaviour, so nothing that works today
- *                 stops working.
+ *   is_public     the user has a profile page at all. Anyone holding the URL
+ *                 can open it, account or not, which is what makes a bio link
+ *                 work. Members can additionally follow them and see them in
+ *                 the feed. Defaults to true.
  *
- *   is_indexable  additionally published on the open web: reachable by signed
- *                 out visitors, listed in sitemap.xml, indexable by search
- *                 engines. Defaults to FALSE, so being on the public internet
- *                 is something a user asks for.
+ *   is_indexable  the page is ADVERTISED: listed in sitemap.xml and allowed
+ *                 into search results. Defaults to FALSE, so turning up in
+ *                 Google is something a user asks for.
  *
- * Both are required for the public web. is_indexable alone means nothing: a
- * user hidden from members is not published to strangers.
+ * is_indexable controls ADVERTISING, never ACCESS. An earlier version of this
+ * file used it to refuse the page to signed-out visitors, which killed every
+ * creator's link-in-bio: their audience has no account here, and that traffic
+ * is the entire point of the feature. Unlisted is not the same as unreachable,
+ * and enumeration is prevented by the first, not the second.
+ *
+ * Both flags are required to be listed. is_indexable alone means nothing,
+ * since a user with no profile page has nothing to advertise.
  *
  * COLUMN MAY NOT EXIST YET. is_indexable is added by
  * scripts/sql/007-profile-indexing.sql, which a human runs against the live
@@ -137,11 +142,12 @@ function truthy(value: unknown): boolean {
 }
 
 /**
- * Whether this user has opted in to being on the public web.
+ * Whether this user has opted in to being listed in search engines.
  *
  * Fails closed. A missing column, an unreachable database or any other error
- * returns false, which withholds the page rather than publishing someone who
- * never asked to be published.
+ * returns false, which means the page renders normally but carries noindex and
+ * stays out of the sitemap. The failure direction is "not advertised", never
+ * "not reachable", so a database hiccup can never break a creator's bio link.
  */
 export async function isUserIndexable(userId: number): Promise<boolean> {
   try {

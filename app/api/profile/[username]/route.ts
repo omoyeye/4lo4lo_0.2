@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
-import { isUnsafePublicUsername, isUserIndexable } from "@/lib/profile-visibility";
-import { auth } from "@/auth";
+import { isUnsafePublicUsername } from "@/lib/profile-visibility";
 
 // GET /api/profile/:username  (Public)
 export async function GET(
@@ -30,22 +29,14 @@ export async function GET(
     }
 
     /*
-     * Same audience split as the page. Without it this endpoint would be the
-     * way round the whole thing: an anonymous scraper could walk the member
-     * list here even though the page and the sitemap no longer expose it.
+     * No sign-in requirement here, deliberately.
+     *
+     * This endpoint backs the profile page, which has to work for a visitor
+     * arriving from a creator's TikTok bio with no account. Gating it on a
+     * session broke exactly that. Enumeration is prevented by not ADVERTISING
+     * profiles (no sitemap entry, noindex) plus the username floor above,
+     * rather than by refusing to serve a URL somebody was given.
      */
-    const [indexable, session] = await Promise.all([
-      isUserIndexable(profile.user.id),
-      auth().catch(() => null),
-    ]);
-
-    if (!indexable && !session?.user?.id) {
-      return NextResponse.json(
-        { message: "Profile not found or private" },
-        { status: 404 }
-      );
-    }
-
     const u = profile.user;
     const safeUser = {
       id: u.id,

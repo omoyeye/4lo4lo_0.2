@@ -588,7 +588,17 @@ function MarketplaceContent() {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0">
-        <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+        {/*
+          max-w-3xl was a 768px column, which left most of a desktop screen
+          empty. It dated from the original scaffolding rather than from any
+          deliberate choice, and it made this the narrowest page in the app:
+          Rewards is max-w-7xl, Classroom and Tools are max-w-6xl. Matching
+          Rewards, since this page has the same dense card content.
+
+          A cap is still needed. Edge-to-edge on an ultrawide monitor gives
+          line lengths nobody can read and form fields a metre long.
+        */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           {/* Page header */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -604,66 +614,74 @@ function MarketplaceContent() {
             </div>
           </div>
 
-          {/* Create listing */}
-          <CreateListingCard userPoints={user.points ?? 0} openListingsCount={userOpenListingsCount} maxOpenListings={settings.max_open_listings} />
+          {/*
+            Side by side once there is room. Stacking a form and a filter bar
+            full width just moves the wasted space from the sides to the
+            middle, and pushes the listings below the fold. items-start stops
+            the shorter panel stretching to match the taller one.
+          */}
+          <div className="grid gap-6 lg:grid-cols-2 items-start">
+            {/* Create listing */}
+            <CreateListingCard userPoints={user.points ?? 0} openListingsCount={userOpenListingsCount} maxOpenListings={settings.max_open_listings} />
 
-          {/* Filter bar */}
-          <div className="rounded-xl border bg-card p-4 space-y-4">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filter Listings</span>
-              {hasActiveFilters && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="w-3 h-3" /> Clear filters
-                </button>
-              )}
-            </div>
-
-            {/* Status toggle */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-muted-foreground mr-1">Status:</span>
-              {(["all", "open", "sold"] as StatusFilter[]).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => updateStatusFilter(s)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                    statusFilter === s
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                  }`}
-                >
-                  {s === "all" ? `All (${allListings.length})` : s === "open" ? `Open (${openCount})` : `Sold (${soldCount})`}
-                </button>
-              ))}
-            </div>
-
-            {/* Points range */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-xs text-muted-foreground">Points range:</span>
+            {/* Filter bar */}
+            <div className="rounded-xl border bg-card p-4 space-y-4">
               <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="Min"
-                  value={minPoints}
-                  onChange={(e) => updateMinPoints(e.target.value)}
-                  className="w-24 h-8 text-sm"
-                />
-                <span className="text-xs text-muted-foreground">, </span>
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="Max"
-                  value={maxPoints}
-                  onChange={(e) => updateMaxPoints(e.target.value)}
-                  className="w-24 h-8 text-sm"
-                />
-                <span className="text-xs text-muted-foreground">pts</span>
+                <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Filter Listings</span>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="w-3 h-3" /> Clear filters
+                  </button>
+                )}
+              </div>
+
+              {/* Status toggle */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-muted-foreground mr-1">Status:</span>
+                {(["all", "open", "sold"] as StatusFilter[]).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => updateStatusFilter(s)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                      statusFilter === s
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                    }`}
+                  >
+                    {s === "all" ? `All (${allListings.length})` : s === "open" ? `Open (${openCount})` : `Sold (${soldCount})`}
+                  </button>
+                ))}
+              </div>
+
+              {/* Points range */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-xs text-muted-foreground">Points range:</span>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="Min"
+                    value={minPoints}
+                    onChange={(e) => updateMinPoints(e.target.value)}
+                    className="w-24 h-8 text-sm"
+                  />
+                  <span className="text-xs text-muted-foreground">, </span>
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="Max"
+                    value={maxPoints}
+                    onChange={(e) => updateMaxPoints(e.target.value)}
+                    className="w-24 h-8 text-sm"
+                  />
+                  <span className="text-xs text-muted-foreground">pts</span>
+                </div>
               </div>
             </div>
           </div>
@@ -685,7 +703,7 @@ function MarketplaceContent() {
               )}
             </h2>
             {isLoading ? (
-              <div className="space-y-3">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {[1, 2, 3].map((i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
               </div>
             ) : filteredListings.length === 0 ? (
@@ -698,7 +716,13 @@ function MarketplaceContent() {
                 )}
               </div>
             ) : (
-              <div className="space-y-4">
+              /*
+                A grid, not a stack. One listing per row across a 1280px page
+                gives a card that is mostly empty space, and pushes the second
+                listing off the screen. items-start keeps a card that has its
+                comments expanded from stretching its neighbours.
+              */
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 items-start">
                 {filteredListings.map((listing) => (
                   <ListingCard key={listing.id} listing={listing} currentUserId={user.id} isAdmin={user.role === "admin" || user.role === "superadmin"} />
                 ))}

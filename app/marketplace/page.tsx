@@ -16,6 +16,7 @@ import { Store, Plus, MessageCircle, ShoppingBag, User, Clock, CheckCircle2, Sli
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import Footer from "@/components/layout/Footer";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 
@@ -588,6 +589,7 @@ function MarketplaceContent() {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
+        <DesktopTopBar />
         {/*
           max-w-3xl was a 768px column, which left most of a desktop screen
           empty. It dated from the original scaffolding rather than from any

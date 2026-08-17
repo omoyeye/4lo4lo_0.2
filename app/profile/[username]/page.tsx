@@ -7,6 +7,7 @@ import { getFollowCounts } from "@/lib/core/community";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { isUnsafePublicUsername, isUserIndexable } from "@/lib/profile-visibility";
 import { MemberChrome } from "@/components/layout/MemberChrome";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 
 /**
  * Public creator profile, server-rendered.
@@ -217,6 +218,7 @@ export default async function Page({ params }: Params) {
         <MemberChrome />
 
         <div className="flex-1 min-w-0 pb-20 md:pb-0">
+          <DesktopTopBar />
           <div className="mx-auto max-w-4xl px-4 pt-6">
             <FollowButton username={u.username} initialFollowers={counts.followers} />
           </div>

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Copy, Share2, Download, User, TrendingUp, Star } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
@@ -187,6 +188,7 @@ function ReferralContent() {
       <Sidebar />
 
       <div className="flex-1 min-w-0 pb-20 md:pb-0">
+        <DesktopTopBar />
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center">Invite Friends</h1>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,7 +12,6 @@ import {
   Award,
   Share2,
   Settings,
-  LogOut,
   ChevronLeft,
   CreditCard,
   Sparkles,
@@ -23,12 +22,9 @@ import {
   QrCode,
   UserCircle,
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { SimpleThemeToggle } from "@/components/theme-toggle";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 import MobileBottomNav from "./MobileBottomNav";
 import MobileHeader from "./MobileHeader";
-import NotificationBell from "@/components/NotificationBell";
 
 type NavItemProps = {
   icon: React.ReactNode;
@@ -107,17 +103,11 @@ const NavItem = ({ icon, label, href, isActive, collapsed }: NavItemProps) => (
 );
 
 export default function Sidebar() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const location = pathname;
-  const setLocation = (p: string) => router.push(p);
-  const { toast } = useToast();
+  const location = usePathname();
   const { user } = useAuth();
   const username = user?.username || (typeof window !== 'undefined' ? localStorage.getItem("username") : null) || "uniquegram";
-  const userEmail = user?.email || (typeof window !== 'undefined' ? localStorage.getItem("email") : null);
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Check if screen is mobile
   useEffect(() => {
@@ -135,16 +125,6 @@ export default function Sidebar() {
       window.removeEventListener("resize", checkIfMobile);
     };
   }, []);
-
-  const { logoutMutation } = useAuth();
-
-  const handleSignOut = () => {
-    // Trigger the logout mutation from auth hook
-    logoutMutation.mutate();
-
-    // Close mobile menu if open
-    setMobileOpen(false);
-  };
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -316,66 +296,6 @@ export default function Sidebar() {
     </div>
   );
 
-  // Unified User Info Component
-  const UserInfoComponent = ({ collapsed = false, isMobile = false }: { collapsed?: boolean; isMobile?: boolean }) => (
-    <div className="p-4 border-t border-border">
-      <div className="flex items-center">
-        <div className="flex-shrink-0">
-          <motion.div 
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-purple-600/20 flex items-center justify-center text-xs font-medium"
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <span>{username.substring(0, 2).toUpperCase()}</span>
-          </motion.div>
-        </div>
-        <AnimatePresence>
-          {!collapsed && (
-            <motion.div 
-              className="ml-3 overflow-hidden"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="text-sm font-medium truncate">{username}</p>
-              <p className="text-xs text-muted-foreground truncate">
-                {userEmail || 'Free Plan'}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-      <div className={cn(
-        "mt-4",
-        collapsed ? "flex justify-center" : ""
-      )}>
-        <motion.button
-          className="flex items-center text-sm hover:text-foreground transition-colors group text-[#ffffff] bg-[#964aee] ml-[15px] mr-[15px] px-4 py-2 rounded-lg"
-          onClick={handleSignOut}
-          title="Sign out"
-          whileHover={{ x: 2 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <LogOut className="w-4 h-4 group-hover:text-foreground transition-colors" />
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.span 
-                className="ml-2"
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -5 }}
-                transition={{ duration: 0.2 }}
-              >
-                Sign out
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
-      </div>
-    </div>
-  );
-
   // Mobile layout with bottom navigation and top header
   if (isMobile) {
     return (
@@ -425,8 +345,6 @@ export default function Sidebar() {
         <LogoComponent collapsed={collapsed} />
         
         <div className="flex items-center gap-1">
-          <NotificationBell className={collapsed ? "" : ""} />
-          
           <motion.button
             onClick={toggleSidebar}
             className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
@@ -452,22 +370,12 @@ export default function Sidebar() {
         items would push the theme toggle and sign out off the bottom again,
         which is the bug this is meant to prevent.
       */}
-      <nav className="mt-6 flex-1 min-h-0 overflow-y-auto px-2">
+      <nav className="mt-6 flex-1 min-h-0 overflow-y-auto scrollbar-hide px-2">
         <ul>
           <NavItems />
         </ul>
       </nav>
 
-      {/* Theme Toggle */}
-      <div className={cn(
-        "border-t border-border/30 py-3",
-        collapsed ? "flex justify-center" : "px-4"
-      )}>
-        <SimpleThemeToggle />
-      </div>
-
-      {/* User Info */}
-      <UserInfoComponent collapsed={collapsed} />
     </motion.div>
   );
 }

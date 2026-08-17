@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -158,6 +159,7 @@ function RewardsContent() {
       <Sidebar />
 
       <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
+        <DesktopTopBar />
         <div className="flex-grow p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">

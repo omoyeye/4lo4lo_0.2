@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Footer from "@/components/layout/Footer";
 import { SiTiktok, SiWhatsapp, SiTelegram, SiSnapchat, SiPinterest, SiDiscord, SiThreads, SiGoogle } from "react-icons/si";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Task } from "@shared/schema.mysql";
@@ -141,6 +142,7 @@ function TasksContent() {
       <Sidebar />
 
       <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
+        <DesktopTopBar />
         <div className="flex-grow p-4 md:p-6 lg:p-8 content-container">
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-2">Tasks</h1>

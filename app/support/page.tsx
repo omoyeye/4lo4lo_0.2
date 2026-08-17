@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Footer from "@/components/layout/Footer";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -72,7 +73,8 @@ function SupportContent() {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <Sidebar />
-      <div className="flex-1 flex flex-col pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
+        <DesktopTopBar />
         <div className="flex-grow p-4 md:p-6">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Contact Support</h1>

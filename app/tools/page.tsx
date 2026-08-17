@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import Footer from "@/components/layout/Footer";
 import {
   QrCode,
@@ -147,6 +148,7 @@ function ToolsContent() {
     <div className="flex flex-col md:flex-row min-h-screen bg-background">
       <Sidebar />
       <div className="flex-1 min-w-0 pb-20 md:pb-0">
+        <DesktopTopBar />
         <main className="container mx-auto px-4 py-8">
 
       {/* Top Ad */}

@@ -343,6 +343,7 @@ function NotificationsContent() {
 
 ﻿import { ProtectedRoute } from "@/lib/protected-route";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import Footer from "@/components/layout/Footer";
 export default function Page() {
   return (
@@ -357,6 +358,7 @@ export default function Page() {
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
         <Sidebar />
         <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
+          <DesktopTopBar />
           <div className="flex-grow">
             <NotificationsContent />
           </div>

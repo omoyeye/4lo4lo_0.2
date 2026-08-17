@@ -23,6 +23,7 @@ import {
   SiGoogle
 } from "react-icons/si";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import Footer from "@/components/layout/Footer";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PromotionPlan } from "@shared/schema.mysql";
@@ -411,6 +412,7 @@ function PromoteMeContent() {
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
+        <DesktopTopBar />
         <div className="flex-1">
           <div className="container mx-auto py-4 md:py-6 px-4 md:px-6 max-w-6xl">
             <div className="text-center mb-6 md:mb-8">

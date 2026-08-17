@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Sidebar from "@/components/layout/Sidebar";
+import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from "react-icons/si";
@@ -311,6 +312,7 @@ function SettingsContent() {
       <Sidebar />
 
       <div className="flex-1 min-w-0 pb-20 md:pb-0">
+        <DesktopTopBar />
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="mb-6 md:mb-8">

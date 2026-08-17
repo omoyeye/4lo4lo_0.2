@@ -54,8 +54,8 @@ export const authConfig = {
     maxAge: 60 * 60 * 24 * 7, // 1 week
   },
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/auth",
+    error: "/auth",
   },
   providers: [
     Credentials({

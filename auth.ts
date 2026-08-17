@@ -47,10 +47,10 @@ declare module "next-auth" {
   }
 }
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET ?? process.env.SESSION_SECRET,
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
     maxAge: 60 * 60 * 24 * 7, // 1 week
   },
   pages: {
@@ -115,20 +115,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role ?? "user";
-        token.isAdmin = (user as any).isAdmin ?? false;
+        token.role = user.role ?? "user";
+        token.isAdmin = user.isAdmin ?? false;
       }
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       session.user.id = token.id as string;
       session.user.role = token.role as string;
       session.user.isAdmin = (token.isAdmin as boolean) ?? false;
       return session;
     },
   },
-});
+};
+
+export const { handlers, signIn, signOut, auth } = NextAuth(authConfig);

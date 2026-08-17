@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { signIn, comparePasswords, isAdminRole } from "@/auth";
+import { Auth, raw, skipCSRFCheck } from "@auth/core";
+import { comparePasswords, isAdminRole, authConfig } from "@/auth";
 import { storage } from "@/lib/core/storage";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
@@ -7,15 +8,19 @@ import { z } from "zod";
 /**
  * POST /api/admin/login
  *
- * NOTE ON THE PATH: this used to live at /api/auth/admin/login, which is
- * swallowed by the NextAuth catch-all at app/api/auth/[...nextauth]/route.ts,
- * so admin login could never succeed. It lives under /api/admin/* now so it
- * owns its own path.
+ * Validates admin credentials and role, then mints a session cookie.
  *
- * Authorization derives from `users.role`, because that is what every one of
- * the admin API routes enforces via requireAdmin()/requireSuperadmin(). The
- * legacy `admins` table is treated as a directory, not as an auth source; see
- * the 409 branch below.
+ * WHY THIS CALLS Auth() DIRECTLY INSTEAD OF signIn()
+ *
+ * Auth.js v5's `signIn()` sets cookies via next/headers `cookies().set()`,
+ * which works in Server Actions but silently drops cookies in Route Handlers
+ * when the handler returns its own NextResponse. The result: login appeared to
+ * succeed (200) but no session cookie was set, so the proxy bounced the user
+ * back to /admin/login on the next request.
+ *
+ * Calling Auth() directly returns the raw response including cookie descriptors
+ * which we copy onto our own NextResponse. This guarantees the browser receives
+ * the Set-Cookie header regardless of the Next.js execution context.
  */
 
 const loginSchema = z.object({
@@ -40,16 +45,11 @@ export async function POST(req: NextRequest) {
 
     const user = await storage.getUserByUsername(username);
 
-    // Verify the password before we mint any session, so we can reject
-    // non-admins with a 403 instead of leaving them holding a valid cookie.
     const passwordValid = user
       ? await comparePasswords(password, user.password)
       : false;
 
     if (!user || !passwordValid) {
-      // Distinguish the "admin exists only in the legacy admins table" case,
-      // which is otherwise indistinguishable from a wrong password and would
-      // leave a real operator permanently locked out with no explanation.
       const legacyAdmin = await storage
         .getAdminByUsername(username)
         .catch(() => undefined);
@@ -79,16 +79,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Credentials and role are good, hand off to NextAuth to set the cookie.
-    await signIn("credentials", { username, password, redirect: false });
+    // Mint the session by calling Auth() directly so we can capture the
+    // Set-Cookie headers and forward them on our own response.
+    const proto = req.headers.get("x-forwarded-proto") ?? "https";
+    const host = req.headers.get("host") ?? "localhost";
+    const origin = `${proto}://${host}`;
+    const callbackUrl = `${origin}/admin`;
 
-    // Best-effort: record the login against the legacy admins row if one exists.
-    storage
-      .getAdminByUsername(username)
-      .then((a) => (a ? storage.updateAdminLastLogin(a.id) : null))
-      .catch(() => {});
+    const authReq = new Request(
+      `${origin}/api/auth/callback/credentials`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username, password, callbackUrl }),
+      }
+    );
 
-    return NextResponse.json(
+    const authRes = await Auth(authReq, {
+      ...authConfig,
+      raw,
+      skipCSRFCheck,
+    });
+
+    const response = NextResponse.json(
       {
         id: user.id,
         username: user.username,
@@ -97,6 +110,19 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
+
+    // Forward the session cookies from Auth's response onto ours.
+    for (const c of authRes?.cookies ?? []) {
+      response.cookies.set(c.name, c.value, c.options ?? {});
+    }
+
+    // Best-effort: record the login against the legacy admins row if one exists.
+    storage
+      .getAdminByUsername(username)
+      .then((a) => (a ? storage.updateAdminLastLogin(a.id) : null))
+      .catch(() => {});
+
+    return response;
   } catch (error) {
     console.error("Admin login error:", error);
     return NextResponse.json({ message: "Admin login failed" }, { status: 500 });

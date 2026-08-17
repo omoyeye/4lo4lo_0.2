@@ -54,10 +54,10 @@ function PaymentsContent() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
       <Sidebar />
       
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 pb-20 md:pb-0">
         <div className="p-4 md:p-6 lg:p-8">
           <div className="mb-6 md:mb-8">
             <h1 className="text-2xl md:text-3xl font-bold">Payments</h1>

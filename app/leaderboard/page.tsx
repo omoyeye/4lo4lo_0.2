@@ -281,7 +281,7 @@ function LeaderboardContent() {
                     key={p}
                     variant={period === p ? "default" : "outline"}
                     size="sm"
-                    className="flex-1 text-xs"
+                    className="flex-1 min-w-0 text-xs"
                     onClick={() => setPeriod(p)}
                   >
                     {PERIOD_LABELS[p]}
@@ -404,7 +404,7 @@ export default function Page() {
       */}
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0">
+        <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
           <div className="flex-grow">
             <LeaderboardContent />
           </div>

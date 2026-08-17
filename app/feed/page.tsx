@@ -5,6 +5,7 @@ import { getActivityFeed } from "@/lib/core/community";
 import { ActivityFeed } from "@/components/community/ActivityFeed";
 import { pageMetadata } from "@/lib/seo";
 import { BrandLogo } from "@/components/BrandLogo";
+import Sidebar from "@/components/layout/Sidebar";
 import { Users, Sparkles, ArrowRight, Info } from "lucide-react";
 
 export const metadata: Metadata = pageMetadata({
@@ -27,8 +28,28 @@ export default async function Page() {
     40
   );
 
+  /*
+   * This page has two audiences, so it gets two shells.
+   *
+   * A signed-in member gets the same sidebar as every other page in the app,
+   * because arriving here from the app and losing the navigation is
+   * disorienting and leaves no way to sign out.
+   *
+   * A signed-out visitor gets the public marketing header instead. They have
+   * no account, so an app sidebar would be a menu of pages they cannot open.
+   *
+   * Deciding this on the server is safe here because /feed is dynamic, it
+   * already reads the session to personalise the feed. It would NOT be safe on
+   * a cached page, which is why the profile page does the same thing client
+   * side instead.
+   */
+  const signedIn = Boolean(session?.user?.id);
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
+      {signedIn && <Sidebar />}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
+      {!signedIn && (
       <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <BrandLogo priority />
@@ -39,24 +60,16 @@ export default async function Page() {
             >
               Leaderboard
             </Link>
-            {session ? (
-              <Link
-                href="/dashboard"
-                className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2 text-sm font-semibold text-white"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <Link
-                href="/signup"
-                className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2 text-sm font-semibold text-white"
-              >
-                Join free
-              </Link>
-            )}
+            <Link
+              href="/signup"
+              className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Join free
+            </Link>
           </div>
         </div>
       </header>
+      )}
 
       <div className="relative overflow-hidden border-b">
         <div
@@ -121,6 +134,7 @@ export default async function Page() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

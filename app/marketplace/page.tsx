@@ -587,7 +587,7 @@ function MarketplaceContent() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-screen pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
         {/*
           max-w-3xl was a 768px column, which left most of a desktop screen
           empty. It dated from the original scaffolding rather than from any

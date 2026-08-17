@@ -6,6 +6,7 @@ import { FollowButton } from "@/components/community/FollowButton";
 import { getFollowCounts } from "@/lib/core/community";
 import { pageMetadata, jsonLd, absoluteUrl, SITE_NAME } from "@/lib/seo";
 import { isUnsafePublicUsername, isUserIndexable } from "@/lib/profile-visibility";
+import { MemberChrome } from "@/components/layout/MemberChrome";
 
 /**
  * Public creator profile, server-rendered.
@@ -205,11 +206,24 @@ export default async function Page({ params }: Params) {
         dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
       />
 
-      <div className="mx-auto max-w-4xl px-4 pt-6">
-        <FollowButton username={u.username} initialFollowers={counts.followers} />
-      </div>
+      {/*
+        MemberChrome renders the sidebar for signed-in members and nothing at
+        all for public visitors, decided in the browser so this cached HTML
+        stays identical for every viewer. Reaching My Profile from the menu and
+        losing the navigation was the complaint; serving app chrome to somebody
+        arriving from a TikTok bio would be the opposite mistake.
+      */}
+      <div className="flex flex-col md:flex-row min-h-screen bg-background">
+        <MemberChrome />
 
-      <ProfileClient initialProfile={initialProfile as never} />
+        <div className="flex-1 min-w-0 pb-20 md:pb-0">
+          <div className="mx-auto max-w-4xl px-4 pt-6">
+            <FollowButton username={u.username} initialFollowers={counts.followers} />
+          </div>
+
+          <ProfileClient initialProfile={initialProfile as never} />
+        </div>
+      </div>
     </>
   );
 }

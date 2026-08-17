@@ -52,9 +52,9 @@ function DashboardContent() {
   const recentTasks: TaskWithTask[] = dashboardData?.recentTasks || [];
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 pb-20 md:pb-0">
         <main className="container mx-auto px-4 py-8">
           <WelcomeSection />
 

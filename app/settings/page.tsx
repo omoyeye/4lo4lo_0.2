@@ -69,7 +69,7 @@ function AccountSettingsTab({ handleDeleteAccount }: { handleDeleteAccount: () =
           <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
             <HelpCircle className="w-6 h-6 text-primary" />
           </div>
-          <div className="flex-1 w-full">
+          <div className="flex-1 min-w-0 w-full">
             <h3 className="text-lg font-semibold">Interactive Tutorial</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto sm:mx-0">
               {hasCompletedTutorial 
@@ -307,10 +307,10 @@ function SettingsContent() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-foreground">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <Sidebar />
 
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 pb-20 md:pb-0">
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="mb-6 md:mb-8">
@@ -324,7 +324,7 @@ function SettingsContent() {
           <div className="flex space-x-1 rounded-lg bg-muted p-1 mb-6 md:mb-8">
             <Button
               variant={activeTab === "profile" ? "default" : "ghost"}
-              className="flex-1 text-xs sm:text-sm"
+              className="flex-1 min-w-0 text-xs sm:text-sm"
               size="sm"
               onClick={() => setActiveTab("profile")}
             >
@@ -332,7 +332,7 @@ function SettingsContent() {
             </Button>
             <Button
               variant={activeTab === "notifications" ? "default" : "ghost"}
-              className="flex-1 text-xs sm:text-sm"
+              className="flex-1 min-w-0 text-xs sm:text-sm"
               size="sm"
               onClick={() => setActiveTab("notifications")}
             >
@@ -340,7 +340,7 @@ function SettingsContent() {
             </Button>
             <Button
               variant={activeTab === "account" ? "default" : "ghost"}
-              className="flex-1 text-xs sm:text-sm"
+              className="flex-1 min-w-0 text-xs sm:text-sm"
               size="sm"
               onClick={() => setActiveTab("account")}
             >

@@ -144,9 +144,9 @@ function ToolsContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 pb-20 md:pb-0">
         <main className="container mx-auto px-4 py-8">
 
       {/* Top Ad */}
@@ -352,7 +352,7 @@ function ToolsContent() {
                         Your short link is ready!
                       </div>
                       <div className="flex items-center gap-2 bg-white dark:bg-gray-700 rounded-lg border px-3 py-2">
-                        <span className="flex-1 text-sm font-mono text-gray-800 dark:text-gray-200 truncate">
+                        <span className="flex-1 min-w-0 text-sm font-mono text-gray-800 dark:text-gray-200 truncate">
                           {shortUrl}
                         </span>
                         <Button size="sm" variant="ghost" onClick={handleCopy} className="shrink-0 h-7">

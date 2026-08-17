@@ -402,7 +402,17 @@ export default function Sidebar() {
   return (
     <motion.div 
       className={cn(
-        "bg-gradient-to-b from-background via-background/98 to-background/95 border-r border-border/50 flex flex-col h-full transition-all duration-300 shadow-lg backdrop-blur-sm",
+        // sticky top-0 h-screen, NOT h-full.
+        //
+        // h-full resolved against a min-h-screen page wrapper, so on any page
+        // taller than the viewport the sidebar grew to the full page height.
+        // Sign out lives at the bottom of it, so on a long page like Settings
+        // it sat thousands of pixels down and you had to scroll the whole page
+        // to reach it. It looked like the sidebar was cut off.
+        //
+        // Pinned to the viewport instead: always exactly one screen tall, and
+        // it stays put while the content beside it scrolls.
+        "bg-gradient-to-b from-background via-background/98 to-background/95 border-r border-border/50 flex flex-col sticky top-0 h-screen shrink-0 transition-all duration-300 shadow-lg backdrop-blur-sm",
         collapsed ? "w-20" : "w-64"
       )}
       initial={{ x: -20, opacity: 0 }}
@@ -435,7 +445,14 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Menu */}
-      <nav className="mt-6 flex-1 px-2">
+      {/*
+        min-h-0 is doing real work here. A flex item defaults to min-height
+        auto, so it refuses to shrink below its content and overflow-y-auto
+        never engages. Without it, a laptop screen too short for eleven nav
+        items would push the theme toggle and sign out off the bottom again,
+        which is the bug this is meant to prevent.
+      */}
+      <nav className="mt-6 flex-1 min-h-0 overflow-y-auto px-2">
         <ul>
           <NavItems />
         </ul>

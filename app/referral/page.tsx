@@ -183,10 +183,10 @@ function ReferralContent() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-foreground">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <Sidebar />
 
-      <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
+      <div className="flex-1 min-w-0 pb-20 md:pb-0">
         <div className="p-4 md:p-6 lg:p-8">
           {/* Header */}
           <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center">Invite Friends</h1>
@@ -380,7 +380,7 @@ function ReferralContent() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="flex-1 sm:flex-none text-xs sm:text-sm gap-2"
+                  className="flex-1 min-w-0 sm:flex-none text-xs sm:text-sm gap-2"
                   onClick={handleCopyLink}
                 >
                   <Copy className="h-4 w-4" />
@@ -390,7 +390,7 @@ function ReferralContent() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="flex-1 sm:flex-none text-xs sm:text-sm gap-2"
+                  className="flex-1 min-w-0 sm:flex-none text-xs sm:text-sm gap-2"
                   onClick={handleShareLink}
                 >
                   <Share2 className="h-4 w-4" />

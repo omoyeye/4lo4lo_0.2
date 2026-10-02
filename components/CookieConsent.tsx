@@ -33,6 +33,10 @@ declare global {
   }
 }
 
+export function openCookieConsent() {
+  window.dispatchEvent(new Event("open-cookie-consent"));
+}
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
@@ -43,6 +47,10 @@ export default function CookieConsent() {
     } else if (stored === "accepted") {
       grantAnalytics();
     }
+
+    const handleOpen = () => setVisible(true);
+    window.addEventListener("open-cookie-consent", handleOpen);
+    return () => window.removeEventListener("open-cookie-consent", handleOpen);
   }, []);
 
   function accept() {

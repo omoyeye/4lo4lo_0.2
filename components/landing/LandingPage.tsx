@@ -621,6 +621,7 @@ function LandingPageContent() {
               <Link href="/terms" className="hover:text-purple-600 transition-colors">Terms of Service</Link>
               <Link href="/privacy" className="hover:text-purple-600 transition-colors">Privacy Policy</Link>
               <Link href="/free-tools" className="hover:text-purple-600 transition-colors">Free Tools</Link>
+              <button onClick={() => window.dispatchEvent(new Event("open-cookie-consent"))} className="hover:text-purple-600 transition-colors">Cookie Preferences</button>
             </div>
 
             <p className="text-sm text-muted-foreground">

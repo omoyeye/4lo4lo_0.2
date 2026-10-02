@@ -14,7 +14,7 @@ function TermsContent() {
           </div>
           
           <div className="prose prose-purple dark:prose-invert max-w-none space-y-6 text-gray-600 dark:text-gray-300">
-            <p className="font-bold text-lg text-gray-900 dark:text-white">Last Updated: March 2, 2026</p>
+            <p className="font-bold text-lg text-gray-900 dark:text-white">Last Updated: October 2, 2026</p>
 
             <section>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">1. Acceptance of Terms</h2>
@@ -95,6 +95,24 @@ function TermsContent() {
             </section>
 
             <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">13. Privacy and Cookies</h2>
+              <p>Your use of the Platform is also governed by our <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>, which describes how we collect, use, and protect your data. We use essential cookies for authentication and, with your consent, analytics cookies to improve the service. You can manage your cookie preferences at any time via the link in the site footer.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">14. Your Data Rights (GDPR &amp; International)</h2>
+              <p>If you are located in the European Economic Area, the United Kingdom, or another jurisdiction with data protection laws, you have the right to:</p>
+              <ul className="list-disc pl-5 space-y-2 mt-2">
+                <li>Access, correct, or delete your personal data</li>
+                <li>Restrict or object to processing of your data</li>
+                <li>Receive your data in a portable format</li>
+                <li>Withdraw consent at any time where processing is consent-based</li>
+                <li>Lodge a complaint with your local data protection authority</li>
+              </ul>
+              <p className="mt-2">To exercise these rights, contact <a href="mailto:support@4lo4lo.site" className="text-primary hover:underline">support@4lo4lo.site</a>. We will respond within 30 days. For full details, see our <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.</p>
+            </section>
+
+            <section>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">18. Dispute Resolution</h2>
               <p>These Terms are governed by the laws of England and Wales. Before pursuing formal resolution, you agree to attempt informal resolution by contacting support@4lo4lo.site.</p>
             </section>
@@ -107,7 +125,7 @@ function TermsContent() {
           </div>
           
           <div className="mt-10 flex justify-center">
-            <Link href="/signup" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <Link href="/auth" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
               Accept and Continue to Sign Up
             </Link>
           </div>

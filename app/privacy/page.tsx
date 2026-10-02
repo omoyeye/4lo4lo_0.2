@@ -14,7 +14,7 @@ function PrivacyContent() {
           </div>
           
           <div className="prose prose-purple dark:prose-invert max-w-none space-y-6 text-gray-600 dark:text-gray-300">
-            <p className="font-bold text-lg text-gray-900 dark:text-white">Last Updated: December 26, 2025</p>
+            <p className="font-bold text-lg text-gray-900 dark:text-white">Last Updated: October 2, 2026</p>
 
             <section>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">1. Introduction</h2>
@@ -26,7 +26,7 @@ function PrivacyContent() {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">2. Information We Collect</h2>
               <h3 className="text-lg font-semibold mt-4 mb-2">2.1 Information You Provide Directly</h3>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Account Information:</strong> Name, email, username, encrypted password, DOB, country.</li>
+                <li><strong>Account Information:</strong> Name, email, username, encrypted password, country.</li>
                 <li><strong>Payment Information:</strong> Payment method details, billing address, tax ID (if required).</li>
                 <li><strong>Social Media Information:</strong> Usernames/URLs, profile links for verification.</li>
                 <li><strong>Communications:</strong> Messages, support tickets, feedback.</li>
@@ -56,8 +56,28 @@ function PrivacyContent() {
             </section>
 
             <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">5. Cookies and Tracking</h2>
+              <h3 className="text-lg font-semibold mt-4 mb-2">5.1 Essential Cookies</h3>
+              <p>We use a session cookie to keep you signed in. This cookie is strictly necessary for the Platform to function and cannot be disabled.</p>
+              <h3 className="text-lg font-semibold mt-4 mb-2">5.2 Analytics Cookies</h3>
+              <p>With your consent, we use Google Analytics (via Google Tag Manager) to understand how visitors use the site. These cookies are only set after you accept them through the cookie banner. You can change your preference at any time by clearing your browser data.</p>
+              <h3 className="text-lg font-semibold mt-4 mb-2">5.3 No Advertising Cookies</h3>
+              <p>We do not use advertising, retargeting, or social media tracking cookies.</p>
+            </section>
+
+            <section>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">6. Your Rights and Choices</h2>
-              <p>Depending on your location, you may have rights to access, correct, delete, or restrict processing of your data. You can manage most information through your account settings or by contacting us.</p>
+              <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+              <ul className="list-disc pl-5 space-y-2 mt-2">
+                <li><strong>Access:</strong> Request a copy of the personal data we hold about you.</li>
+                <li><strong>Correction:</strong> Request that we correct inaccurate or incomplete data.</li>
+                <li><strong>Deletion:</strong> Request that we delete your personal data (right to erasure).</li>
+                <li><strong>Restriction:</strong> Request that we restrict how we process your data.</li>
+                <li><strong>Portability:</strong> Request your data in a structured, machine-readable format.</li>
+                <li><strong>Objection:</strong> Object to processing based on our legitimate interests.</li>
+                <li><strong>Withdraw Consent:</strong> Where processing is based on consent, you may withdraw it at any time.</li>
+              </ul>
+              <p className="mt-2">To exercise any of these rights, contact us at <a href="mailto:support@4lo4lo.site" className="text-primary hover:underline">support@4lo4lo.site</a>. We will respond within 30 days.</p>
             </section>
 
             <section>
@@ -66,8 +86,23 @@ function PrivacyContent() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">9. Children's Privacy</h2>
-              <p>Our Platform is NOT intended for users under 18 years old. We do not knowingly collect information from minors.</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">8. Data Retention</h2>
+              <p>We retain your personal data for as long as your account is active or as needed to provide our services. If you delete your account, we will delete or anonymise your personal data within 30 days, except where we are required to retain it for legal, accounting, or fraud-prevention purposes.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">9. International Data Transfers</h2>
+              <p>Our servers are located in the United States. If you are accessing the Platform from outside the US, your data will be transferred to, stored, and processed in the US. By using the Platform, you consent to this transfer.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">10. Children&apos;s Privacy</h2>
+              <p>Our Platform is NOT intended for users under 18 years old. We do not knowingly collect information from minors. If we learn that we have collected personal data from a child under 18, we will delete that information promptly.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">11. Changes to This Policy</h2>
+              <p>We may update this Privacy Policy from time to time. We will notify you of material changes by posting the new policy on this page and updating the &quot;Last Updated&quot; date. Your continued use of the Platform after changes constitutes acceptance of the updated policy.</p>
             </section>
 
             <section className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -78,7 +113,7 @@ function PrivacyContent() {
           </div>
           
           <div className="mt-10 flex justify-center">
-            <Link href="/signup" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <Link href="/auth" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
               Accept and Continue to Sign Up
             </Link>
           </div>

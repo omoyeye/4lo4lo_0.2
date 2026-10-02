@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import { siteUrl } from "@/lib/seo";
 import { GtmScript, GtmNoScript } from "@/components/GoogleTagManager";
+import CookieConsent from "@/components/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -57,7 +58,10 @@ export default function RootLayout({
         {/* Must be the first thing inside <body>, per Google's install. */}
         <GtmNoScript />
         <GtmScript />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <CookieConsent />
+        </Providers>
       </body>
     </html>
   );

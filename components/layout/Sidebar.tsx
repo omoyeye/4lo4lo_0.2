@@ -376,6 +376,15 @@ export default function Sidebar() {
         </ul>
       </nav>
 
+      {/* Legal footer */}
+      <div className="border-t border-border/30 px-4 py-3">
+        <div className={cn("flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground", collapsed && "flex-col items-center")}>
+          <Link href="/terms" className="hover:text-foreground transition-colors">{collapsed ? "T&C" : "Terms"}</Link>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">{collapsed ? "PP" : "Privacy"}</Link>
+          <button onClick={() => window.dispatchEvent(new Event("open-cookie-consent"))} className="hover:text-foreground transition-colors text-left">{collapsed ? "CK" : "Cookies"}</button>
+        </div>
+      </div>
+
     </motion.div>
   );
 }

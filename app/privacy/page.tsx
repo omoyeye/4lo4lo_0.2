@@ -51,22 +51,33 @@ function PrivacyContent() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">4. How We Share Your Information</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">4. Legal Basis for Processing (GDPR)</h2>
+              <p>We process your personal data under the following legal bases:</p>
+              <ul className="list-disc pl-5 space-y-2 mt-2">
+                <li><strong>Contract Performance:</strong> Account creation, task processing, credit management, and withdrawals are necessary to perform our contract with you (the Terms of Service).</li>
+                <li><strong>Consent:</strong> Analytics cookies are only set after you give consent via the cookie banner. You may withdraw consent at any time.</li>
+                <li><strong>Legitimate Interest:</strong> Fraud prevention, platform security, and service improvement, balanced against your privacy rights.</li>
+                <li><strong>Legal Obligation:</strong> Where we are required to retain data for tax, accounting, or regulatory compliance.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">5. How We Share Your Information</h2>
               <p>We share information with service providers (payment processors, hosting, analytics), social media platforms (for verification), and as required by law or business transfers.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">5. Cookies and Tracking</h2>
-              <h3 className="text-lg font-semibold mt-4 mb-2">5.1 Essential Cookies</h3>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">6. Cookies and Tracking</h2>
+              <h3 className="text-lg font-semibold mt-4 mb-2">6.1 Essential Cookies</h3>
               <p>We use a session cookie to keep you signed in. This cookie is strictly necessary for the Platform to function and cannot be disabled.</p>
-              <h3 className="text-lg font-semibold mt-4 mb-2">5.2 Analytics Cookies</h3>
-              <p>With your consent, we use Google Analytics (via Google Tag Manager) to understand how visitors use the site. These cookies are only set after you accept them through the cookie banner. You can change your preference at any time by clearing your browser data.</p>
-              <h3 className="text-lg font-semibold mt-4 mb-2">5.3 No Advertising Cookies</h3>
+              <h3 className="text-lg font-semibold mt-4 mb-2">6.2 Analytics Cookies</h3>
+              <p>With your consent, we use Google Analytics (via Google Tag Manager) to understand how visitors use the site. These cookies are only set after you accept them through the cookie banner. You can change your preference at any time via the &quot;Cookie Preferences&quot; link in the site footer.</p>
+              <h3 className="text-lg font-semibold mt-4 mb-2">6.3 No Advertising Cookies</h3>
               <p>We do not use advertising, retargeting, or social media tracking cookies.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">6. Your Rights and Choices</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">7. Your Rights and Choices</h2>
               <p>Depending on your location, you may have the following rights regarding your personal data:</p>
               <ul className="list-disc pl-5 space-y-2 mt-2">
                 <li><strong>Access:</strong> Request a copy of the personal data we hold about you.</li>
@@ -81,27 +92,28 @@ function PrivacyContent() {
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">7. Security Measures</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">8. Security Measures</h2>
               <p>We implement SSL/TLS encryption, secure password hashing, and access controls. However, no method of transmission is 100% secure.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">8. Data Retention</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">9. Data Retention</h2>
               <p>We retain your personal data for as long as your account is active or as needed to provide our services. If you delete your account, we will delete or anonymise your personal data within 30 days, except where we are required to retain it for legal, accounting, or fraud-prevention purposes.</p>
+              <p className="mt-2">To request account deletion, contact <a href="mailto:support@4lo4lo.site" className="text-primary hover:underline">support@4lo4lo.site</a> with the subject line &quot;Account Deletion Request&quot;.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">9. International Data Transfers</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">10. International Data Transfers</h2>
               <p>Our servers are located in the United States. If you are accessing the Platform from outside the US, your data will be transferred to, stored, and processed in the US. By using the Platform, you consent to this transfer.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">10. Children&apos;s Privacy</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">11. Children&apos;s Privacy</h2>
               <p>Our Platform is NOT intended for users under 18 years old. We do not knowingly collect information from minors. If we learn that we have collected personal data from a child under 18, we will delete that information promptly.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">11. Changes to This Policy</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">12. Changes to This Policy</h2>
               <p>We may update this Privacy Policy from time to time. We will notify you of material changes by posting the new policy on this page and updating the &quot;Last Updated&quot; date. Your continued use of the Platform after changes constitutes acceptance of the updated policy.</p>
             </section>
 

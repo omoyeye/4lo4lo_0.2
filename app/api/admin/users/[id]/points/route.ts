@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 import { z } from "zod";
 
 // PATCH /api/admin/users/:id/points
@@ -46,8 +47,7 @@ export async function PATCH(
     //   realTimeService.broadcastUserPointsUpdate(userId, updatedUser.points);
     // }
 
-    const { password, ...userWithoutPassword } = updatedUser;
-    return NextResponse.json(userWithoutPassword, { status: 200 });
+    return NextResponse.json(toPublicUser(updatedUser), { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

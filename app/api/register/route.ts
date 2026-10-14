@@ -3,6 +3,7 @@ import { scrypt, timingSafeEqual, randomBytes } from "crypto";
 import { promisify } from "util";
 import { nanoid } from "nanoid";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 import { signIn } from "@/auth";
 import { sendWelcomeEmail } from "@/lib/core/services/email";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest) {
       console.error("Failed to send welcome email:", error);
     });
 
-    return NextResponse.json(user, { status: 201 });
+    return NextResponse.json(toPublicUser(user), { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(

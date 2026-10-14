@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { storage } from "@/lib/core/storage";
+import { toPeerUser } from "@/lib/public-user";
 import { dashboardCache, cacheKeys } from "@/lib/core/cache";
 
 export async function GET(
@@ -64,8 +65,8 @@ export async function GET(
       storage.getTopEarners(5),
     ]);
 
-    // Strip passwords from top earners
-    const safeTopEarners = topEarners.map(({ password, ...u }) => u);
+    // Other members: only what a leaderboard row needs, never email etc.
+    const safeTopEarners = topEarners.map(toPeerUser);
 
     const dashboardResult = {
       user: {

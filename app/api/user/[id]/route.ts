@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 import { updateUserSchema } from "@shared/schema.mysql";
 
 export async function GET(
@@ -31,8 +32,7 @@ export async function GET(
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const { password, ...userWithoutPassword } = user;
-    return NextResponse.json(userWithoutPassword);
+    return NextResponse.json(toPublicUser(user));
   } catch (error) {
     console.error("Failed to fetch user:", error);
     return NextResponse.json({ message: "Failed to fetch user" }, { status: 500 });
@@ -70,8 +70,7 @@ export async function PATCH(
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const { password, ...userWithoutPassword } = updatedUser;
-    return NextResponse.json(userWithoutPassword);
+    return NextResponse.json(toPublicUser(updatedUser));
   } catch (error) {
     console.error("Error updating user profile:", error);
     return NextResponse.json(

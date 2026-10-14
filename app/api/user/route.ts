@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 
 /**
  * GET /api/user
@@ -21,5 +22,5 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
   }
 
-  return NextResponse.json(user);
+  return NextResponse.json(toPublicUser(user));
 }

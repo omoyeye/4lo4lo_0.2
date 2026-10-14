@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signIn } from "@/auth";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 import { AuthError } from "next-auth";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 
@@ -34,8 +35,9 @@ export async function POST(req: NextRequest) {
     const user = await storage.getUserByUsername(username);
     if (user) {
       await storage.updateLoginStreak(user.id).catch(() => {});
-      const freshUser = await storage.getUser(user.id).catch(() => user);
-      return NextResponse.json(freshUser, { status: 200 });
+      const freshUser =
+        (await storage.getUser(user.id).catch(() => undefined)) ?? user;
+      return NextResponse.json(toPublicUser(freshUser), { status: 200 });
     }
 
     return NextResponse.json({ message: "Login successful" }, { status: 200 });

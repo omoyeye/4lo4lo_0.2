@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 import { insertUserSchema } from "@shared/schema.mysql";
 import { z } from "zod";
 
@@ -11,8 +12,7 @@ export async function GET(_req: NextRequest) {
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const users = await storage.getAllUsers();
-    const safeUsers = users.map(({ password, ...user }) => user);
-    return NextResponse.json(safeUsers, { status: 200 });
+    return NextResponse.json(users.map(toPublicUser), { status: 200 });
   } catch (error) {
     console.error("Failed to get users:", error);
     return NextResponse.json(
@@ -40,8 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     const newUser = await storage.createUser(userData);
-    const { password, ...userWithoutPassword } = newUser;
-    return NextResponse.json(userWithoutPassword, { status: 201 });
+    return NextResponse.json(toPublicUser(newUser), { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ message: error.errors }, { status: 400 });

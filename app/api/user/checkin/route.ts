@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
+import { toPublicUser } from "@/lib/public-user";
 
 // POST /api/user/checkin
 export async function POST(_req: NextRequest) {
@@ -10,7 +11,10 @@ export async function POST(_req: NextRequest) {
 
     const updatedUser = await storage.updateLoginStreak(userId);
     const newBadgeKeys = await storage.checkAndAwardBadges(userId);
-    return NextResponse.json({ user: updatedUser, newBadgeKeys });
+    return NextResponse.json({
+      user: updatedUser ? toPublicUser(updatedUser) : updatedUser,
+      newBadgeKeys,
+    });
   } catch (error) {
     console.error("Failed to process check-in:", error);
     return NextResponse.json(

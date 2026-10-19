@@ -106,7 +106,7 @@ function ReferralContent() {
   }, [user?.id, toast]);
 
   // Use the referral code from the database
-  const referralLink = `${window.location.origin}/signup?ref=${referralStats.referralCode}`;
+  const referralLink = `${window.location.origin}/auth?ref=${referralStats.referralCode}`;
 
   // Update username from localStorage on component mount
   useEffect(() => {

@@ -5,6 +5,7 @@ import { promotionPlans, promotionRequests, appSettings } from "@shared/schema.m
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import Stripe from "stripe";
+import { siteUrl } from "@/lib/seo";
 
 /**
  * Stripe is constructed lazily.
@@ -93,8 +94,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXTAUTH_URL}/promote-me?session_id={CHECKOUT_SESSION_ID}&status=success`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/promote-me?status=cancelled`,
+      success_url: `${siteUrl()}/promote-me?session_id={CHECKOUT_SESSION_ID}&status=success`,
+      cancel_url: `${siteUrl()}/promote-me?status=cancelled`,
       metadata: {
         userId: validatedData.userId.toString(),
         planId: validatedData.planId.toString(),

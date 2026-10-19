@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
 import { nanoid } from "nanoid";
+import { siteUrl } from "@/lib/seo";
 
 /** Hosts that must never be wrapped, SSRF and internal-network probing. */
 function isDisallowedHost(hostname: string): boolean {
@@ -96,9 +97,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const host = process.env.NEXTAUTH_URL || "http://localhost:3000";
     return NextResponse.json({
-      shortUrl: `${host}/s/${shortened.shortCode}`,
+      shortUrl: `${siteUrl()}/s/${shortened.shortCode}`,
     });
   } catch (error) {
     console.error("Failed to shorten URL:", error);

@@ -27,6 +27,3 @@ Thumbs.db
 # misc
 .replit
 *.tar.gz
-
-# The Expo app is its own git repository (mobile/.git)
-/mobile/

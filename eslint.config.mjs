@@ -19,8 +19,6 @@ export default [
       "migrations/_legacy-postgres/**",
       "public/service-worker.js",
       "next-env.d.ts",
-      // The Expo app has its own toolchain and lint config.
-      "mobile/**",
     ],
   },
   {

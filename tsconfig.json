@@ -43,6 +43,7 @@
     "node_modules",
     "build",
     ".next",
-    "client"
+    "client",
+    "mobile"
   ]
 }

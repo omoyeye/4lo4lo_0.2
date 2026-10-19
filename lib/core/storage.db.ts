@@ -66,6 +66,7 @@ import {
 } from "@shared/schema.mysql";
 import { IStorage, LeaderboardEntry } from "./storage";
 import { db } from "@/lib/db";
+import { queuePush } from "@/lib/push";
 import { eq, and, desc, sql, gte, count, inArray, or, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 // Session store imports removed
@@ -1436,6 +1437,17 @@ export class DatabaseStorage implements IStorage {
   async createNotification(notification: InsertNotification): Promise<Notification> {
     const [notifInsertResult] = await db.insert(notifications).values(notification);
     const [result] = await db.select().from(notifications).where(eq(notifications.id, (notifInsertResult as any).insertId));
+
+    // Every member notification also goes to that member's phones, if any.
+    if (result && result.userId && !result.adminOnly) {
+      queuePush({
+        userId: result.userId,
+        title: result.title,
+        body: result.message,
+        data: { notificationId: result.id, type: result.type },
+      });
+    }
+
     return result!;
   }
 

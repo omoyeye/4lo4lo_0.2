@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { mobileTokenToSessionCookies, SESSION_COOKIE_PATTERN } from "@/lib/mobile-token";
 
 /**
  * Server-side gate for the admin area.
@@ -54,8 +55,38 @@ async function readToken(req: NextRequest) {
   return null;
 }
 
+/**
+ * Native app requests carry `Authorization: Bearer <token>` instead of a
+ * session cookie. Swap it for the session cookies auth() reads, so every
+ * existing route handler serves the app without modification. Any session
+ * cookie the client also sent is dropped, so the bearer is the only identity.
+ * Requests without a bearer pass through untouched.
+ */
+async function applyMobileBearer(req: NextRequest) {
+  const authz = req.headers.get("authorization");
+  if (!authz || !authz.startsWith("Bearer ")) return NextResponse.next();
+
+  const headers = new Headers(req.headers);
+  headers.delete("authorization");
+
+  const cookies = (req.headers.get("cookie") ?? "")
+    .split(";")
+    .map((c) => c.trim())
+    .filter((c) => c && !SESSION_COOKIE_PATTERN.test(c));
+
+  const session = await mobileTokenToSessionCookies(authz.slice(7).trim()).catch(() => null);
+  if (session) cookies.push(session);
+
+  if (cookies.length) headers.set("cookie", cookies.join("; "));
+  else headers.delete("cookie");
+
+  return NextResponse.next({ request: { headers } });
+}
+
 export default async function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
+
+  if (pathname.startsWith("/api/")) return applyMobileBearer(req);
 
   const token = await readToken(req);
 
@@ -82,9 +113,9 @@ export default async function proxy(req: NextRequest) {
 
 export const config = {
   /**
-   * Matches /admin and everything under it, but never /api/* (those routes do
-   * their own checks and must be able to return JSON 401/403 rather than a
-   * redirect), and never static assets.
+   * /admin gets the role gate. /api/* only gets the bearer-to-cookie swap and
+   * is never redirected: those routes do their own checks and must be able to
+   * return JSON 401/403. Static assets are never matched.
    */
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: ["/admin", "/admin/:path*", "/api/:path*"],
 };

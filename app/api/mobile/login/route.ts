@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Invalid username or password" }, { status: 401 });
     }
 
-    await storage.updateLoginStreak(user.id).catch(() => {});
     const fresh = (await storage.getUser(user.id).catch(() => undefined)) ?? user;
 
     const token = await issueMobileToken({

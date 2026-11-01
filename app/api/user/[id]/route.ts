@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth, hasAdminAccess } from "@/auth";
 import { storage } from "@/lib/core/storage";
 import { toPublicUser } from "@/lib/public-user";
 import { updateUserSchema } from "@shared/schema.mysql";
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const requestingUserId = parseInt(session.user.id, 10);
-    const isAdmin = session.user.role === "admin" || session.user.isAdmin;
+    const isAdmin = hasAdminAccess(session.user);
 
     if (requestingUserId !== userId && !isAdmin) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
@@ -56,7 +56,7 @@ export async function PATCH(
     }
 
     const requestingUserId = parseInt(session.user.id, 10);
-    const isAdmin = session.user.role === "admin" || session.user.isAdmin;
+    const isAdmin = hasAdminAccess(session.user);
 
     if (requestingUserId !== userId && !isAdmin) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });

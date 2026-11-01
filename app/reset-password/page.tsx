@@ -104,6 +104,9 @@ function ResetPasswordContent() {
             <Button onClick={() => navigate("/auth")} className="w-full">
               Go to Login Page
             </Button>
+            <button type="button" onClick={() => navigate("/admin/login")} className="w-full text-center text-sm text-muted-foreground hover:text-foreground">
+              Admin? Sign in to the admin panel
+            </button>
           </CardContent>
         </Card>
       </div>

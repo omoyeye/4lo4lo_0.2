@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { auth, hasAdminAccess } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export async function GET() {
   }
 
   const role = session.user.role ?? "member";
-  const isAdmin = role === "admin" || role === "superadmin";
+  const isAdmin = hasAdminAccess(session.user);
 
   return NextResponse.json(
     {

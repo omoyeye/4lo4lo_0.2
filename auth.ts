@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { scrypt, timingSafeEqual, randomBytes } from "crypto";
 import { promisify } from "util";
 import { storage } from "@/lib/core/storage";
+import { adminOtpEnabled, verifyAdminCode } from "@/lib/admin-otp";
 
 const scryptAsync = promisify(scrypt);
 
@@ -31,6 +32,17 @@ export function isAdminRole(role: string | null | undefined): boolean {
   return !!role && (ADMIN_ROLES as readonly string[]).includes(role);
 }
 
+/**
+ * May this session use the admin panel and admin APIs? Needs an admin role AND
+ * a sign-in confirmed with the emailed code (lib/admin-otp.ts). An admin who
+ * signed in with only their password, on the member login or the app, is
+ * treated as a regular member until they sign in at /admin/login.
+ */
+export function hasAdminAccess(user: { role?: string | null; adminVerified?: boolean } | null | undefined): boolean {
+  if (!user || !isAdminRole(user.role)) return false;
+  return !adminOtpEnabled() || user.adminVerified === true;
+}
+
 // Augment the session type to include our custom fields
 declare module "next-auth" {
   interface Session {
@@ -38,12 +50,14 @@ declare module "next-auth" {
       id: string;
       role: string;
       isAdmin: boolean;
+      adminVerified?: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     role?: string;
     isAdmin?: boolean;
+    adminVerified?: boolean;
   }
 }
 
@@ -63,6 +77,9 @@ export const authConfig = {
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
+        // Only sent by /api/admin/login after the emailed code step.
+        adminChallenge: { label: "Admin challenge", type: "text" },
+        adminCode: { label: "Admin code", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) return null;
@@ -76,8 +93,6 @@ export const authConfig = {
             user.password
           );
           if (!valid) return null;
-          // Update login streak asynchronously
-          storage.updateLoginStreak(user.id).catch(() => {});
           return {
             id: String(user.id),
             name: user.displayName ?? user.username,
@@ -85,6 +100,9 @@ export const authConfig = {
             image: user.avatar ?? null,
             role: user.role ?? "user",
             isAdmin: false,
+            adminVerified:
+              isAdminRole(user.role) &&
+              verifyAdminCode(user, credentials.adminChallenge as string | undefined, credentials.adminCode as string | undefined),
           };
         } catch {
           return null;
@@ -120,6 +138,7 @@ export const authConfig = {
         token.id = user.id;
         token.role = user.role ?? "user";
         token.isAdmin = user.isAdmin ?? false;
+        token.adminVerified = user.adminVerified === true;
       }
       return token;
     },
@@ -128,6 +147,7 @@ export const authConfig = {
       session.user.id = token.id as string;
       session.user.role = token.role as string;
       session.user.isAdmin = (token.isAdmin as boolean) ?? false;
+      session.user.adminVerified = token.adminVerified === true;
       return session;
     },
   },

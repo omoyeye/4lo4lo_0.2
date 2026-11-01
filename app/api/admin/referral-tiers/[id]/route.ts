@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 import { insertReferralTierSchema } from "@shared/schema.mysql";
 
@@ -9,7 +9,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminAuth = await requireAdmin();
+    const adminAuth = await requireSuperadmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const { id } = await params;
@@ -54,7 +54,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminAuth = await requireAdmin();
+    const adminAuth = await requireSuperadmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const { id } = await params;

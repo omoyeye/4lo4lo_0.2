@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 
 // POST /api/admin/bulk-notification
 export async function POST(req: NextRequest) {
   try {
-    const adminAuth = await requireAdmin();
+    const adminAuth = await requireSuperadmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const { title, message, type = "system_announcement" } = await req.json();
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     let successCount = 0;
 
     for (const user of allUsers) {
+      if (user.role === "deleted") continue;
       try {
         await storage.createNotification({
           userId: user.id,

@@ -805,19 +805,24 @@ export const taskClickSchema = z.object({
   taskId: z.number().int().positive("Task ID must be a positive integer"),
 });
 
+// "google_review" and "survey" are offered by the admin task form.
+export const TASK_PLATFORMS = ["youtube", "tiktok", "facebook", "instagram", "twitter", "whatsapp", "telegram", "linkedin", "snapchat", "pinterest", "discord", "threads", "google_review", "survey"] as const;
+export const TASK_TYPES = ["like", "follow", "comment", "share", "view", "subscribe", "review", "survey"] as const;
+
 export const createTaskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   taskUrl: z.string().url("Task URL must be a valid URL"),
   platform: z.enum(
-    ["youtube", "tiktok", "facebook", "instagram", "twitter", "whatsapp", "telegram", "linkedin", "snapchat", "pinterest", "discord", "threads", "survey"],
+    TASK_PLATFORMS,
     { errorMap: () => ({ message: "Invalid platform" }) }
   ),
-  type: z.enum(["like", "follow", "comment", "share", "view", "subscribe"], {
+  type: z.enum(TASK_TYPES, {
     errorMap: () => ({ message: "Invalid task type" }),
   }),
   points: z.number().int().min(1, "Points must be at least 1"),
   maxCompletions: z.number().int().positive().optional().nullable(),
+  isActive: z.boolean().optional(),
   expiresAt: z.string().datetime().optional().nullable(),
   scheduledPublishAt: z.string().datetime().optional().nullable(),
 });
@@ -827,9 +832,9 @@ export const updateTaskSchema = z.object({
   description: z.string().min(1).optional(),
   taskUrl: z.string().url().optional(),
   platform: z
-    .enum(["youtube", "tiktok", "facebook", "instagram", "twitter", "whatsapp", "telegram", "linkedin", "snapchat", "pinterest", "discord", "threads", "survey"])
+    .enum(TASK_PLATFORMS)
     .optional(),
-  type: z.enum(["like", "follow", "comment", "share", "view", "subscribe"]).optional(),
+  type: z.enum(TASK_TYPES).optional(),
   points: z.number().int().min(1).optional(),
   maxCompletions: z.number().int().positive().optional().nullable(),
   isActive: z.boolean().optional(),
@@ -860,8 +865,8 @@ export const updateMilestoneSchema = z.object({
 });
 
 export const updateUserRoleSchema = z.object({
-  role: z.enum(["admin", "member", "guest"], {
-    errorMap: () => ({ message: "Invalid role. Must be 'admin', 'member', or 'guest'" }),
+  role: z.enum(["member", "admin", "superadmin"], {
+    errorMap: () => ({ message: "Invalid role. Must be 'member', 'admin' or 'superadmin'" }),
   }),
 });
 

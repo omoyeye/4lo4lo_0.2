@@ -75,6 +75,9 @@ const registerSchema = z
     termsAccepted: z.boolean().refine((val) => val === true, {
       message: "You must accept the Terms of Service and Privacy Policy to register",
     }),
+    ageConfirmed: z.boolean().refine((val) => val === true, {
+      message: "You must be 18 or older to join 4LO4LO",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -662,6 +665,7 @@ function RegisterForm({ referralCode, onSwitch }: { referralCode: string; onSwit
       country: "",
       referralCode,
       termsAccepted: false,
+      ageConfirmed: false,
     },
   });
 
@@ -677,6 +681,8 @@ function RegisterForm({ referralCode, onSwitch }: { referralCode: string; onSwit
       country: data.country,
       // The server generates this member's own code; this field is required by the type only.
       referralCode: "",
+      ageConfirmed: data.ageConfirmed,
+      termsAccepted: data.termsAccepted,
       ...(data.referralCode ? { referrerCode: data.referralCode } : {}),
     });
   };
@@ -814,9 +820,25 @@ function RegisterForm({ referralCode, onSwitch }: { referralCode: string; onSwit
                     <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-purple-600 hover:underline dark:text-purple-400">
                       Privacy Policy
                     </a>
-                    . You must be 18 years or older to register.
+                    .
                   </p>
                 </div>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="ageConfirmed"
+          render={({ field }) => (
+            <FormItem className="rounded-xl border border-border/80 bg-muted/40 p-4">
+              <div className="flex items-start gap-3">
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} id="age-checkbox" className="mt-0.5" />
+                <FormLabel htmlFor="age-checkbox" className="cursor-pointer text-sm font-semibold">
+                  I confirm I am 18 years of age or older
+                </FormLabel>
               </div>
               <FormMessage />
             </FormItem>

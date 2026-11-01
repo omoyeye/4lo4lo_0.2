@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { logAdminAction } from "@/lib/core/audit";
+import { requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 import { toPublicUser } from "@/lib/public-user";
 import { z } from "zod";
@@ -10,7 +11,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminAuth = await requireAdmin();
+    const adminAuth = await requireSuperadmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const { id } = await params;
@@ -41,11 +42,14 @@ export async function PATCH(
       );
     }
 
-    // TODO: (Phase 9) Send real-time SSE update here.
-    // const realTimeService = getRealTimeService();
-    // if (realTimeService) {
-    //   realTimeService.broadcastUserPointsUpdate(userId, updatedUser.points);
-    // }
+    logAdminAction({
+      adminId: adminAuth.id,
+      action: "points.adjust",
+      targetType: "user",
+      targetId: userId,
+      summary: `${points > 0 ? "Added" : "Removed"} ${Math.abs(points).toLocaleString()} points ${points > 0 ? "to" : "from"} @${userBefore.username} (${userBefore.points} → ${updatedUser.points})`,
+      details: { points, before: userBefore.points, after: updatedUser.points },
+    });
 
     return NextResponse.json(toPublicUser(updatedUser), { status: 200 });
   } catch (error) {

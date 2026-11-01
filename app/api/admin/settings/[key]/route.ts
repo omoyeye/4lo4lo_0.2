@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { logAdminAction } from "@/lib/core/audit";
+import { requireAdmin, requireSuperadmin } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { appSettings } from "@shared/schema.mysql";
 import { eq } from "drizzle-orm";
@@ -32,6 +33,17 @@ const WRITABLE_KEYS = new Set([
   "signups_enabled",
   "min_payout_points",
   "points_per_referral",
+  // Rewards panel. These were missing, so saving that panel always failed.
+  "referral_rate_per_person",
+  "minimum_referrals_to_claim",
+  "points_to_currency_rate",
+  "minimum_points_to_withdraw",
+  "points_per_task_completion",
+  "referral_bonus_points",
+  // Trust & safety
+  "task_proof_required",
+  "email_verification_required",
+  "daily_checkin_points",
 ]);
 
 // GET /api/admin/settings/:key
@@ -73,7 +85,7 @@ export async function PUT(
   { params }: { params: Promise<{ key: string }> }
 ) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireSuperadmin();
     if (auth instanceof NextResponse) return auth;
 
     const { key } = await params;
@@ -108,6 +120,12 @@ export async function PUT(
       });
     }
 
+    logAdminAction({
+      adminId: auth.id,
+      action: "setting.update",
+      targetType: "setting",
+      summary: `Set ${key} to "${value.slice(0, 80)}"${existing ? ` (was "${String(existing.value).slice(0, 80)}")` : ""}`,
+    });
     return NextResponse.json({ key, value }, { status: 200 });
   } catch (error) {
     if (error instanceof z.ZodError) {

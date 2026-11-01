@@ -1606,6 +1606,24 @@ export class DatabaseStorage implements IStorage {
   // ─── Streak operations ─────────────────────────────────────────────────────
 
   async updateLoginStreak(userId: number): Promise<User | undefined> {
+    const result = await this.dailyCheckIn(userId);
+    return result?.user;
+  }
+
+  /**
+   * The daily check-in: runs on sign-in and app open, at most once per UTC day.
+   *
+   * The date is claimed with a conditional UPDATE, so concurrent requests
+   * (the app fires /api/user and /api/user/checkin together) can't both pass
+   * and pay the reward twice, which the old read-then-write version could.
+   */
+  async dailyCheckIn(userId: number): Promise<{
+    user: User;
+    checkedInNow: boolean;
+    streak: number;
+    pointsAwarded: number;
+    bonusAwarded: number;
+  } | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, userId));
     if (!user) return undefined;
 
@@ -1613,35 +1631,39 @@ export class DatabaseStorage implements IStorage {
     const lastDate = user.lastLoginDate as string | null;
 
     if (lastDate === today) {
-      // Already checked in today, no update needed
-      return user;
+      return { user, checkedInNow: false, streak: user.streakCount || 0, pointsAwarded: 0, bonusAwarded: 0 };
     }
 
     let newStreak = 1;
     if (lastDate) {
-      const last = new Date(lastDate);
-      const now = new Date(today);
-      const diffDays = Math.round((now.getTime() - last.getTime()) / 86400000);
-      if (diffDays === 1) {
-        newStreak = (user.streakCount || 0) + 1;
-      }
+      const diffDays = Math.round((new Date(today).getTime() - new Date(lastDate).getTime()) / 86400000);
+      if (diffDays === 1) newStreak = (user.streakCount || 0) + 1;
       // diffDays > 1 → streak broken, reset to 1
     }
 
-    // Update streak count + login date first
-    await db.update(users).set({ streakCount: newStreak, lastLoginDate: today }).where(eq(users.id, userId));
+    const claim = await db
+      .update(users)
+      .set({ streakCount: newStreak, lastLoginDate: today })
+      .where(and(eq(users.id, userId), sql`(${users.lastLoginDate} IS NULL OR ${users.lastLoginDate} <> ${today})`));
+    if (((claim as any)[0]?.affectedRows ?? 0) !== 1) {
+      const [current] = await db.select().from(users).where(eq(users.id, userId));
+      return { user: current ?? user, checkedInNow: false, streak: current?.streakCount ?? newStreak, pointsAwarded: 0, bonusAwarded: 0 };
+    }
 
-    // Check streak milestone bonuses from settings and award through updateUserPoints (keeps level/progress consistent)
+    // Daily reward and streak milestone bonuses, through updateUserPoints so
+    // level/progress stay consistent.
+    let pointsAwarded = 0;
+    let bonusAwarded = 0;
     try {
+      const [row] = await db.select().from(appSettings).where(eq(appSettings.key, "daily_checkin_points"));
+      pointsAwarded = Math.max(0, parseInt(row?.value ?? "0", 10) || 0);
       const settings = await this.getStreakSettings();
-      const milestone = settings.milestones.find(m => m.streak === newStreak);
-      if (milestone && milestone.bonusPoints > 0) {
-        await this.updateUserPoints(userId, milestone.bonusPoints);
-      }
+      bonusAwarded = Math.max(0, settings.milestones.find((m) => m.streak === newStreak)?.bonusPoints ?? 0);
+      if (pointsAwarded + bonusAwarded > 0) await this.updateUserPoints(userId, pointsAwarded + bonusAwarded);
     } catch { /* ignore settings errors */ }
 
     const [updated] = await db.select().from(users).where(eq(users.id, userId));
-    return updated;
+    return { user: updated, checkedInNow: true, streak: newStreak, pointsAwarded, bonusAwarded };
   }
 
   async getStreakSettings(): Promise<{ milestones: Array<{ streak: number; bonusPoints: number }> }> {

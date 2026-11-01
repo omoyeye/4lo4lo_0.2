@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Auth, raw, skipCSRFCheck } from "@auth/core";
 import { comparePasswords, isAdminRole, authConfig } from "@/auth";
+import { adminOtpEnabled, maskEmail, sendAdminCode, verifyAdminCode } from "@/lib/admin-otp";
 import { storage } from "@/lib/core/storage";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
@@ -21,11 +22,24 @@ import { z } from "zod";
  * Calling Auth() directly returns the raw response including cookie descriptors
  * which we copy onto our own NextResponse. This guarantees the browser receives
  * the Set-Cookie header regardless of the Next.js execution context.
+ *
+ * TWO STEPS (lib/admin-otp.ts)
+ *   1. { username, password }                    -> emails a 6-digit code,
+ *                                                   returns { step: "code", challenge }
+ *   2. { username, password, challenge, code }   -> creates the session
+ * With ADMIN_EMAIL_OTP=off, step 1 signs straight in as before.
  */
+
+// Per admin, not per IP: an attacker with the password can't spread guesses
+// across addresses. 5 wrong codes per 10 minutes, 5 emails per 10 minutes.
+const CODE_ATTEMPTS = { name: "admin-otp-verify", limit: 5, windowMs: 10 * 60_000 };
+const CODE_SENDS = { name: "admin-otp-send", limit: 5, windowMs: 10 * 60_000 };
 
 const loginSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
+  challenge: z.string().max(200).optional(),
+  code: z.string().max(10).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -41,7 +55,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const { username, password } = parsed.data;
+    const { username, password, challenge } = parsed.data;
+    const code = parsed.data.code?.replace(/\s/g, "");
 
     const user = await storage.getUserByUsername(username);
 
@@ -79,6 +94,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (adminOtpEnabled()) {
+      if (!challenge || !code) {
+        const sendLimited = rateLimit(req, CODE_SENDS, `admin-otp-send:${user.id}`);
+        if (sendLimited) return sendLimited;
+        let newChallenge: string;
+        try {
+          newChallenge = await sendAdminCode(user);
+        } catch (err) {
+          console.error("Admin code email failed:", err);
+          return NextResponse.json(
+            { message: "We couldn't email your sign-in code. Check the email settings (EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD) on Vercel and try again." },
+            { status: 502 }
+          );
+        }
+        return NextResponse.json({ step: "code", challenge: newChallenge, sentTo: maskEmail(user.email) }, { status: 200 });
+      }
+
+      const attemptLimited = rateLimit(req, CODE_ATTEMPTS, `admin-otp:${user.id}`);
+      if (attemptLimited) return attemptLimited;
+      if (!verifyAdminCode(user, challenge, code)) {
+        return NextResponse.json({ message: "That code is wrong or has expired. Check the latest email, or send a new code." }, { status: 401 });
+      }
+    }
+
     // Mint the session by calling Auth() directly so we can capture the
     // Set-Cookie headers and forward them on our own response.
     const proto = req.headers.get("x-forwarded-proto") ?? "https";
@@ -91,7 +130,8 @@ export async function POST(req: NextRequest) {
       {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ username, password, callbackUrl }),
+        // authorize() re-checks the code and marks the session adminVerified.
+        body: new URLSearchParams({ username, password, callbackUrl, adminChallenge: challenge ?? "", adminCode: code ?? "" }),
       }
     );
 

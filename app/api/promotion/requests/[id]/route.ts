@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireSuperadmin } from "@/lib/auth-helpers";
+import { requireAdmin } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import {
   promotionRequests,
@@ -14,7 +14,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminAuth = await requireSuperadmin();
+    const adminAuth = await requireAdmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
     const adminId = adminAuth.id;
 
@@ -92,7 +92,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const adminAuth = await requireSuperadmin();
+    const adminAuth = await requireAdmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const { id } = await params;

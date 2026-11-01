@@ -14,12 +14,14 @@ export async function GET(_req: NextRequest) {
   }
 
   const userId = parseInt(session.user.id, 10);
-  // Update login streak idempotently on every session restore
-  await storage.updateLoginStreak(userId).catch(() => {});
   const user = await storage.getUser(userId).catch(() => null);
 
   if (!user) {
     return NextResponse.json({ message: "User not found" }, { status: 404 });
+  }
+  // A session that outlived its account deletion is signed out client-side.
+  if (user.role === "deleted") {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   return NextResponse.json(toPublicUser(user));

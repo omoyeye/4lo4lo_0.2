@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(_req: NextRequest) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireSuperadmin();
     if (auth instanceof NextResponse) return auth;
 
     const payouts = await storage.getAllPayouts();

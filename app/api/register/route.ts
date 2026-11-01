@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { scrypt, timingSafeEqual, randomBytes } from "crypto";
 import { promisify } from "util";
 import { nanoid } from "nanoid";
@@ -6,7 +6,10 @@ import { storage } from "@/lib/core/storage";
 import { toPublicUser } from "@/lib/public-user";
 import { signIn } from "@/auth";
 import { sendWelcomeEmail } from "@/lib/core/services/email";
+import { sendVerificationEmail } from "@/lib/core/email-verification";
+import { isMissingTable } from "@/lib/core/sql-utils";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
+import { siteUrl } from "@/lib/seo";
 
 const scryptAsync = promisify(scrypt);
 
@@ -26,6 +29,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+
+    // Adults only (Terms §2). Both boxes are ticked explicitly in the web and
+    // app sign-up forms; refusing here means an API caller can't skip them.
+    if (body.ageConfirmed !== true || body.termsAccepted !== true) {
+      return NextResponse.json(
+        { message: "You must be 18 or older and accept the Terms of Service and Privacy Policy to register" },
+        { status: 400 }
+      );
+    }
 
     // Validate required fields
     if (!body.username || !body.password || !body.email) {
@@ -80,14 +92,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Send welcome email asynchronously
-    const referralLink = `https://4lo4lo.site/auth?ref=${user.referralCode}`;
-    sendWelcomeEmail({
-      username: user.username,
-      email: user.email,
-      referralCode: user.referralCode,
-      referralLink,
-    }).catch((error) => {
-      console.error("Failed to send welcome email:", error);
+    const referralLink = `${siteUrl()}/auth?ref=${user.referralCode}`;
+    // after(): on Vercel an un-awaited promise can be cut off when the
+    // response is sent, which is how welcome emails went missing.
+    after(async () => {
+      await sendWelcomeEmail({
+        username: user.username,
+        email: user.email,
+        referralCode: user.referralCode,
+        referralLink,
+      }).catch((error) => console.error("Failed to send welcome email:", error));
+      await sendVerificationEmail(user).catch((error) => {
+        if (!isMissingTable(error)) console.error("Failed to send verification email:", error);
+      });
     });
 
     return NextResponse.json(toPublicUser(user), { status: 201 });

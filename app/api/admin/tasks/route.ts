@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 import { createTaskSchema } from "@shared/schema.mysql";
@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
     const newTask = await storage.addTask({
       ...validatedData,
       difficulty: "easy",
-      isActive: scheduledAt ? false : true,
+      // Scheduled tasks go live on their publish date; otherwise honour the form.
+      isActive: scheduledAt ? false : validatedData.isActive ?? true,
       maxCompletions: validatedData.maxCompletions ?? null,
       createdAt: new Date(),
       createdBy: adminId,
@@ -51,16 +52,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (newTask.isActive) {
-      // TODO: (Phase 9) Send real-time SSE update here.
-      // const realTimeService = getRealTimeService();
-      // if (realTimeService) {
-      //   realTimeService.broadcastNewTask(newTask);
-      // }
-      notificationService
-        .notifyNewTask(newTask.title, newTask.id)
-        .catch((err: any) => {
-          console.error("Failed to send new task notifications:", err);
-        });
+      // Notifies every member, so it runs after the response instead of
+      // holding it open (and being cut off on Vercel when not awaited).
+      after(() =>
+        notificationService
+          .notifyNewTask(newTask.title, newTask.id)
+          .catch((err: any) => console.error("Failed to send new task notifications:", err))
+      );
     }
 
     return NextResponse.json(newTask, { status: 201 });

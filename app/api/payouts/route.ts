@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { storage } from "@/lib/core/storage";
 import { z } from "zod";
 import { notificationService } from "@/lib/core/notification-service";
+import { PayoutError, requestPayout } from "@/lib/core/payouts";
+import { passesEmailGate } from "@/lib/core/email-verification";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,34 +23,35 @@ export async function POST(req: NextRequest) {
     const data = schema.parse(body);
     const userId = parseInt(session.user.id, 10);
 
-    const payout = await storage.createPayout({
-      userId,
-      amount: data.amount,
-      status: "pending",
-      paymentMethod: data.paymentMethod,
-      paymentDetails: data.paymentDetails || null,
-      requestedAt: new Date(),
-      processedAt: null,
-      processedBy: null,
-    });
-
-    // TODO (Phase 9): Send SSE notification to admins
-    // realTimeService.broadcastToAdmins({ ... })
-
-    // Create in-app notification for admin about withdrawal request
-    const user = await storage.getUser(userId);
-    if (user) {
-      notificationService
-        .notifyAdminWithdrawalRequest(
-          user.id,
-          user.username,
-          data.amount,
-          payout.id
-        )
-        .catch((err: any) =>
-          console.error("Failed to send withdrawal notification:", err)
-        );
+    const account = await storage.getUser(userId);
+    if (!account || account.role === "deleted") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+    if (!(await passesEmailGate(account))) {
+      return NextResponse.json(
+        { message: "Confirm your email address before requesting a payout.", code: "EMAIL_NOT_VERIFIED" },
+        { status: 403 }
+      );
+    }
+
+    let payout;
+    try {
+      payout = await requestPayout(account, {
+        amount: data.amount,
+        paymentMethod: data.paymentMethod,
+        paymentDetails: data.paymentDetails || null,
+      });
+    } catch (err) {
+      if (err instanceof PayoutError) {
+        return NextResponse.json({ message: err.message, code: err.code }, { status: err.status });
+      }
+      throw err;
+    }
+
+    // In-app notification for admins about the withdrawal request.
+    notificationService
+      .notifyAdminWithdrawalRequest(account.id, account.username, data.amount, payout.id)
+      .catch((err: any) => console.error("Failed to send withdrawal notification:", err));
 
     return NextResponse.json(
       {

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
+import { announcementRecipients } from "@/lib/core/announcement-recipients";
 
 // POST /api/admin/bulk-message
 export async function POST(req: NextRequest) {
   try {
-    const adminAuth = await requireAdmin();
+    const adminAuth = await requireSuperadmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const {
@@ -31,9 +32,8 @@ export async function POST(req: NextRequest) {
     const allUsers = await storage.getAllUsers();
 
     if (sendEmail) {
-      const recipients = allUsers
-        .filter((user) => user.email)
-        .map((user) => ({ email: user.email, username: user.username }));
+      // Opted-out, deleted and undeliverable members are skipped.
+      const recipients = announcementRecipients(allUsers);
 
       if (recipients.length > 0) {
         const { sendBulkEmail } = await import("@/lib/core/services/email");
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         results.email = {
           success: 0,
           failed: 0,
-          errors: ["No verified users"],
+          errors: ["No members are currently subscribed to announcements"],
         };
       }
     }
@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
           .substring(0, 500);
 
       for (const user of allUsers) {
+        if (user.role === "deleted") continue;
         try {
           await storage.createNotification({
             userId: user.id,

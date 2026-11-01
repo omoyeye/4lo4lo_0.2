@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { requireAdmin, requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 import { insertReferralTierSchema } from "@shared/schema.mysql";
 import { z } from "zod";
@@ -24,7 +24,7 @@ export async function GET(_req: NextRequest) {
 // POST /api/admin/referral-tiers
 export async function POST(req: NextRequest) {
   try {
-    const adminAuth = await requireAdmin();
+    const adminAuth = await requireSuperadmin();
     if (adminAuth instanceof NextResponse) return adminAuth;
 
     const body = await req.json();

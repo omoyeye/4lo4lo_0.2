@@ -36,6 +36,8 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { SiTiktok, SiTelegram } from "react-icons/si";
+import SocialLinks from "@/components/brand/SocialLinks";
+import { useBrand } from "@/hooks/use-brand";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -74,6 +76,7 @@ const pulseAnimation = {
 };
 
 function LandingPageContent() {
+  const brand = useBrand();
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 overflow-hidden">
       {/* Floating Background Elements */}
@@ -190,7 +193,7 @@ function LandingPageContent() {
                 transition={{ delay: 0.2 }}
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Join thousands of users earning daily</span>
+                <span>Join a growing community of creators</span>
               </motion.div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
@@ -247,7 +250,7 @@ function LandingPageContent() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-yellow-500" />
-                  <span>Instant Payouts</span>
+                  <span>Secure Payouts</span>
                 </div>
               </div>
             </motion.div>
@@ -376,7 +379,7 @@ function LandingPageContent() {
               Why Choose <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">4LO4LO?</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of users who are already turning their social media time into real income
+              Join creators who are turning their social media time into rewards
             </p>
           </motion.div>
 
@@ -624,9 +627,12 @@ function LandingPageContent() {
               <button onClick={() => window.dispatchEvent(new Event("open-cookie-consent"))} className="hover:text-purple-600 transition-colors">Cookie Preferences</button>
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} 4LO4LO. All rights reserved.
-            </p>
+            <div className="flex flex-col items-center gap-3 md:items-end">
+              <SocialLinks size="sm" />
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} {brand.legalName}. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
       </footer>

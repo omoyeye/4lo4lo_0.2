@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { logAdminAction } from "@/lib/core/audit";
+import { requireSuperadmin } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 import { notificationService } from "@/lib/core/notification-service";
 import { z } from "zod";
+import { settlePayout } from "@/lib/core/payouts";
 
 const patchSchema = z.object({
   // `processedBy` is accepted for backwards compatibility but ignored, the
@@ -19,7 +21,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireSuperadmin();
     if (auth instanceof NextResponse) return auth;
 
     const { id } = await params;
@@ -50,7 +52,17 @@ export async function PATCH(
       );
     }
 
+    // Refund or finalize the reserved points before recording the status.
+    await settlePayout(existing, status);
     const updated = await storage.updatePayoutStatus(payoutId, status, auth.id);
+    logAdminAction({
+      adminId: auth.id,
+      action: "payout.update",
+      targetType: "payout",
+      targetId: payoutId,
+      summary: `Marked payout #${payoutId} (${existing.amount.toLocaleString()} points, user #${existing.userId}) as ${status}`,
+      details: { from: existing.status, to: status, amount: existing.amount, userId: existing.userId },
+    });
 
     notificationService
       .notifyPayoutProcessed(existing.userId, existing.amount, status)

@@ -22,6 +22,9 @@ type LoginData = Pick<InsertUser, "username" | "password">;
 
 type RegisterData = InsertUser & {
   referrerCode?: string;
+  /** Explicit 18+ and Terms confirmations; /api/register rejects sign-ups without them. */
+  ageConfirmed?: boolean;
+  termsAccepted?: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);

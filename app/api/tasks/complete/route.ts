@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { and, eq } from "drizzle-orm";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { getRealTimeService } from "@/lib/sse";
+import { proofRequired } from "@/lib/core/proofs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,6 +26,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = taskCompleteSchema.parse(body);
     const { taskId, clickId } = validatedData;
+
+    // With proofs switched on, completion goes through /api/tasks/proof so an
+    // admin can check the screenshot before any points are paid.
+    if (await proofRequired()) {
+      return NextResponse.json(
+        { message: "Upload a screenshot to finish this task", proofRequired: true },
+        { status: 409 }
+      );
+    }
 
     // Cheap pre-check so the common "already done" case doesn't hit the
     // transaction. It is NOT the safety net, completeTask() re-checks under

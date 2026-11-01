@@ -4,6 +4,9 @@ import Sidebar from "@/components/layout/Sidebar";
 import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import Footer from "@/components/layout/Footer";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
+import DailyCheckInCard from "@/components/dashboard/DailyCheckInCard";
+import ShareAchievementCard from "@/components/dashboard/ShareAchievementCard";
+import EmailVerificationBanner from "@/components/account/EmailVerificationBanner";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useTaskNotifications } from "@/hooks/use-task-notifications";
@@ -59,6 +62,14 @@ function DashboardContent() {
         <DesktopTopBar />
         <main className="container mx-auto px-4 py-8">
           <WelcomeSection />
+
+          <div className="mt-6 space-y-4">
+            <EmailVerificationBanner />
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
+              <DailyCheckInCard />
+              <ShareAchievementCard />
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
             {/* Recent Tasks */}

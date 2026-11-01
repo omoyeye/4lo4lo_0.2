@@ -3,27 +3,33 @@
 import { useState } from "react";
 import { Heart, Info, Lightbulb, ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
 import Link from "next/link";
+import { openCookieConsent } from "@/components/CookieConsent";
+import SocialLinks from "@/components/brand/SocialLinks";
+import { useBrand } from "@/hooks/use-brand";
 
+// Kept factual: these answers are what the platform actually does (see
+// lib/legal-content.ts). The previous copy promised gift cards and streak
+// "multipliers" that don't exist.
 const FAQ_ITEMS = [
   {
     question: "How do I earn points?",
-    answer: "Complete social media tasks such as liking, following, sharing, or commenting on posts. Each task shows the points you'll earn before you start.",
+    answer: "Complete social media tasks such as liking, following, sharing or commenting on posts. Each task shows its points before you start. Some tasks ask for a screenshot; those points are added once the proof is approved.",
   },
   {
     question: "How does the referral programme work?",
-    answer: "Share your unique referral link with friends. When they sign up and complete tasks, you earn bonus points based on your referral tier.",
+    answer: "Share your referral link. When genuine new members join with it and take part, you earn the referral reward for your tier, shown on the Referral page.",
   },
   {
-    question: "When do my daily login streak bonuses reset?",
-    answer: "Streaks reset at midnight UTC. Log in every day to keep your streak alive and unlock higher multiplier bonuses.",
+    question: "How do daily streaks work?",
+    answer: "Open 4LO4LO once a day to check in and grow your streak. Days are counted in UTC. Reaching streak milestones (for example 7 or 30 days) pays a bonus.",
   },
   {
-    question: "How do I redeem my points?",
-    answer: "Visit the Rewards page to see available redemption options. Points can be exchanged for gift cards, cash rewards, or other prizes.",
+    question: "How do I withdraw my points?",
+    answer: "Go to Payments, confirm your email address if you haven't, and request a withdrawal by PayPal or bank transfer. Points are held while we review the request and usually paid within 1 to 7 business days.",
   },
   {
     question: "What happens if I miss a day on my streak?",
-    answer: "Missing a day resets your streak back to zero. We recommend enabling notifications so you never forget to log in.",
+    answer: "Your streak starts again from day 1 at your next check-in. Points you already earned are not affected.",
   },
 ];
 
@@ -54,6 +60,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const brand = useBrand();
 
   return (
     <footer className="bg-card border-t border-border mt-auto">
@@ -70,6 +77,11 @@ export default function Footer() {
         </div>
       </div>
 
+      <div className="container mx-auto flex flex-col items-center gap-2 px-4 pb-5 md:flex-row md:justify-between">
+        <p className="text-xs text-muted-foreground">{brand.tagline}</p>
+        <SocialLinks size="sm" />
+      </div>
+
       {/* Bottom bar */}
       <div className="border-t border-border py-3 md:py-4">
         <div className="container mx-auto px-4">
@@ -78,7 +90,12 @@ export default function Footer() {
             <div className="flex items-center justify-center md:justify-start">
               <Info className="h-3 w-3 md:h-4 md:w-4 mr-1.5 md:mr-2 text-muted-foreground flex-shrink-0" />
               <span className="text-xs md:text-sm text-muted-foreground">
-                © {currentYear} Social Growth Platform
+                © {currentYear} {brand.name} ·{" "}
+                <Link href="/terms" className="hover:text-foreground hover:underline">Terms</Link> ·{" "}
+                <Link href="/privacy" className="hover:text-foreground hover:underline">Privacy</Link> ·{" "}
+                <button type="button" onClick={openCookieConsent} className="hover:text-foreground hover:underline">
+                  Cookie Preferences
+                </button>
               </span>
             </div>
 

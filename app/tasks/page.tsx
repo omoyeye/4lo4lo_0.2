@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Task } from "@shared/schema.mysql";
 import TaskCard from "@/components/tasks/TaskCard";
+import ProofUploadDialog from "@/components/tasks/ProofUploadDialog";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -32,6 +33,7 @@ function TasksContent() {
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [proofTask, setProofTask] = useState<Task | null>(null);
 
 
   // Fetch tasks
@@ -108,21 +110,35 @@ function TasksContent() {
         body: JSON.stringify(payload),
       });
 
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 409 && data.proofRequired) {
+        return { proofRequired: true, taskId };
+      }
       if (!response.ok) {
-        throw new Error("Failed to complete task");
+        throw new Error(data.message || "Failed to complete task");
       }
 
-      return response.json();
+      return data;
     },
-    onSuccess: () => {
-      toast({
-        title: "Task completed!",
-        description: "You've earned points for completing this task.",
-      });
+    onSuccess: (data) => {
+      if (data?.proofRequired) {
+        const task = tasks?.find((t) => t.id === data.taskId);
+        if (task) setProofTask(task);
+        return;
+      }
+      if (data?.alreadyCompleted) {
+        toast({ title: "Already completed", description: "You've already earned points for this task." });
+      } else {
+        toast({
+          title: "Task completed!",
+          description: data?.pointsEarned ? `+${data.pointsEarned} points added to your balance.` : "Points added to your balance.",
+        });
+      }
 
       // Refresh tasks list and dashboard data
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     },
     onError: (error) => {
       toast({
@@ -588,6 +604,17 @@ function TasksContent() {
         </div>
         <Footer />
       </div>
+      <ProofUploadDialog
+        key={proofTask?.id ?? "none"}
+        task={proofTask}
+        onClose={() => setProofTask(null)}
+        onSubmitted={(message) => {
+          setProofTask(null);
+          toast({ title: "Proof submitted", description: message });
+          queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+        }}
+      />
     </div>
   );
 }

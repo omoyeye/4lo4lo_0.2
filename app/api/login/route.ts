@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
     // After sign-in, fetch the fresh user for the response
     const user = await storage.getUserByUsername(username);
     if (user) {
-      await storage.updateLoginStreak(user.id).catch(() => {});
       const freshUser =
         (await storage.getUser(user.id).catch(() => undefined)) ?? user;
       return NextResponse.json(toPublicUser(freshUser), { status: 200 });

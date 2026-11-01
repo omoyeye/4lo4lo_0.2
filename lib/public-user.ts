@@ -8,7 +8,10 @@ import type { User } from "@shared/schema.mysql";
  */
 type SecretUserColumn = "password" | "googleId";
 
-export type PublicUser = Omit<User, SecretUserColumn>;
+export type PublicUser = Omit<User, SecretUserColumn> & {
+  /** Signed up with Google, so they never chose a password (affects account deletion). */
+  googleLinked: boolean;
+};
 
 /**
  * A user row as the user themself (or an admin) may see it: every column
@@ -16,8 +19,8 @@ export type PublicUser = Omit<User, SecretUserColumn>;
  * updates and admin user management.
  */
 export function toPublicUser(user: User): PublicUser {
-  const { password: _password, googleId: _googleId, ...rest } = user;
-  return rest;
+  const { password: _password, googleId, ...rest } = user;
+  return { ...rest, googleLinked: !!googleId };
 }
 
 /**

@@ -35,6 +35,14 @@ export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "GTM-NCTTLTKR";
  */
 const enabled = process.env.NODE_ENV === "production" && GTM_ID.length > 0;
 
+/**
+ * Google Analytics 4 measurement id, loaded directly with gtag.js alongside
+ * the GTM container. Override with NEXT_PUBLIC_GA_ID (empty string disables).
+ * If the GTM container also fires a GA4 tag for this same id, remove one of
+ * the two or every page view is counted twice.
+ */
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-TCPC9S587Z";
+
 export function GtmScript() {
   if (!enabled) return null;
 
@@ -50,10 +58,10 @@ export function GtmScript() {
         cookieless pings, so you keep modelled conversions rather than losing
         the data entirely.
 
-        NOTE: this is the technical half only. Nothing on the site currently
-        asks for consent or calls gtag('consent','update',...), so in its
-        present state the container stays in the denied state for everyone.
-        Wire a consent banner to that call to complete it.
+        components/CookieConsent.tsx is the other half: it calls
+        gtag('consent','update',...) when a visitor allows analytics, and
+        sets it back to denied (and clears the _ga cookies) when they
+        withdraw.
       */}
       <Script
         id="gtm-consent-defaults"
@@ -73,6 +81,24 @@ gtag('consent','default',{
 gtag('set','ads_data_redaction',true);`,
         }}
       />
+
+      {/*
+        GA4 via gtag.js. It reuses the gtag() defined above, so the consent
+        defaults (analytics denied until the visitor allows it in the cookie
+        banner) apply: no _ga cookies are written before consent.
+      */}
+      {GA_ID && (
+        <>
+          <Script id="ga4-loader" strategy="afterInteractive" src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
+          <Script
+            id="ga4-config"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `gtag('js',new Date());gtag('config','${GA_ID}');`,
+            }}
+          />
+        </>
+      )}
 
       <Script
         id="gtm-init"

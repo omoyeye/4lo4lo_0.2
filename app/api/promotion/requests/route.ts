@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireSuperadmin } from "@/lib/auth-helpers";
+import { requireAuth, requireAdmin } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import {
   promotionRequests,
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(result, { status: 200 });
     } else {
       // Admin viewing all requests
-      const adminAuth = await requireSuperadmin();
+      const adminAuth = await requireAdmin();
       if (adminAuth instanceof NextResponse) return adminAuth;
 
       const result = await db.select().from(promotionRequests);

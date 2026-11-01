@@ -91,7 +91,10 @@ export default async function proxy(req: NextRequest) {
   const token = await readToken(req);
 
   const role = (token?.role as string | undefined) ?? null;
-  const isAdmin = !!role && ADMIN_ROLES.has(role);
+  // Same rule as hasAdminAccess() in auth.ts: an admin role plus a sign-in
+  // confirmed with the emailed code (unless ADMIN_EMAIL_OTP=off).
+  const codeOk = process.env.ADMIN_EMAIL_OTP === "off" || token?.adminVerified === true;
+  const isAdmin = !!role && ADMIN_ROLES.has(role) && codeOk;
 
   // Already signed in as an admin and sitting on the login page, so send them in.
   if (pathname === "/admin/login") {

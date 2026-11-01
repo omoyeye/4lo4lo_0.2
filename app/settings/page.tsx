@@ -11,9 +11,12 @@ import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from "react-icons/si";
-import { Loader2, HelpCircle, RotateCcw, Globe, Lock } from "lucide-react";
+import { Loader2, HelpCircle, RotateCcw, Globe, Lock, Download } from "lucide-react";
 import { useTutorial } from "@/contexts/TutorialContext";
 import { Switch } from "@/components/ui/switch";
+import AvatarUploader from "@/components/account/AvatarUploader";
+import EmailVerificationBanner from "@/components/account/EmailVerificationBanner";
+import DeleteAccountDialog from "@/components/account/DeleteAccountDialog";
 
 // Profile form schema with social media handles
 const profileSchema = z.object({
@@ -92,12 +95,26 @@ function AccountSettingsTab({ handleDeleteAccount }: { handleDeleteAccount: () =
         </div>
       </div>
 
+      {/* Your data (right of access / portability) */}
+      <div className="p-4 border rounded-lg bg-card shadow-sm space-y-2">
+        <h3 className="text-lg font-semibold">Your data</h3>
+        <p className="text-sm text-muted-foreground">
+          Download a copy of your account, tasks, proofs, withdrawals, referrals, badges and notifications as a JSON file.
+        </p>
+        <Button asChild variant="outline" size="sm" className="gap-2">
+          <a href="/api/user/export" download>
+            <Download className="w-4 h-4" />
+            Download my data
+          </a>
+        </Button>
+      </div>
+
       {/* Delete Account Section */}
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-medium text-red-600">Danger Zone</h3>
           <p className="text-sm text-muted-foreground">
-            Permanently delete your account and all associated data. This action cannot be undone.
+            Delete your account and erase your personal data. This action cannot be undone.
           </p>
         </div>
 
@@ -297,15 +314,10 @@ function SettingsContent() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    // Handle account deletion logic here
-    toast({
-      title: "Account deleted",
-      description: "Your account has been permanently deleted.",
-      variant: "destructive",
-    });
-    setLocation("/");
-  };
+  // This used to show "Your account has been permanently deleted" without
+  // deleting anything. It now opens the real deletion dialog.
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const handleDeleteAccount = () => setDeleteOpen(true);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -361,6 +373,9 @@ function SettingsContent() {
                   Update your personal information
                 </p>
               </div>
+
+              <AvatarUploader />
+              <EmailVerificationBanner showVerified />
 
               <form
                 onSubmit={profileForm.handleSubmit(onProfileSubmit)}
@@ -633,12 +648,13 @@ function SettingsContent() {
           {/* Account Settings */}
           {activeTab === "account" && (
             <AccountSettingsTab 
-              handleDeleteAccount={handleDeleteAccount} 
+              handleDeleteAccount={handleDeleteAccount}
             />
           )}
         </div>
         <Footer />
       </div>
+      <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );
 }

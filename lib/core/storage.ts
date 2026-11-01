@@ -185,6 +185,7 @@ export interface IStorage {
 
   // Streak operations
   updateLoginStreak(userId: number): Promise<User | undefined>;
+  dailyCheckIn(userId: number): Promise<{ user: User; checkedInNow: boolean; streak: number; pointsAwarded: number; bonusAwarded: number } | undefined>;
   getStreakSettings(): Promise<{ milestones: Array<{ streak: number; bonusPoints: number }> }>;
   saveStreakSettings(settings: { milestones: Array<{ streak: number; bonusPoints: number }> }): Promise<void>;
 
@@ -1312,6 +1313,9 @@ export class MemStorage implements IStorage {
 
   // Streak operations (MemStorage stubs)
   async updateLoginStreak(userId: number): Promise<User | undefined> {
+    throw new Error("Streak operations not supported in MemStorage. Please use DatabaseStorage.");
+  }
+  async dailyCheckIn(_userId: number): Promise<undefined> {
     throw new Error("Streak operations not supported in MemStorage. Please use DatabaseStorage.");
   }
   async getStreakSettings(): Promise<{ milestones: Array<{ streak: number; bonusPoints: number }> }> {

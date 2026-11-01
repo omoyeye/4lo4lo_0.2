@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
-import { UserCircle, Settings, LogOut } from "lucide-react";
+import { UserCircle, Settings, LogOut, Wallet, Flame } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { SimpleThemeToggle } from "@/components/theme-toggle";
 import {
@@ -29,15 +29,30 @@ export default function DesktopTopBar() {
 
   return (
     <div className="hidden md:flex items-center justify-end gap-2 px-6 h-14 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
+      {(user.streakCount ?? 0) > 0 && (
+        <Link href="/dashboard" className="flex items-center gap-1.5 rounded-full bg-orange-500/10 px-3 py-1.5 text-sm font-semibold text-orange-600 dark:text-orange-400" title="Daily streak">
+          <Flame className="h-4 w-4" />
+          {user.streakCount}
+        </Link>
+      )}
+      <Link href="/payments" className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:opacity-90" title="Your balance">
+        <Wallet className="h-4 w-4" />
+        <span className="tabular-nums">{user.points.toLocaleString()}</span> pts
+      </Link>
       <SimpleThemeToggle />
       <NotificationBell />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-full p-1 hover:bg-muted/60 transition-colors outline-none">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-purple-600/20 flex items-center justify-center text-xs font-semibold">
-              {username.substring(0, 2).toUpperCase()}
-            </div>
+            {user.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element -- member photo on any host
+              <img src={user.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-purple-600/20 flex items-center justify-center text-xs font-semibold">
+                {username.substring(0, 2).toUpperCase()}
+              </div>
+            )}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">

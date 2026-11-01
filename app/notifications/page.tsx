@@ -1,14 +1,14 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, Trash2, X, ArrowLeft, ChevronRight } from "lucide-react";
+import { Bell, Check, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { formatDistanceToNow, format } from "date-fns";
 
 interface Notification {
@@ -158,31 +158,19 @@ function NotificationsContent() {
   const groupedNotifications = groupNotificationsByDate(notifications);
 
   return (
-    <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Notifications
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Stay updated on your activities and announcements
-            </p>
-          </div>
-          {unreadCount > 0 && (
-            <Badge variant="secondary" className="font-medium">
-              {unreadCount} unread
-            </Badge>
-          )}
+        <div className="mb-6">
+          <PageHeader
+            icon={Bell}
+            title="Notifications"
+            description="Task updates, payouts, proof decisions and announcements."
+            actions={unreadCount > 0 ? <Badge variant="secondary" className="font-medium">{unreadCount} unread</Badge> : undefined}
+          />
         </div>
       </motion.div>
 
@@ -342,9 +330,6 @@ function NotificationsContent() {
 
 
 ﻿import { ProtectedRoute } from "@/lib/protected-route";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 export default function Page() {
   return (
     <ProtectedRoute>
@@ -355,16 +340,9 @@ export default function Page() {
         sidebar linked here, so opening it made the navigation disappear.
         pb-20 md:pb-0 keeps content clear of the fixed mobile bottom nav.
       */}
-      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-        <Sidebar />
-        <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
-          <DesktopTopBar />
-          <div className="flex-grow">
-            <NotificationsContent />
-          </div>
-          <Footer />
-        </div>
-      </div>
+      <MemberLayout>
+        <NotificationsContent />
+      </MemberLayout>
     </ProtectedRoute>
   );
 }

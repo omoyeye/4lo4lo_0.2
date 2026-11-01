@@ -1,4 +1,5 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,9 +16,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Store, Plus, MessageCircle, ShoppingBag, User, Clock, CheckCircle2, SlidersHorizontal, X, Trash2, LayoutGrid, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
 
 type StatusFilter = "all" | "open" | "sold";
@@ -586,10 +584,7 @@ function MarketplaceContent() {
   // the end of the listing. This matches the shell the other signed-in pages
   // use, including the pb-20 md:pb-0 clearance.
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
-        <DesktopTopBar />
+    <MemberLayout wide>
         {/*
           max-w-3xl was a 768px column, which left most of a desktop screen
           empty. It dated from the original scaffolding rather than from any
@@ -600,21 +595,19 @@ function MarketplaceContent() {
           A cap is still needed. Edge-to-edge on an ultrawide monitor gives
           line lengths nobody can read and form fields a metre long.
         */}
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-          {/* Page header */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Store className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Points Marketplace</h1>
-              <p className="text-sm text-muted-foreground">Buy and sell points with other users</p>
-            </div>
-            <div className="ml-auto flex items-center gap-2 bg-primary/10 rounded-lg px-3 py-1.5">
-              <span className="text-sm font-semibold text-primary">{(user.points ?? 0).toLocaleString()}</span>
-              <span className="text-xs text-muted-foreground">pts</span>
-            </div>
-          </div>
+        <div className="space-y-8">
+          <PageHeader
+            icon={Store}
+            tone="amber"
+            title="Points Marketplace"
+            description="List points for sale or find members selling theirs."
+            actions={
+              <div className="rounded-2xl border bg-card px-4 py-2 shadow-sm">
+                <p className="text-xs text-muted-foreground">Your points</p>
+                <p className="text-xl font-bold tabular-nums">{(user.points ?? 0).toLocaleString()}</p>
+              </div>
+            }
+          />
 
           {/*
             Side by side once there is room. Stacking a form and a filter bar
@@ -732,9 +725,7 @@ function MarketplaceContent() {
             )}
           </div>
         </div>
-        <Footer />
-      </div>
-    </div>
+    </MemberLayout>
   );
 }
 

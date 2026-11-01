@@ -1,4 +1,5 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { GraduationCap, PlayCircle, CheckCircle, BookOpen, Coins, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
@@ -6,9 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -241,12 +239,8 @@ function ClassroomContent() {
   const totalPoints = videos.filter(v => v.completed).reduce((sum, v) => sum + v.pointsReward, 0);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="flex-1">
-          <div className="container mx-auto py-4 md:py-6 px-4 md:px-6 max-w-6xl">
+    <MemberLayout>
+          <div>
             {selectedVideo ? (
               <VideoDetail
                 video={selectedVideo}
@@ -254,14 +248,8 @@ function ClassroomContent() {
               />
             ) : (
               <>
-                <div className="mb-6 md:mb-8">
-                  <div className="flex items-center gap-3 mb-2">
-                    <GraduationCap className="w-7 h-7 text-primary" />
-                    <h1 className="text-2xl md:text-3xl font-bold">Classroom</h1>
-                  </div>
-                  <p className="text-sm md:text-base text-muted-foreground max-w-2xl">
-                    Learn from our video library, read transcripts, and earn points for every lesson you complete. Knowledge is your superpower.
-                  </p>
+                <div className="mb-6">
+                  <PageHeader icon={GraduationCap} tone="sky" title="Classroom" description="Watch short lessons, read the transcripts, and earn points for every lesson you finish." />
                 </div>
 
                 {/* Stats bar */}
@@ -328,10 +316,7 @@ function ClassroomContent() {
               </>
             )}
           </div>
-        </div>
-        <Footer />
-      </div>
-    </div>
+    </MemberLayout>
   );
 }
 

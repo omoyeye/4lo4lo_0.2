@@ -1,14 +1,12 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import Footer from "@/components/layout/Footer";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, LifeBuoy } from "lucide-react";
 
 function SupportContent() {
   const { toast } = useToast();
@@ -71,13 +69,11 @@ function SupportContent() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="flex-grow p-4 md:p-6">
+    <MemberLayout>
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Contact Support</h1>
+            <div className="mb-6">
+              <PageHeader icon={LifeBuoy} tone="sky" title="Contact Support" description="Tell us what's wrong and we'll reply by email, usually within a day." />
+            </div>
             
             <Card className="mb-6 md:mb-8">
               <CardHeader className="p-4 md:p-6">
@@ -177,10 +173,7 @@ function SupportContent() {
               </CardContent>
             </Card>
           </div>
-        </div>
-        <Footer />
-      </div>
-    </div>
+    </MemberLayout>
   );
 }
 

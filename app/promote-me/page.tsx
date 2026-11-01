@@ -1,4 +1,5 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,9 +23,6 @@ import {
   SiThreads,
   SiGoogle
 } from "react-icons/si";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { PromotionPlan } from "@shared/schema.mysql";
 import { useToast } from "@/hooks/use-toast";
@@ -409,21 +407,11 @@ function PromoteMeContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="flex-1">
-          <div className="container mx-auto py-4 md:py-6 px-4 md:px-6 max-w-6xl">
-            <div className="text-center mb-6 md:mb-8">
-              <div className="flex items-center justify-center gap-2 mb-3 md:mb-4">
-                <Rocket className="w-5 h-5 md:w-6 md:h-6" />
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">Promote Me</h1>
-              </div>
-              <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-2 mb-6">
-                Boost your social media presence with real engagement from active users. Choose your desired engagement level and let us help you grow your online presence.
-              </p>
-
+    <>
+    <MemberLayout>
+          <div>
+            <div className="mb-6">
+              <PageHeader icon={Rocket} tone="pink" title="Promote Me" description="Get real engagement on your own posts from active members. Pick a plan to start." />
             </div>
 
             {/* Pricing Tiers */}
@@ -707,10 +695,8 @@ function PromoteMeContent() {
               </Card>
             </div>
           </div>
-        </div>
-        <Footer />
-      </div>
-      
+    </MemberLayout>
+
       {/* Purchase Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
@@ -878,7 +864,7 @@ function PromoteMeContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
 

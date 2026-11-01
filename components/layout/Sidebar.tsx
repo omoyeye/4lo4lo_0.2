@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
   CheckSquare,
@@ -14,377 +15,187 @@ import {
   Settings,
   ChevronLeft,
   CreditCard,
-  Sparkles,
   Megaphone,
   GraduationCap,
   Trophy,
   Store,
   QrCode,
   UserCircle,
+  Users,
 } from "lucide-react";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
+import { useBrand } from "@/hooks/use-brand";
 import MobileBottomNav from "./MobileBottomNav";
 import MobileHeader from "./MobileHeader";
 
-type NavItemProps = {
-  icon: React.ReactNode;
+interface NavEntry {
+  icon: LucideIcon;
   label: string;
   href: string;
-  isActive: boolean;
-  collapsed: boolean;
-};
+  /** data-tutorial anchor used by the walkthrough (components/tutorial). */
+  tutorial?: string;
+  show?: boolean;
+}
 
-const NavItem = ({ icon, label, href, isActive, collapsed }: NavItemProps) => (
-  <Link href={href}>
-    <motion.div
-      whileHover={{ x: 4, transition: { duration: 0.2 } }}
-      whileTap={{ scale: 0.98 }}
-      className="relative group"
-    >
-      {isActive && (
-        <motion.div
-          layoutId="activeIndicator"
-          className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary to-purple-600 rounded-r-full"
-          initial={false}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        />
-      )}
-      
-      <div className={cn(
-        "px-4 py-3 flex items-center transition-all duration-300 cursor-pointer rounded-lg my-1 mx-2 relative overflow-hidden",
-        isActive
-          ? "text-primary-foreground bg-gradient-to-r from-primary/90 to-purple-600/90 shadow-lg"
-          : "text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-muted hover:to-muted/80"
-      )}>
-        {isActive && (
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          />
+function NavItem({ item, active, collapsed }: { item: NavEntry; active: boolean; collapsed: boolean }) {
+  const Icon = item.icon;
+  return (
+    <li data-tutorial={item.tutorial}>
+      <Link
+        href={item.href}
+        title={collapsed ? item.label : undefined}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+          collapsed && "justify-center px-0",
+          active
+            ? "bg-gradient-to-r from-purple-600/10 to-pink-600/10 text-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
         )}
-        
-        <motion.div 
-          className="w-6 h-6 flex-shrink-0 relative z-10"
-          animate={isActive ? { scale: 1.1 } : { scale: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          {icon}
-        </motion.div>
-        
-        <AnimatePresence>
-          {!collapsed && (
-            <motion.span 
-              className="ml-3 relative z-10 font-medium"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {label}
-            </motion.span>
-          )}
-        </AnimatePresence>
-        
-        {isActive && (
-          <motion.div
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 0.1, duration: 0.3 }}
-          >
-            <Sparkles className="w-4 h-4 text-primary-foreground/70" />
-          </motion.div>
-        )}
-      </div>
-    </motion.div>
-  </Link>
-);
+      >
+        {active && <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-gradient-to-b from-purple-600 to-pink-600" />}
+        <Icon className={cn("h-[19px] w-[19px] shrink-0 transition-colors", active ? "text-purple-600 dark:text-purple-400" : "group-hover:text-foreground")} />
+        {!collapsed && <span className="truncate">{item.label}</span>}
+      </Link>
+    </li>
+  );
+}
 
 export default function Sidebar() {
-  const location = usePathname();
+  const pathname = usePathname();
   const { user } = useAuth();
-  const username = user?.username || (typeof window !== 'undefined' ? localStorage.getItem("username") : null) || "uniquegram";
+  const brand = useBrand();
+  const { settings } = useAppSettings();
+  const username = user?.username || "me";
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if screen is mobile
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
-        setCollapsed(true);
-      }
-    };
-
-    checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
-
-    return () => {
-      window.removeEventListener("resize", checkIfMobile);
-    };
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
-
-  const { settings } = useAppSettings();
-
-  const NavItems = ({ forceShowText = false }: { forceShowText?: boolean }) => {
-    const isCollapsedForNav = forceShowText ? false : collapsed;
-    
-    return (
-      <>
-        <li>
-          <NavItem
-            icon={<LayoutDashboard className="w-6 h-6" />}
-            label="Dashboard"
-            href="/dashboard"
-            isActive={location === "/dashboard"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        <li data-tutorial="tasks-link">
-          <NavItem
-            icon={<CheckSquare className="w-6 h-6" />}
-            label="Tasks"
-            href="/tasks"
-            isActive={location === "/tasks"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        <li data-tutorial="rewards-link">
-          <NavItem
-            icon={<Award className="w-6 h-6" />}
-            label="Rewards"
-            href="/rewards"
-            isActive={location === "/rewards"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        {settings.leaderboard_enabled && (
-          <li>
-            <NavItem
-              icon={<Trophy className="w-6 h-6" />}
-              label="Leaderboard"
-              href="/leaderboard"
-              isActive={location === "/leaderboard"}
-              collapsed={isCollapsedForNav}
-            />
-          </li>
-        )}
-        {settings.classroom_enabled && (
-          <li>
-            <NavItem
-              icon={<GraduationCap className="w-6 h-6" />}
-              label="Classroom"
-              href="/classroom"
-              isActive={location === "/classroom"}
-              collapsed={isCollapsedForNav}
-            />
-          </li>
-        )}
-        <li data-tutorial="referral-link">
-          <NavItem
-            icon={<Share2 className="w-6 h-6" />}
-            label="Referral"
-            href="/referral"
-            isActive={location === "/referral"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        {settings.promote_me_enabled && (
-          <li>
-            <NavItem
-              icon={<Megaphone className="w-6 h-6" />}
-              label="Promote Me"
-              href="/promote-me"
-              isActive={location === "/promote-me"}
-              collapsed={isCollapsedForNav}
-            />
-          </li>
-        )}
-        <li>
-          <NavItem
-            icon={<Store className="w-6 h-6" />}
-            label="Marketplace"
-            href="/marketplace"
-            isActive={location === "/marketplace"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        <li>
-          <NavItem
-            icon={<QrCode className="w-6 h-6" />}
-            label="Tools"
-            href="/tools"
-            isActive={location === "/tools"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        <li>
-          <NavItem
-            icon={<CreditCard className="w-6 h-6" />}
-            label="Payments"
-            href="/payments"
-            isActive={location === "/payments"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        <li>
-          <NavItem
-            icon={<UserCircle className="w-6 h-6" />}
-            label="My Profile"
-            href={`/profile/${username}`}
-            isActive={location === `/profile/${username}`}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-        <li data-tutorial="settings-link">
-          <NavItem
-            icon={<Settings className="w-6 h-6" />}
-            label="Settings"
-            href="/settings"
-            isActive={location === "/settings"}
-            collapsed={isCollapsedForNav}
-          />
-        </li>
-      </>
-    );
-  };
-
-  // Unified Logo Component
-  const LogoComponent = ({ collapsed = false }: { collapsed?: boolean }) => (
-    <div className="flex items-center">
-      <motion.div 
-        className="w-10 h-10 flex items-center justify-center shadow-lg rounded-full overflow-hidden"
-        whileHover={{ scale: 1.05 }}
-        transition={{ duration: 0.2 }}
-      >
-        <img 
-          src="/logo.png" 
-          alt="Social Growth Logo" 
-          className="w-full h-full object-contain"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-          }}
-        />
-        <div className="hidden w-full h-full rounded-full flex items-center justify-center">
-          <img 
-            src="/logo-128.webp" 
-            alt="4lo4lo Logo" 
-            className="w-full h-full object-cover rounded-full"
-          />
-        </div>
-      </motion.div>
-      <AnimatePresence>
-        {!collapsed && (
-          <motion.span 
-            className="ml-3 font-semibold text-foreground"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            Social Growth
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-
-  // Mobile layout with bottom navigation and top header
+  // Mobile: top header + bottom tab bar instead of a sidebar.
   if (isMobile) {
     return (
       <>
-        {/* Mobile Top Header with Logo and Notifications */}
         <MobileHeader />
-        
-        {/* Top padding for fixed header with safe area */}
-        <div 
-          className="md:hidden"
-          style={{
-            paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
-          }}
-        />
-        
-        {/* Mobile Bottom Navigation */}
+        <div className="md:hidden" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)" }} />
         <MobileBottomNav />
-
       </>
     );
   }
 
-  // Desktop sidebar with unified content
+  const groups: { heading: string; items: NavEntry[] }[] = [
+    {
+      heading: "Earn",
+      items: [
+        { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+        { icon: CheckSquare, label: "Tasks", href: "/tasks", tutorial: "tasks-link" },
+        { icon: GraduationCap, label: "Classroom", href: "/classroom", show: settings.classroom_enabled },
+      ],
+    },
+    {
+      heading: "Rewards",
+      items: [
+        { icon: Award, label: "Rewards", href: "/rewards", tutorial: "rewards-link" },
+        { icon: Share2, label: "Referral", href: "/referral", tutorial: "referral-link" },
+        { icon: Trophy, label: "Leaderboard", href: "/leaderboard", show: settings.leaderboard_enabled },
+        { icon: CreditCard, label: "Payments", href: "/payments" },
+      ],
+    },
+    {
+      heading: "Grow",
+      items: [
+        { icon: Megaphone, label: "Promote Me", href: "/promote-me", show: settings.promote_me_enabled },
+        { icon: Store, label: "Marketplace", href: "/marketplace" },
+        { icon: Users, label: "Community", href: "/feed" },
+        { icon: QrCode, label: "Tools", href: "/tools" },
+      ],
+    },
+    {
+      heading: "Account",
+      items: [
+        { icon: UserCircle, label: "My Profile", href: `/profile/${username}` },
+        { icon: Settings, label: "Settings", href: "/settings", tutorial: "settings-link" },
+      ],
+    },
+  ];
+
+  const level = user?.level ?? 1;
+  const progress = user?.progress ?? 0;
+  const name = user?.displayName || user?.username || "";
+
   return (
-    <motion.div 
+    <aside
       className={cn(
-        // sticky top-0 h-screen, NOT h-full.
-        //
-        // h-full resolved against a min-h-screen page wrapper, so on any page
-        // taller than the viewport the sidebar grew to the full page height.
-        // Sign out lives at the bottom of it, so on a long page like Settings
-        // it sat thousands of pixels down and you had to scroll the whole page
-        // to reach it. It looked like the sidebar was cut off.
-        //
-        // Pinned to the viewport instead: always exactly one screen tall, and
-        // it stays put while the content beside it scrolls.
-        "bg-gradient-to-b from-background via-background/98 to-background/95 border-r border-border/50 flex flex-col sticky top-0 h-screen shrink-0 transition-all duration-300 shadow-lg backdrop-blur-sm",
-        collapsed ? "w-20" : "w-64"
+        // Pinned to the viewport (sticky + h-screen), so the nav and legal links
+        // stay reachable on long pages instead of growing with the content.
+        "sticky top-0 flex h-screen shrink-0 flex-col border-r border-border/60 bg-background/95 backdrop-blur transition-[width] duration-300",
+        collapsed ? "w-[76px]" : "w-64"
       )}
-      initial={{ x: -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.3 }}
       data-tutorial="sidebar"
     >
-      {/* Logo Area with notifications and collapse toggle */}
-      <div className="p-4 flex items-center justify-between border-b border-border/30">
-        <LogoComponent collapsed={collapsed} />
-        
-        <div className="flex items-center gap-1">
-          <motion.button
-            onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <motion.div
-              animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </motion.div>
-          </motion.button>
-        </div>
+      <div className={cn("flex items-center gap-2 px-4 py-4", collapsed ? "justify-center" : "justify-between")}>
+        <Link href="/dashboard" className="flex min-w-0 items-center gap-2.5">
+          <Image src="/logo-128.webp" alt="" width={36} height={36} className="rounded-xl shadow-sm" />
+          {!collapsed && <span className="truncate bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-lg font-extrabold text-transparent">{brand.name}</span>}
+        </Link>
+        {!collapsed && (
+          <button onClick={() => setCollapsed(true)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
-      {/* Navigation Menu */}
-      {/*
-        min-h-0 is doing real work here. A flex item defaults to min-height
-        auto, so it refuses to shrink below its content and overflow-y-auto
-        never engages. Without it, a laptop screen too short for eleven nav
-        items would push the theme toggle and sign out off the bottom again,
-        which is the bug this is meant to prevent.
-      */}
-      <nav className="mt-6 flex-1 min-h-0 overflow-y-auto scrollbar-hide px-2">
-        <ul>
-          <NavItems />
-        </ul>
+      {collapsed ? (
+        <button onClick={() => setCollapsed(false)} className="mx-auto mb-2 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Expand sidebar" aria-label="Expand sidebar">
+          <ChevronLeft className="h-4 w-4 rotate-180" />
+        </button>
+      ) : (
+        user && (
+          <Link href="/rewards" className="mx-3 mb-3 block rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-3.5 text-white shadow-md transition-transform hover:scale-[1.01]">
+            <div className="flex items-center justify-between text-xs text-white/80">
+              <span className="truncate">{name}</span>
+              <span className="rounded-full bg-white/20 px-2 py-0.5 font-semibold text-white">Lv {level}</span>
+            </div>
+            <p className="mt-1 text-xl font-bold tabular-nums">{user.points.toLocaleString()} pts</p>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/25">
+              <div className="h-full rounded-full bg-white" style={{ width: `${progress}%` }} />
+            </div>
+          </Link>
+        )
+      )}
+
+      {/* min-h-0 lets the list scroll on short screens instead of pushing the footer off. */}
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-3 scrollbar-hide" aria-label="Main">
+        {groups.map((g) => {
+          const items = g.items.filter((i) => i.show !== false);
+          if (!items.length) return null;
+          return (
+            <div key={g.heading} className="mb-4">
+              {!collapsed && <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">{g.heading}</p>}
+              <ul className="space-y-0.5">
+                {items.map((item) => (
+                  <NavItem key={item.href} item={item} collapsed={collapsed} active={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`))} />
+                ))}
+              </ul>
+            </div>
+          );
+        })}
       </nav>
 
-      {/* Legal footer */}
-      <div className="border-t border-border/30 px-4 py-3">
+      <div className="border-t border-border/50 px-4 py-3">
         <div className={cn("flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground", collapsed && "flex-col items-center")}>
-          <Link href="/terms" className="hover:text-foreground transition-colors">{collapsed ? "T&C" : "Terms"}</Link>
-          <Link href="/privacy" className="hover:text-foreground transition-colors">{collapsed ? "PP" : "Privacy"}</Link>
-          <button onClick={() => window.dispatchEvent(new Event("open-cookie-consent"))} className="hover:text-foreground transition-colors text-left">{collapsed ? "CK" : "Cookies"}</button>
+          <Link href="/terms" className="hover:text-foreground">{collapsed ? "T&C" : "Terms"}</Link>
+          <Link href="/privacy" className="hover:text-foreground">{collapsed ? "PP" : "Privacy"}</Link>
+          <button onClick={() => window.dispatchEvent(new Event("open-cookie-consent"))} className="text-left hover:text-foreground">
+            {collapsed ? "CK" : "Cookies"}
+          </button>
         </div>
       </div>
-
-    </motion.div>
+    </aside>
   );
 }

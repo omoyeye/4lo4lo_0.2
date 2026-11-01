@@ -1,4 +1,5 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, usePathname } from "next/navigation";
@@ -6,12 +7,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/layout/Footer";
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from "react-icons/si";
-import { Loader2, HelpCircle, RotateCcw, Globe, Lock, Download } from "lucide-react";
+import { Loader2, HelpCircle, RotateCcw, Globe, Lock, Download, Settings as SettingsIcon } from "lucide-react";
 import { useTutorial } from "@/contexts/TutorialContext";
 import { Switch } from "@/components/ui/switch";
 import AvatarUploader from "@/components/account/AvatarUploader";
@@ -320,19 +318,8 @@ function SettingsContent() {
   const handleDeleteAccount = () => setDeleteOpen(true);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <Sidebar />
-
-      <div className="flex-1 min-w-0 pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="p-4 md:p-6 lg:p-8">
-          {/* Header */}
-          <div className="mb-6 md:mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold">Settings</h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-1">
-              Manage your account settings and preferences
-            </p>
-          </div>
+    <MemberLayout>
+          <PageHeader icon={SettingsIcon} tone="slate" title="Settings" description="Your profile, notifications and account." />
 
           {/* Tabs */}
           <div className="flex space-x-1 rounded-lg bg-muted p-1 mb-6 md:mb-8">
@@ -651,11 +638,8 @@ function SettingsContent() {
               handleDeleteAccount={handleDeleteAccount}
             />
           )}
-        </div>
-        <Footer />
-      </div>
       <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
-    </div>
+    </MemberLayout>
   );
 }
 

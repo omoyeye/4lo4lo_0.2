@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ import {
   Store,
   QrCode,
   UserCircle,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
@@ -83,26 +85,9 @@ export default function MobileBottomNav() {
   const { user, logoutMutation } = useAuth();
   const { settings } = useAppSettings();
   const [moreOpen, setMoreOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">(
-    () => {
-      const savedTheme = (typeof window !== 'undefined' ? localStorage.getItem("theme") : null);
-      if (savedTheme === "dark" || savedTheme === "light") {
-        return savedTheme;
-      }
-      if (typeof window !== 'undefined') { return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } return 'light';
-    }
-  );
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
-    (typeof window !== 'undefined' ? localStorage.setItem("theme", theme) : undefined);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+  const { resolvedTheme, setTheme } = useTheme();
+  const theme = resolvedTheme === "dark" ? "dark" : "light";
+  const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
 
   const username = user?.username || (typeof window !== 'undefined' ? localStorage.getItem("username") : null) || "User";
 
@@ -123,6 +108,7 @@ export default function MobileBottomNav() {
     ...(settings.classroom_enabled ? [{ icon: <GraduationCap className="w-5 h-5" />, label: "Classroom", href: "/classroom" }] : []),
     ...(settings.promote_me_enabled ? [{ icon: <Megaphone className="w-5 h-5" />, label: "Promote Me", href: "/promote-me" }] : []),
     { icon: <Store className="w-5 h-5" />, label: "Marketplace", href: "/marketplace" },
+    { icon: <Users className="w-5 h-5" />, label: "Community", href: "/feed" },
     { icon: <QrCode className="w-5 h-5" />, label: "Tools", href: "/tools" },
     { icon: <UserCircle className="w-5 h-5" />, label: "My Profile", href: `/profile/${username}` },
     { icon: <CreditCard className="w-5 h-5" />, label: "Payments", href: "/payments" },
@@ -130,7 +116,7 @@ export default function MobileBottomNav() {
     { icon: <HelpCircle className="w-5 h-5" />, label: "Support", href: "/support" },
   ];
 
-  const isMoreActive = ["/leaderboard", "/classroom", "/promote-me", "/marketplace", "/tools", "/payments", "/settings", "/support"].includes(location);
+  const isMoreActive = moreItems.some((i) => i.href === location);
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
@@ -195,24 +181,25 @@ export default function MobileBottomNav() {
               </SheetHeader>
               
               <div className="space-y-2">
-                {moreItems.map((item) => (
-                  <Link key={item.href} href={item.href}>
-                    <motion.div
-                      className={cn(
-                        "flex items-center gap-4 p-4 rounded-xl transition-colors cursor-pointer",
-                        location === item.href
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-muted"
-                      )}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setMoreOpen(false)}
-                    >
-                      {item.icon}
-                      <span className="font-medium">{item.label}</span>
-                    </motion.div>
-                  </Link>
-                ))}
-                
+                <div className="grid grid-cols-3 gap-2">
+                  {moreItems.map((item) => (
+                    <Link key={item.href} href={item.href} onClick={() => setMoreOpen(false)}>
+                      <motion.div
+                        className={cn(
+                          "flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-colors",
+                          location === item.href ? "border-purple-300 bg-purple-500/10 text-purple-700 dark:border-purple-800 dark:text-purple-300" : "bg-card hover:bg-muted"
+                        )}
+                        whileTap={{ scale: 0.96 }}
+                      >
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/15 to-pink-500/15 text-purple-600 dark:text-purple-400">
+                          {item.icon}
+                        </span>
+                        <span className="text-xs font-medium leading-tight">{item.label}</span>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+
                 <motion.div
                   className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted transition-colors cursor-pointer"
                   whileTap={{ scale: 0.98 }}

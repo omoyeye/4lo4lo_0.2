@@ -1,9 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { Wallet } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function MobileHeader() {
+  const { user } = useAuth();
   return (
     <motion.header
       className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
@@ -48,7 +52,15 @@ export default function MobileHeader() {
           </span>
         </div>
         
-        <NotificationBell />
+        <div className="flex items-center gap-2">
+          {user && (
+            <Link href="/payments" className="flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-2.5 py-1 text-xs font-semibold text-white">
+              <Wallet className="h-3.5 w-3.5" />
+              <span className="tabular-nums">{user.points.toLocaleString()}</span>
+            </Link>
+          )}
+          <NotificationBell />
+        </div>
       </div>
     </motion.header>
   );

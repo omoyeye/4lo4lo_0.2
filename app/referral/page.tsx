@@ -1,13 +1,11 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Copy, Share2, Download, User, TrendingUp, Star } from "lucide-react";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import Footer from "@/components/layout/Footer";
 import { QRCodeSVG } from "qrcode.react";
 import html2canvas from "html2canvas";
 import { useQuery } from "@tanstack/react-query";
@@ -184,14 +182,8 @@ function ReferralContent() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <Sidebar />
-
-      <div className="flex-1 min-w-0 pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="p-4 md:p-6 lg:p-8">
-          {/* Header */}
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center">Invite Friends</h1>
+    <MemberLayout>
+          <PageHeader icon={Share2} tone="pink" title="Invite Friends" description="Share your link and earn when the people you invite join and take part." />
 
           {/* Stats */}
           <div className="mb-6 md:mb-8 bg-card rounded-lg p-4 md:p-6">
@@ -450,10 +442,7 @@ function ReferralContent() {
               </div>
             )}
           </div>
-        </div>
-        <Footer />
-      </div>
-    </div>
+    </MemberLayout>
   );
 }
 

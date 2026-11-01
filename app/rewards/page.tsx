@@ -1,11 +1,9 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { Award, Users, Globe, Zap, ArrowLeft, DollarSign, Gift, CheckCircle, Clock, XCircle, GraduationCap, BookOpen, Shield, Star, Crown, Flame, Trophy, UserPlus, Share2, Coins, Gem, BookMarked, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -155,27 +153,18 @@ function RewardsContent() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <Sidebar />
-
-      <div className="flex-1 min-w-0 flex flex-col pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="flex-grow p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-          <div className="mb-6">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold mb-2">Rewards</h1>
-                <p className="text-muted-foreground">Complete tasks and unlock special rewards</p>
+    <MemberLayout>
+          <PageHeader
+            icon={Award}
+            title="Rewards"
+            description="Badges, streak bonuses and Classroom points you can unlock."
+            actions={
+              <div className="rounded-2xl border bg-card px-4 py-2 shadow-sm">
+                <p className="text-xs text-muted-foreground">Available points</p>
+                <p className="text-xl font-bold tabular-nums">{(user?.points || 0).toLocaleString()}</p>
               </div>
-              <div className="px-4 py-2 bg-card rounded-lg">
-                <p className="text-sm text-muted-foreground">Available Points</p>
-                <div className="flex items-center mt-1">
-                  <span className="text-xl font-bold">{user?.points || 0}</span>
-                  <Award className="w-5 h-5 text-primary ml-2" />
-                </div>
-              </div>
-            </div>
-          </div>
+            }
+          />
 
           {/* Classroom Rewards Section, always visible */}
           <div className="mb-8">
@@ -492,11 +481,7 @@ function RewardsContent() {
               </>
             ) : null}
           </div>
-        </div>
-
-        <Footer />
-      </div>
-    </div>
+    </MemberLayout>
   );
 }
 

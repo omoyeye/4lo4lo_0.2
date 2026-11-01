@@ -1,4 +1,5 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -245,7 +246,7 @@ function LeaderboardContent() {
 
   if (isDisabled) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-[50vh] items-center justify-center">
         <div className="text-center space-y-3 max-w-sm px-4">
           <Trophy className="w-14 h-14 text-muted-foreground/30 mx-auto" />
           <h2 className="text-xl font-bold">Leaderboard Unavailable</h2>
@@ -258,18 +259,9 @@ function LeaderboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-1">
-          <div className="flex items-center justify-center gap-2">
-            <Trophy className="w-7 h-7 text-yellow-500" />
-            <h1 className="text-2xl font-bold">Leaderboard</h1>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            See how you rank against other creators
-          </p>
-        </div>
+    <div>
+      <div className="mx-auto max-w-3xl space-y-6">
+        <PageHeader icon={Trophy} tone="amber" title="Leaderboard" description="See how you rank against other creators." />
 
         {/* Filters */}
         <Card>
@@ -390,9 +382,6 @@ function LeaderboardContent() {
 
 
 ﻿import { ProtectedRoute } from "@/lib/protected-route";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 export default function Page() {
   return (
     <ProtectedRoute>
@@ -403,16 +392,9 @@ export default function Page() {
         sidebar linked here, so opening it made the navigation disappear.
         pb-20 md:pb-0 keeps content clear of the fixed mobile bottom nav.
       */}
-      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-        <Sidebar />
-        <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
-          <DesktopTopBar />
-          <div className="flex-grow">
-            <LeaderboardContent />
-          </div>
-          <Footer />
-        </div>
-      </div>
+      <MemberLayout>
+        <LeaderboardContent />
+      </MemberLayout>
     </ProtectedRoute>
   );
 }

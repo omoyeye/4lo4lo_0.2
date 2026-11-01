@@ -1,10 +1,8 @@
 "use client";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Wallet } from "lucide-react";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
-import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -79,16 +77,8 @@ function PaymentsContent() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background">
-      <Sidebar />
-
-      <div className="flex-1 min-w-0 pb-20 md:pb-0">
-        <DesktopTopBar />
-        <div className="p-4 md:p-6 lg:p-8">
-          <div className="mb-6 md:mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold">Payments</h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2">Request payouts and view payment history</p>
-          </div>
+    <MemberLayout>
+          <PageHeader icon={Wallet} tone="emerald" title="Payments" description="Withdraw your points and track your payouts." />
 
           <div className="mb-6 space-y-4">
             <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 p-5 text-white shadow-lg">
@@ -192,10 +182,7 @@ function PaymentsContent() {
               )}
             </Card>
           </div>
-        </div>
-        <Footer />
-      </div>
-    </div>
+    </MemberLayout>
   );
 }
 

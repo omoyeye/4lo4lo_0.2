@@ -69,6 +69,8 @@ import { db } from "@/lib/db";
 import { queuePush } from "@/lib/push";
 import { eq, and, desc, sql, gte, count, inArray, or, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { ukDate, ukMidnight } from "@/lib/uk-time";
+import { isTaskOpen, TaskClosedError, taskClosedReason } from "./task-availability";
 // Session store imports removed
 
 export class DatabaseStorage implements IStorage {
@@ -167,22 +169,24 @@ export class DatabaseStorage implements IStorage {
     const user = await this.getUser(userIdInt);
     if (!user) return undefined;
 
-    // Calculate new points as integers
-    const newPoints = user.points + pointsInt;
-    const newLevel = Math.floor(newPoints / 1000) + 1;
-    const newProgress = Math.floor((newPoints % 1000) / 10); // 0-100 percentage
-
-    // Update user points
+    // Apply the delta against the row's current value. Reading points into JS
+    // and writing back a total lost one of two concurrent awards (a check-in
+    // landing during a task completion, say). Level and progress are then
+    // derived from whatever the balance now is.
+    await db
+      .update(users)
+      .set({ points: sql`${users.points} + ${pointsInt}`, updatedAt: new Date() })
+      .where(eq(users.id, userIdInt));
     await db
       .update(users)
       .set({
-        points: newPoints,
-        level: newLevel,
-        progress: newProgress,
-        updatedAt: new Date(),
+        level: sql`FLOOR(GREATEST(${users.points}, 0) / 1000) + 1`,
+        progress: sql`FLOOR(MOD(GREATEST(${users.points}, 0), 1000) / 10)`,
       })
       .where(eq(users.id, userIdInt));
     const [updatedUser] = await db.select().from(users).where(eq(users.id, userIdInt));
+    if (!updatedUser) return undefined;
+    const newLevel = updatedUser.level;
 
     // Record level-up history when the level increases
     if (newLevel > user.level) {
@@ -300,16 +304,14 @@ export class DatabaseStorage implements IStorage {
     const completedSet = new Set(completedTaskIds);
 
     // Get all active tasks
-    const allTasks = await db
-      .select()
-      .from(tasks)
-      .where(eq(tasks.isActive, true));
+    const [allTasks, counts] = await Promise.all([
+      db.select().from(tasks).where(eq(tasks.isActive, true)),
+      this.getTaskCompletionCounts(),
+    ]);
 
-    // Filter out completed tasks
-    const availableTasks = allTasks.filter(
-      (task) => !completedSet.has(task.id));
-
-    return availableTasks;
+    // Drop completed, expired and full tasks
+    return allTasks.filter(
+      (task) => !completedSet.has(task.id) && isTaskOpen(task, counts.get(task.id) ?? 0));
   }
 
   async getCompletedTaskIds(userId: number): Promise<number[]> {
@@ -373,8 +375,7 @@ export class DatabaseStorage implements IStorage {
 
   // UserTask operations
   async getUserDailyTaskCount(userId: number): Promise<number> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = ukMidnight();
 
     const completions = await db
       .select()
@@ -419,11 +420,14 @@ export class DatabaseStorage implements IStorage {
         throw new Error("Task already completed");
       }
 
-      // Mark the daily allocation as completed
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Locking the task row serializes completions of this task, so the cap
+      // check below can't be passed by two members at once.
+      await tx.select({ id: tasks.id }).from(tasks).where(eq(tasks.id, taskId)).for("update");
+      const closed = taskClosedReason(task, await this.countOpenCompletions(tx, taskId));
+      if (closed) throw new TaskClosedError(closed);
 
-      const formattedToday = today.toISOString().split("T")[0];
+      // Mark the daily allocation as completed
+      const formattedToday = ukDate();
       await tx
         .update(dailyTaskAllocation)
         .set({ isCompleted: true })
@@ -517,10 +521,21 @@ export class DatabaseStorage implements IStorage {
    *
    * Replaces N full-table loads (one per active task) in the allocator.
    */
+  /** Non-rejected completions of one task, read on the caller's transaction. */
+  async countOpenCompletions(tx: Pick<typeof db, "select">, taskId: number): Promise<number> {
+    const [row] = await tx
+      .select({ value: count() })
+      .from(userTasks)
+      .where(and(eq(userTasks.taskId, taskId), sql`${userTasks.verificationStatus} <> 'rejected'`));
+    return Number(row?.value ?? 0);
+  }
+
   async getTaskCompletionCounts(): Promise<Map<number, number>> {
+    // Rejected proofs don't use up a task's completion cap.
     const rows = await db
       .select({ taskId: userTasks.taskId, value: count() })
       .from(userTasks)
+      .where(sql`${userTasks.verificationStatus} <> 'rejected'`)
       .groupBy(userTasks.taskId);
 
     return new Map(rows.map((r) => [r.taskId, Number(r.value)]));
@@ -1136,20 +1151,38 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  /**
+   * `alreadyClaimed` is the referral total the caller's eligibility check saw.
+   * Under the member's row lock it is re-read, and a mismatch means another
+   * claim landed in between (a double tap), so this one is refused rather
+   * than claiming the same referrals twice.
+   */
   async createReferralRewardClaim(
     userId: number,
     referralCount: number,
-    amount: string): Promise<ReferralRewardClaim> {
-    const [rrcInsert] = await db
-      .insert(referralRewardClaims)
-      .values({
-        userId,
-        referralCount,
-        amount,
-        status: "pending",
-        requestedAt: new Date(),
-      });
-    const [claim] = await db.select().from(referralRewardClaims).where(eq(referralRewardClaims.id, (rrcInsert as any).insertId));
+    amount: string,
+    alreadyClaimed?: number): Promise<ReferralRewardClaim> {
+    const id = await db.transaction(async (tx) => {
+      await tx.select({ id: users.id }).from(users).where(eq(users.id, userId)).for("update");
+      if (alreadyClaimed !== undefined) {
+        const [row] = await tx
+          .select({ n: sql<string>`COALESCE(SUM(${referralRewardClaims.referralCount}), 0)` })
+          .from(referralRewardClaims)
+          .where(eq(referralRewardClaims.userId, userId));
+        if (Number(row?.n ?? 0) !== alreadyClaimed) throw new Error("Claim already submitted");
+      }
+      const [rrcInsert] = await tx
+        .insert(referralRewardClaims)
+        .values({
+          userId,
+          referralCount,
+          amount,
+          status: "pending",
+          requestedAt: new Date(),
+        });
+      return (rrcInsert as any).insertId as number;
+    });
+    const [claim] = await db.select().from(referralRewardClaims).where(eq(referralRewardClaims.id, id));
 
     return claim!;
   }
@@ -1248,9 +1281,7 @@ export class DatabaseStorage implements IStorage {
     });
 
     // Mark all daily allocations as expired (could also delete them)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const formattedToday = today.toISOString().split("T")[0];
+    const formattedToday = ukDate();
 
     await db
       .delete(dailyTaskAllocation)
@@ -1627,7 +1658,7 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.id, userId));
     if (!user) return undefined;
 
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const today = ukDate(); // YYYY-MM-DD, UK day
     const lastDate = user.lastLoginDate as string | null;
 
     if (lastDate === today) {
@@ -1922,10 +1953,46 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
+  /**
+   * Marks an open listing sold and moves its points from seller to buyer in
+   * one transaction. This used to flip the status only, so the "points have
+   * been transferred" message was never true. The status flip is conditional
+   * on "open" so a double-submit can't pay out twice, and the seller's
+   * balance is re-checked because nothing is held while a listing is open.
+   */
   async sellListing(listingId: number, buyerId: number): Promise<PointListing> {
-    await db.update(pointListings)
-      .set({ status: "sold", buyerId, soldAt: new Date() })
-      .where(eq(pointListings.id, listingId));
+    await db.transaction(async (tx) => {
+      const [listing] = await tx.select().from(pointListings).where(eq(pointListings.id, listingId)).for("update");
+      if (!listing || listing.status !== "open") throw new Error("Listing is already sold");
+      if (listing.sellerId === buyerId) throw new Error("You can't sell to yourself");
+
+      const debit = await tx
+        .update(users)
+        .set({ points: sql`${users.points} - ${listing.pointsAmount}`, updatedAt: new Date() })
+        .where(and(eq(users.id, listing.sellerId), sql`${users.points} >= ${listing.pointsAmount}`));
+      if (((debit as any)[0]?.affectedRows ?? 0) !== 1) throw new Error("Insufficient points balance");
+
+      const credit = await tx
+        .update(users)
+        .set({ points: sql`${users.points} + ${listing.pointsAmount}`, updatedAt: new Date() })
+        .where(and(eq(users.id, buyerId), sql`(${users.role} IS NULL OR ${users.role} <> 'deleted')`));
+      if (((credit as any)[0]?.affectedRows ?? 0) !== 1) throw new Error("Buyer not found");
+
+      await tx.update(pointListings)
+        .set({ status: "sold", buyerId, soldAt: new Date() })
+        .where(eq(pointListings.id, listingId));
+
+      // Keep level/progress in step with the new balances.
+      for (const id of [listing.sellerId, buyerId]) {
+        await tx
+          .update(users)
+          .set({
+            level: sql`FLOOR(GREATEST(${users.points}, 0) / 1000) + 1`,
+            progress: sql`FLOOR(MOD(GREATEST(${users.points}, 0), 1000) / 10)`,
+          })
+          .where(eq(users.id, id));
+      }
+    });
     const [listing] = await db.select().from(pointListings).where(eq(pointListings.id, listingId));
     return listing;
   }

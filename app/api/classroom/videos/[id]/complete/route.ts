@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
+import { db } from "@/lib/db";
+import { classroomCompletions, users } from "@shared/schema.mysql";
+import { and, eq } from "drizzle-orm";
 
 // POST /api/classroom/videos/:id/complete
 export async function POST(
@@ -22,19 +25,25 @@ export async function POST(
       return NextResponse.json({ message: "Video not found" }, { status: 404 });
     }
 
-    const existing = await storage.getClassroomCompletion(userId, videoId);
-    if (existing) {
+    // The member's row lock serializes their completions, so two quick taps
+    // can't both pass the "already completed" check and both be paid.
+    const created = await db.transaction(async (tx) => {
+      await tx.select({ id: users.id }).from(users).where(eq(users.id, userId)).for("update");
+      const [existing] = await tx
+        .select({ id: classroomCompletions.id })
+        .from(classroomCompletions)
+        .where(and(eq(classroomCompletions.userId, userId), eq(classroomCompletions.videoId, videoId)));
+      if (existing) return false;
+      await tx.insert(classroomCompletions).values({ userId, videoId, pointsEarned: video.pointsReward });
+      return true;
+    });
+    if (!created) {
       return NextResponse.json(
         { message: "Already completed", pointsEarned: 0 },
         { status: 409 }
       );
     }
 
-    await storage.createClassroomCompletion({
-      userId,
-      videoId,
-      pointsEarned: video.pointsReward,
-    });
     await storage.updateUserPoints(userId, video.pointsReward);
     storage.checkAndAwardBadges(userId).catch(() => {});
 

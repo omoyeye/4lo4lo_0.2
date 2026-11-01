@@ -65,7 +65,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const brand = useBrand();
-  const { settings } = useAppSettings();
+  const { menuOn } = useAppSettings();
   const username = user?.username || "me";
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -93,32 +93,32 @@ export default function Sidebar() {
       heading: "Earn",
       items: [
         { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-        { icon: CheckSquare, label: "Tasks", href: "/tasks", tutorial: "tasks-link" },
-        { icon: GraduationCap, label: "Classroom", href: "/classroom", show: settings.classroom_enabled },
+        { icon: CheckSquare, label: "Tasks", href: "/tasks", tutorial: "tasks-link", show: menuOn("tasks") },
+        { icon: GraduationCap, label: "Classroom", href: "/classroom", show: menuOn("classroom") },
       ],
     },
     {
       heading: "Rewards",
       items: [
-        { icon: Award, label: "Rewards", href: "/rewards", tutorial: "rewards-link" },
-        { icon: Share2, label: "Referral", href: "/referral", tutorial: "referral-link" },
-        { icon: Trophy, label: "Leaderboard", href: "/leaderboard", show: settings.leaderboard_enabled },
-        { icon: CreditCard, label: "Payments", href: "/payments" },
+        { icon: Award, label: "Rewards", href: "/rewards", tutorial: "rewards-link", show: menuOn("rewards") },
+        { icon: Share2, label: "Referral", href: "/referral", tutorial: "referral-link", show: menuOn("referral") },
+        { icon: Trophy, label: "Leaderboard", href: "/leaderboard", show: menuOn("leaderboard") },
+        { icon: CreditCard, label: "Payments", href: "/payments", show: menuOn("payments") },
       ],
     },
     {
       heading: "Grow",
       items: [
-        { icon: Megaphone, label: "Promote Me", href: "/promote-me", show: settings.promote_me_enabled },
-        { icon: Store, label: "Marketplace", href: "/marketplace" },
-        { icon: Users, label: "Community", href: "/feed" },
-        { icon: QrCode, label: "Tools", href: "/tools" },
+        { icon: Megaphone, label: "Promote Me", href: "/promote-me", show: menuOn("promote_me") },
+        { icon: Store, label: "Marketplace", href: "/marketplace", show: menuOn("marketplace") },
+        { icon: Users, label: "Community", href: "/feed", show: menuOn("community") },
+        { icon: QrCode, label: "Tools", href: "/tools", show: menuOn("tools") },
       ],
     },
     {
       heading: "Account",
       items: [
-        { icon: UserCircle, label: "My Profile", href: `/profile/${username}` },
+        { icon: UserCircle, label: "My Profile", href: `/profile/${username}`, show: menuOn("profile") },
         { icon: Settings, label: "Settings", href: "/settings", tutorial: "settings-link" },
       ],
     },

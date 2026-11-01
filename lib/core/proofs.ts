@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { dailyTaskAllocation, tasks, userTasks, users } from "@shared/schema.mysql";
 import { storage } from "@/lib/core/storage";
 import { getSettingBool, isMissingTable, queryRows } from "@/lib/core/sql-utils";
+import { taskClosedReason } from "@/lib/core/task-availability";
+import { ukDate } from "@/lib/uk-time";
 
 /**
  * Proof of task completion.
@@ -53,9 +55,9 @@ export async function submitProof(opts: { userId: number; taskId: number; imageU
   const note = opts.note?.trim().slice(0, 500) || null;
 
   const task = await storage.getTaskById(taskId);
-  if (!task || !task.isActive) throw new ProofError("This task is no longer available", 404);
+  if (!task) throw new ProofError("This task is no longer available", 404);
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = ukDate();
   const now = new Date();
 
   const proofId = await db.transaction(async (tx) => {
@@ -67,6 +69,11 @@ export async function submitProof(opts: { userId: number; taskId: number; imageU
     if (existing.length > 0) {
       throw new ProofError(existing[0].verificationStatus === "in_review" ? "Your proof for this task is already being reviewed" : "Task already completed", 409);
     }
+
+    // Same rule as direct completion: inactive, expired or full tasks are closed.
+    await tx.select({ id: tasks.id }).from(tasks).where(eq(tasks.id, taskId)).for("update");
+    const closed = taskClosedReason(task, await storage.countOpenCompletions(tx, taskId));
+    if (closed) throw new ProofError(closed, 410);
 
     await tx
       .update(dailyTaskAllocation)

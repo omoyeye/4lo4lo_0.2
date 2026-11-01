@@ -35,7 +35,7 @@ function getStripe(): Stripe {
 
 const checkoutSchema = z.object({
   planId: z.number().int().positive(),
-  customEngagementCount: z.number().int().positive(),
+  customEngagementCount: z.number().int().positive().max(10_000_000),
   socialMediaUrl: z.string().url(),
   platform: z.string(),
   engagementType: z.string(),
@@ -67,6 +67,14 @@ export async function POST(req: NextRequest) {
     if (!plan.isActive) {
       return NextResponse.json(
         { message: "This promotion plan is no longer active" },
+        { status: 400 }
+      );
+    }
+
+    // The plan's count is the minimum you can buy, as with paying by points.
+    if (validatedData.customEngagementCount < plan.engagementCount) {
+      return NextResponse.json(
+        { message: `This plan starts at ${plan.engagementCount} engagements` },
         { status: 400 }
       );
     }

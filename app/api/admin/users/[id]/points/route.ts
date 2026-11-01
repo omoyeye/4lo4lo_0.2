@@ -34,6 +34,13 @@ export async function PATCH(
       );
     }
 
+    if (points < 0 && userBefore.points + points < 0) {
+      return NextResponse.json(
+        { message: `@${userBefore.username} only has ${userBefore.points.toLocaleString()} points` },
+        { status: 400 }
+      );
+    }
+
     const updatedUser = await storage.updateUserPoints(userId, points);
     if (!updatedUser) {
       return NextResponse.json(

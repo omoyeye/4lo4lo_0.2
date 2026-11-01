@@ -105,7 +105,11 @@ function TasksContent() {
       );
       refreshAll();
     },
-    onError: (err) => toast({ title: "Couldn't complete task", description: err instanceof Error ? err.message : "Please try again", variant: "destructive" }),
+    onError: (err) => {
+      toast({ title: "Couldn't complete task", description: err instanceof Error ? err.message : "Please try again", variant: "destructive" });
+      // The task may have expired or filled up meanwhile; reload so it drops off.
+      refreshAll();
+    },
     onSettled: () => setCompletingId(null),
   });
 

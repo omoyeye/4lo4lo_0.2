@@ -69,7 +69,31 @@ function createPool(): mysql.Pool {
     // Deliberately off on serverless, see the note above.
     enableKeepAlive: !isServerless,
     keepAliveInitialDelay: 0,
+    // Dates travel as UTC both ways; see the time_zone note below.
+    timezone: "Z",
   });
+}
+
+/**
+ * Every connection runs in UTC.
+ *
+ * The database server's own zone is US Eastern, so NOW() / CURRENT_TIMESTAMP
+ * and TIMESTAMP columns came back as Eastern wall-clock times, which the
+ * driver then read as UTC: anything the database dated itself (created_at,
+ * requested_at...) showed about five hours early, while dates written by the
+ * app were right. With the session in UTC both agree. The UK day used for
+ * check-ins and daily counts is handled separately in lib/uk-time.ts.
+ *
+ * The listener runs before the new connection is handed out, and queries on
+ * one connection run in order, so the SET always precedes the first query.
+ */
+function withUtcSessions(pool: mysql.Pool): mysql.Pool {
+  pool.pool.on("connection", (conn) => {
+    conn.query("SET time_zone = '+00:00'", (err) => {
+      if (err) console.error("db: could not set the session time zone", err);
+    });
+  });
+  return pool;
 }
 
 /**
@@ -78,7 +102,7 @@ function createPool(): mysql.Pool {
  * Previously this only happened when NODE_ENV !== "production", which meant a
  * warm serverless instance could not reuse a pool across module re-evaluations.
  */
-const pool = globalForDb.pool ?? createPool();
+const pool = globalForDb.pool ?? withUtcSessions(createPool());
 globalForDb.pool = pool;
 
 const db = drizzle(pool);

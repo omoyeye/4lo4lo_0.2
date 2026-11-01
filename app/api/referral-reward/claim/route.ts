@@ -25,12 +25,21 @@ export async function POST(_req: NextRequest) {
       );
     }
 
-    // Create the claim
-    const claim = await storage.createReferralRewardClaim(
-      userId,
-      rewardInfo.claimableReferrals,
-      rewardInfo.claimableAmount
-    );
+    // Create the claim; refused if another claim landed since the check above
+    let claim;
+    try {
+      claim = await storage.createReferralRewardClaim(
+        userId,
+        rewardInfo.claimableReferrals,
+        rewardInfo.claimableAmount,
+        rewardInfo.totalReferrals - rewardInfo.claimableReferrals
+      );
+    } catch (err) {
+      if (err instanceof Error && err.message === "Claim already submitted") {
+        return NextResponse.json({ message: "Your claim is already submitted and pending review." }, { status: 409 });
+      }
+      throw err;
+    }
 
     return NextResponse.json(
       {

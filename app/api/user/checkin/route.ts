@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-helpers";
 import { storage } from "@/lib/core/storage";
 import { toPublicUser } from "@/lib/public-user";
+import { ukDate } from "@/lib/uk-time";
 
 /** Next streak milestone after `streak`, for the "3 days to +50" hint. */
 async function nextMilestone(streak: number) {
@@ -17,7 +18,7 @@ export async function GET() {
   const user = await storage.getUser(userId);
   if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = ukDate();
   const streak = user.streakCount || 0;
   return NextResponse.json({
     checkedInToday: user.lastLoginDate === today,

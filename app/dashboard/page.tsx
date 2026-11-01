@@ -15,6 +15,7 @@ import DailyCheckInCard from "@/components/dashboard/DailyCheckInCard";
 import ShareAchievementCard from "@/components/dashboard/ShareAchievementCard";
 import LevelUpCelebration from "@/components/dashboard/LevelUpCelebration";
 import EmailVerificationBanner from "@/components/account/EmailVerificationBanner";
+import { useAppSettings } from "@/contexts/AppSettingsContext";
 
 interface DashboardData {
   user: UserType;
@@ -31,6 +32,8 @@ function greeting() {
 
 function DashboardContent() {
   const { user } = useAuth();
+  // Shortcuts follow the menu switches in Admin → Menus.
+  const { menuOn } = useAppSettings();
   useTaskNotifications();
   const { isConnected } = useWebSocket();
 
@@ -78,21 +81,27 @@ function DashboardContent() {
             </p>
             {pending > 0 && <p className="mt-1 text-sm text-white/80">+{pending.toLocaleString()} pts waiting for proof review</p>}
             <div className="mt-5 flex flex-wrap gap-2">
-              <Button asChild className="rounded-xl bg-white text-purple-700 hover:bg-white/90">
-                <Link href="/tasks">
-                  <ListChecks className="mr-1.5 h-4 w-4" /> Find tasks
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="rounded-xl border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
-                <Link href="/payments">
-                  <Wallet className="mr-1.5 h-4 w-4" /> Withdraw
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="rounded-xl border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
-                <Link href="/referral">
-                  <Share2 className="mr-1.5 h-4 w-4" /> Invite friends
-                </Link>
-              </Button>
+              {menuOn("tasks") && (
+                <Button asChild className="rounded-xl bg-white text-purple-700 hover:bg-white/90">
+                  <Link href="/tasks">
+                    <ListChecks className="mr-1.5 h-4 w-4" /> Find tasks
+                  </Link>
+                </Button>
+              )}
+              {menuOn("payments") && (
+                <Button asChild variant="outline" className="rounded-xl border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
+                  <Link href="/payments">
+                    <Wallet className="mr-1.5 h-4 w-4" /> Withdraw
+                  </Link>
+                </Button>
+              )}
+              {menuOn("referral") && (
+                <Button asChild variant="outline" className="rounded-xl border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white">
+                  <Link href="/referral">
+                    <Share2 className="mr-1.5 h-4 w-4" /> Invite friends
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
           <div className="rounded-2xl p-4 backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.12)" }}>
@@ -203,7 +212,7 @@ function DashboardContent() {
             )}
           </Section>
 
-          <Link href="/classroom" className="flex items-center gap-3 rounded-2xl border bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 transition-colors hover:border-purple-300 dark:hover:border-purple-800">
+          {menuOn("classroom") && <Link href="/classroom" className="flex items-center gap-3 rounded-2xl border bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 transition-colors hover:border-purple-300 dark:hover:border-purple-800">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 text-white">
               <GraduationCap className="h-5 w-5" />
             </span>
@@ -212,7 +221,7 @@ function DashboardContent() {
               <span className="block text-sm text-muted-foreground">Free Classroom lessons pay bonus points.</span>
             </span>
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
-          </Link>
+          </Link>}
         </div>
       </div>
     </MemberLayout>

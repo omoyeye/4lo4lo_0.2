@@ -25,6 +25,31 @@ export async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
+/**
+ * The role on a session token is copied at sign-in and the token lives a
+ * week, so a deleted account kept working and a demoted admin kept admin
+ * access until it expired. Each request re-reads the role, cached per
+ * instance for a minute to spare the database a lookup on every call.
+ * Returns null for an account that no longer exists or was deleted.
+ */
+const ROLE_TTL_MS = 60_000;
+const roleCache = new Map<number, { role: string | null; at: number }>();
+
+async function currentRole(userId: number, fallback: string): Promise<string | null> {
+  const hit = roleCache.get(userId);
+  if (hit && Date.now() - hit.at < ROLE_TTL_MS) return hit.role;
+  try {
+    const user = await storage.getUser(userId);
+    const role = !user || user.role === "deleted" ? null : user.role ?? "user";
+    if (roleCache.size > 5000) roleCache.clear();
+    roleCache.set(userId, { role, at: Date.now() });
+    return role;
+  } catch {
+    // A database hiccup shouldn't sign everyone out; keep the token's role.
+    return fallback;
+  }
+}
+
 /** Roles permitted to use the admin panel. Single source of truth. */
 export const ADMIN_ROLES = ["admin", "superadmin"] as const;
 
@@ -139,6 +164,17 @@ export const authConfig = {
         token.role = user.role ?? "user";
         token.isAdmin = user.isAdmin ?? false;
         token.adminVerified = user.adminVerified === true;
+        return token;
+      }
+      const id = parseInt(token.id, 10);
+      if (Number.isFinite(id)) {
+        const role = await currentRole(id, token.role ?? "user");
+        if (role === null) return null; // deleted: the session ends
+        if (role !== token.role) {
+          token.role = role;
+          // A role change always needs a fresh emailed code for admin access.
+          token.adminVerified = false;
+        }
       }
       return token;
     },

@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { getRealTimeService } from "@/lib/sse";
 import { proofRequired } from "@/lib/core/proofs";
+import { TaskClosedError } from "@/lib/core/task-availability";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,6 +68,9 @@ export async function POST(req: NextRequest) {
     try {
       userTask = await storage.completeTask(userId, taskId);
     } catch (err) {
+      if (err instanceof TaskClosedError) {
+        return NextResponse.json({ message: err.message }, { status: 410 });
+      }
       const msg = err instanceof Error ? err.message : "";
       // Lost the race, or the unique index rejected the duplicate. Either way
       // the user's first completion stands, report success, award nothing.

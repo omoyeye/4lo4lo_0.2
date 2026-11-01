@@ -21,6 +21,7 @@ import {
   ShieldAlert,
   History,
   Palette,
+  LayoutList,
 } from "lucide-react";
 
 /**
@@ -109,6 +110,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     items: [
       { id: "email", label: "Email Center", icon: Mail, hint: "Bulk email and messages", superadminOnly: true },
       { id: "system", label: "Settings", icon: Settings, hint: "Feature flags and config", superadminOnly: true },
+      { id: "menus", label: "Menus", icon: LayoutList, hint: "Turn member menus on or off", superadminOnly: true },
       { id: "brand", label: "Brand", icon: Palette, hint: "Logo, legal details and social links", superadminOnly: true },
     ],
   },

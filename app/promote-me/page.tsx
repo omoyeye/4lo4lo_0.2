@@ -450,7 +450,11 @@ function PromoteMeContent() {
                         <button
                           key={plan.id}
                           type="button"
-                          onClick={() => setSelectedTier(plan.id)}
+                          onClick={() => {
+                            setSelectedTier(plan.id);
+                            // A plan's count is its minimum; the server refuses less.
+                            setCustomEngagementCount((c) => Math.max(c, plan.engagementCount));
+                          }}
                           aria-pressed={selected}
                           className={`relative flex flex-col rounded-2xl border bg-card p-3.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
                             selected ? "border-purple-500 ring-2 ring-purple-500/30" : "hover:border-purple-300 dark:hover:border-purple-800"
@@ -540,6 +544,10 @@ function PromoteMeContent() {
                         step={100}
                         value={customEngagementCount}
                         onChange={(e) => setCustomEngagementCount(parseInt(e.target.value) || 1000)}
+                        onBlur={() => {
+                          const min = plans?.find(p => p.id === selectedTier)?.engagementCount;
+                          if (min && customEngagementCount < min) setCustomEngagementCount(min);
+                        }}
                         placeholder="Enter number of engagements"
                         disabled={submitRequestMutation.isPending}
                         className="text-sm"

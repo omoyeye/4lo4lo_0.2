@@ -10,6 +10,7 @@ import { sendVerificationEmail } from "@/lib/core/email-verification";
 import { isMissingTable } from "@/lib/core/sql-utils";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { siteUrl } from "@/lib/seo";
+import { usernameProblem } from "@/lib/username";
 
 const scryptAsync = promisify(scrypt);
 
@@ -40,11 +41,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate required fields
-    if (!body.username || !body.password || !body.email) {
+    if (typeof body.username !== "string" || typeof body.password !== "string" || typeof body.email !== "string" || !body.username || !body.password || !body.email) {
       return NextResponse.json(
         { message: "Username, email and password are required" },
         { status: 400 }
       );
+    }
+    // The forms check these too, but the API is reachable without them.
+    body.username = body.username.trim();
+    body.email = body.email.trim();
+    const nameProblem = usernameProblem(body.username);
+    if (nameProblem) return NextResponse.json({ message: nameProblem }, { status: 400 });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) || body.email.length > 255) {
+      return NextResponse.json({ message: "Please enter a valid email address" }, { status: 400 });
+    }
+    if (body.password.length < 6 || body.password.length > 200) {
+      return NextResponse.json({ message: "Password must be at least 6 characters" }, { status: 400 });
     }
 
     // Check for existing username / email

@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import MaintenanceGate from "@/components/MaintenanceGate";
+import MenuGate from "@/components/MenuGate";
+import { ukDate } from "@/lib/uk-time";
 import { AuthProvider } from "@/hooks/use-auth";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import { AppSettingsProvider } from "@/contexts/AppSettingsContext";
@@ -32,7 +34,7 @@ function DailyCheckin() {
   useEffect(() => {
     if (!user) return;
     const key = `last_checkin_${user.id}`;
-    const today = new Date().toISOString().split("T")[0];
+    const today = ukDate(); // same UK day the server uses
 
     try {
       const sessionKey = `device_reported_${user.id}`;
@@ -107,7 +109,9 @@ export function Providers({ children }: { children: ReactNode }) {
               <TutorialProvider>
                 <PWAInit />
                 <DailyCheckin />
-                <MaintenanceGate>{children}</MaintenanceGate>
+                <MaintenanceGate>
+                  <MenuGate>{children}</MenuGate>
+                </MaintenanceGate>
                 <Toaster />
                 <ServiceWorkerRegistrar />
                 <PWAInstallPrompt />

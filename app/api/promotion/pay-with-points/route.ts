@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
-import { promotionPlans, promotionRequests, appSettings } from "@shared/schema.mysql";
-import { eq } from "drizzle-orm";
+import { promotionPlans, promotionRequests, appSettings, users } from "@shared/schema.mysql";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { storage } from "@/lib/core/storage";
 
 const payWithPointsSchema = z.object({
   planId: z.number().int().positive(),
-  customEngagementCount: z.number().int().positive(),
+  customEngagementCount: z.number().int().positive().max(10_000_000),
   socialMediaUrl: z.string().url(),
   platform: z.string(),
   engagementType: z.string(),
@@ -44,6 +44,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // The plan's count is the minimum you can buy; below it the price would
+    // scale down past what the plan is sold for.
+    if (validatedData.customEngagementCount < plan.engagementCount) {
+      return NextResponse.json(
+        { message: `This plan starts at ${plan.engagementCount} engagements` },
+        { status: 400 }
+      );
+    }
+
     // Calculate total price
     const totalPrice =
       (validatedData.customEngagementCount / plan.engagementCount) *
@@ -55,8 +64,12 @@ export async function POST(req: NextRequest) {
       .from(appSettings)
       .where(eq(appSettings.key, "points_to_currency_rate"));
 
-    const conversionRate = parseFloat(rateSetting?.value || "0.001");
+    const parsedRate = parseFloat(rateSetting?.value || "0.001");
+    const conversionRate = Number.isFinite(parsedRate) && parsedRate > 0 ? parsedRate : 0.001;
     const requiredPoints = Math.ceil(totalPrice / conversionRate);
+    if (!Number.isFinite(requiredPoints) || requiredPoints <= 0) {
+      return NextResponse.json({ message: "This plan can't be paid with points right now" }, { status: 400 });
+    }
 
     // Check if user has enough points
     const user = await storage.getUser(userId);
@@ -76,14 +89,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Deduct points from user
-    const updatedUser = await storage.updateUserPoints(userId, -requiredPoints);
-    if (!updatedUser) {
-      return NextResponse.json(
-        { message: "Failed to deduct points" },
-        { status: 500 }
-      );
+    // Deduct only if the balance still covers it. The check above is a read,
+    // so two quick submits could both pass it and overdraw the account.
+    const debit = await db
+      .update(users)
+      .set({ points: sql`${users.points} - ${requiredPoints}`, updatedAt: new Date() })
+      .where(and(eq(users.id, userId), sql`${users.points} >= ${requiredPoints}`));
+    if (((debit as unknown as [{ affectedRows: number }])[0]?.affectedRows ?? 0) !== 1) {
+      return NextResponse.json({ message: "Insufficient points", required: requiredPoints }, { status: 400 });
     }
+    // Zero delta: recomputes level/progress from the new balance.
+    const updatedUser = (await storage.updateUserPoints(userId, 0)) ?? user;
 
     // Create the promotion request with paid status
     const insertRes = await db.insert(promotionRequests).values({

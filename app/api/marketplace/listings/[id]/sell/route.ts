@@ -58,7 +58,16 @@ export async function POST(
       );
     }
 
-    const updatedListing = await storage.sellListing(listingId, comment.userId);
+    let updatedListing;
+    try {
+      updatedListing = await storage.sellListing(listingId, comment.userId);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      if (/already sold|sell to yourself|Insufficient points|Buyer not found/.test(msg)) {
+        return NextResponse.json({ message: msg }, { status: 400 });
+      }
+      throw err;
+    }
 
     // Notify buyer and seller
     const seller = await storage.getUser(userId);

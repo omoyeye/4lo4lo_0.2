@@ -4,6 +4,7 @@ import { createContext, useContext, useCallback, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useWebSocketSubscription, WebSocketMessage } from "@/contexts/WebSocketContext";
+import { menuEnabled } from "@/lib/menus";
 
 interface AppSettings {
   promote_me_enabled: boolean;
@@ -15,6 +16,10 @@ interface AppSettings {
 
 interface AppSettingsContextType {
   settings: AppSettings;
+  /** The raw /api/settings map, undefined until it loads. */
+  raw: Record<string, string> | undefined;
+  /** Whether a member menu is switched on (lib/menus.ts); true until settings load. */
+  menuOn: (key: string) => boolean;
   isLoading: boolean;
   refetch: () => void;
 }
@@ -53,7 +58,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AppSettingsContext.Provider value={{ settings, isLoading, refetch }}>
+    <AppSettingsContext.Provider value={{ settings, raw: data, menuOn: (key) => menuEnabled(key, data), isLoading, refetch }}>
       {children}
     </AppSettingsContext.Provider>
   );
@@ -62,7 +67,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 export function useAppSettings() {
   const context = useContext(AppSettingsContext);
   if (!context) {
-    return { settings: defaultSettings, isLoading: false, refetch: () => {} };
+    return { settings: defaultSettings, raw: undefined, menuOn: () => true, isLoading: false, refetch: () => {} };
   }
   return context;
 }

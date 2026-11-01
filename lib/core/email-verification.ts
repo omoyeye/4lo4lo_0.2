@@ -62,14 +62,17 @@ export class VerificationError extends Error {
 export async function sendVerificationEmail(user: User): Promise<void> {
   if (isUndeliverable(user.email)) throw new VerificationError("Add a real email address in Settings first", 400);
 
-  const rows = await queryRows<{ sent_at: string | null; verified_at: string | null; email: string }>(
-    sql`SELECT sent_at, verified_at, email FROM email_verifications WHERE user_id = ${user.id} LIMIT 1`
+  // The age is worked out by MySQL: sent_at is written with NOW() in the
+  // server's zone, so comparing it with the app's clock was hours out and the
+  // cooldown never applied.
+  const rows = await queryRows<{ sent_at: string | null; verified_at: string | null; email: string; age_s: number | null }>(
+    sql`SELECT sent_at, verified_at, email, TIMESTAMPDIFF(SECOND, sent_at, NOW()) AS age_s FROM email_verifications WHERE user_id = ${user.id} LIMIT 1`
   );
   const row = rows[0];
   if (row?.verified_at && row.email.toLowerCase() === user.email.toLowerCase()) {
     throw new VerificationError("Your email is already verified", 409);
   }
-  if (row?.sent_at && Date.now() - new Date(row.sent_at).getTime() < RESEND_COOLDOWN_MS) {
+  if (row?.age_s != null && Number(row.age_s) * 1000 < RESEND_COOLDOWN_MS) {
     throw new VerificationError("We just sent one. Please wait a minute before asking again.", 429);
   }
 
@@ -103,7 +106,8 @@ export async function sendVerificationEmail(user: User): Promise<void> {
 export async function confirmToken(token: string): Promise<number | null> {
   if (!/^[a-f0-9]{64}$/.test(token)) return null;
   const rows = await queryRows<{ user_id: number }>(
-    sql`SELECT user_id FROM email_verifications WHERE token_hash = ${hash(token)} LIMIT 1`
+    // Links last a week; NOW() keeps the comparison on the database clock.
+    sql`SELECT user_id FROM email_verifications WHERE token_hash = ${hash(token)} AND sent_at > NOW() - INTERVAL 7 DAY LIMIT 1`
   );
   const row = rows[0];
   if (!row) return null;

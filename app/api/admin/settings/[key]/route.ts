@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { appSettings } from "@shared/schema.mysql";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { MENU_VISIBILITY_KEY, MENUS } from "@/lib/menus";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,8 @@ const WRITABLE_KEYS = new Set([
   "task_proof_required",
   "email_verification_required",
   "daily_checkin_points",
+  // Admin → Menus
+  MENU_VISIBILITY_KEY,
 ]);
 
 // GET /api/admin/settings/:key
@@ -99,6 +102,23 @@ export async function PUT(
 
     const body = await req.json();
     const { value, description } = bodySchema.parse(body);
+
+    // Only known menus, only on/off: this value is public and read by every page.
+    if (key === MENU_VISIBILITY_KEY) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(value);
+      } catch {
+        parsed = null;
+      }
+      const allowed = new Set(MENUS.filter((m) => !m.flag).map((m) => m.key));
+      const ok =
+        !!parsed && typeof parsed === "object" && !Array.isArray(parsed) &&
+        Object.entries(parsed as Record<string, unknown>).every(([k, v]) => allowed.has(k) && typeof v === "boolean");
+      if (!ok) {
+        return NextResponse.json({ message: "Menu settings must be on/off values for known menus" }, { status: 400 });
+      }
+    }
 
     const [existing] = await db
       .select()

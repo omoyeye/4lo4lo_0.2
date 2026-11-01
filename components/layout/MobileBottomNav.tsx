@@ -83,7 +83,7 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const location = pathname;
   const { user, logoutMutation } = useAuth();
-  const { settings } = useAppSettings();
+  const { menuOn } = useAppSettings();
   const [moreOpen, setMoreOpen] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
   const theme = resolvedTheme === "dark" ? "dark" : "light";
@@ -96,25 +96,26 @@ export default function MobileBottomNav() {
     setMoreOpen(false);
   };
 
+  // Each entry is dropped when a superadmin has switched its menu off (Admin → Menus).
   const mainTabs = [
-    { icon: <LayoutDashboard className="w-6 h-6" />, label: "Home", href: "/dashboard" },
-    { icon: <CheckSquare className="w-6 h-6" />, label: "Tasks", href: "/tasks" },
-    { icon: <Award className="w-6 h-6" />, label: "Rewards", href: "/rewards" },
-    { icon: <Share2 className="w-6 h-6" />, label: "Referral", href: "/referral" },
-  ];
+    { icon: <LayoutDashboard className="w-6 h-6" />, label: "Home", href: "/dashboard", menu: null },
+    { icon: <CheckSquare className="w-6 h-6" />, label: "Tasks", href: "/tasks", menu: "tasks" },
+    { icon: <Award className="w-6 h-6" />, label: "Rewards", href: "/rewards", menu: "rewards" },
+    { icon: <Share2 className="w-6 h-6" />, label: "Referral", href: "/referral", menu: "referral" },
+  ].filter((t) => !t.menu || menuOn(t.menu));
 
   const moreItems = [
-    ...(settings.leaderboard_enabled ? [{ icon: <Trophy className="w-5 h-5" />, label: "Leaderboard", href: "/leaderboard" }] : []),
-    ...(settings.classroom_enabled ? [{ icon: <GraduationCap className="w-5 h-5" />, label: "Classroom", href: "/classroom" }] : []),
-    ...(settings.promote_me_enabled ? [{ icon: <Megaphone className="w-5 h-5" />, label: "Promote Me", href: "/promote-me" }] : []),
-    { icon: <Store className="w-5 h-5" />, label: "Marketplace", href: "/marketplace" },
-    { icon: <Users className="w-5 h-5" />, label: "Community", href: "/feed" },
-    { icon: <QrCode className="w-5 h-5" />, label: "Tools", href: "/tools" },
-    { icon: <UserCircle className="w-5 h-5" />, label: "My Profile", href: `/profile/${username}` },
-    { icon: <CreditCard className="w-5 h-5" />, label: "Payments", href: "/payments" },
-    { icon: <Settings className="w-5 h-5" />, label: "Settings", href: "/settings" },
-    { icon: <HelpCircle className="w-5 h-5" />, label: "Support", href: "/support" },
-  ];
+    { icon: <Trophy className="w-5 h-5" />, label: "Leaderboard", href: "/leaderboard", menu: "leaderboard" },
+    { icon: <GraduationCap className="w-5 h-5" />, label: "Classroom", href: "/classroom", menu: "classroom" },
+    { icon: <Megaphone className="w-5 h-5" />, label: "Promote Me", href: "/promote-me", menu: "promote_me" },
+    { icon: <Store className="w-5 h-5" />, label: "Marketplace", href: "/marketplace", menu: "marketplace" },
+    { icon: <Users className="w-5 h-5" />, label: "Community", href: "/feed", menu: "community" },
+    { icon: <QrCode className="w-5 h-5" />, label: "Tools", href: "/tools", menu: "tools" },
+    { icon: <UserCircle className="w-5 h-5" />, label: "My Profile", href: `/profile/${username}`, menu: "profile" },
+    { icon: <CreditCard className="w-5 h-5" />, label: "Payments", href: "/payments", menu: "payments" },
+    { icon: <Settings className="w-5 h-5" />, label: "Settings", href: "/settings", menu: null },
+    { icon: <HelpCircle className="w-5 h-5" />, label: "Support", href: "/support", menu: "support" },
+  ].filter((i) => !i.menu || menuOn(i.menu));
 
   const isMoreActive = moreItems.some((i) => i.href === location);
 

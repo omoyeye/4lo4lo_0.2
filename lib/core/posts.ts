@@ -10,8 +10,8 @@ import { execute, isMissingTable, queryRows } from "@/lib/core/sql-utils";
 
 export const POST_MAX_WORDS = 250;
 export const COMMENT_MAX_WORDS = 100;
-const POST_MAX_CHARS = 2000;
-const COMMENT_MAX_CHARS = 800;
+const POST_MAX_CHARS = 3000;
+const COMMENT_MAX_CHARS = 1000; // the column is VARCHAR(1000)
 
 export class PostError extends Error {
   constructor(message: string, public status: number) {
@@ -63,6 +63,13 @@ export interface PostComment {
 }
 
 type Row = Record<string, unknown>;
+
+/**
+ * created_at is selected as UNIX_TIMESTAMP(): the database runs in US Eastern
+ * time and the driver reads dates as UTC, so a plain column read is hours out.
+ * The epoch value of a TIMESTAMP column is zone-independent.
+ */
+const iso = (epoch: unknown) => new Date(Number(epoch) * 1000).toISOString();
 const author = (r: Row): PostAuthor => ({
   id: Number(r.author_id),
   username: String(r.username),
@@ -84,7 +91,7 @@ export async function postsEnabled(): Promise<boolean> {
 /** Newest first. `before` is the last post id already shown (keyset pagination). */
 export async function listPosts(viewerId: number, before: number | null, limit = 20): Promise<{ posts: CommunityPost[]; nextCursor: number | null }> {
   const rows = await queryRows<Row>(sql`
-    SELECT p.id, p.body, p.like_count, p.comment_count, p.created_at,
+    SELECT p.id, p.body, p.like_count, p.comment_count, UNIX_TIMESTAMP(p.created_at) AS created_at,
            u.id AS author_id, u.username, u.display_name, u.avatar, u.level,
            EXISTS(SELECT 1 FROM community_post_likes l WHERE l.post_id = p.id AND l.user_id = ${viewerId}) AS liked
     FROM community_posts p
@@ -100,7 +107,7 @@ export async function listPosts(viewerId: number, before: number | null, limit =
       body: String(r.body),
       likeCount: Number(r.like_count),
       commentCount: Number(r.comment_count),
-      createdAt: String(r.created_at),
+      createdAt: iso(r.created_at),
       likedByMe: Number(r.liked) === 1,
       author: author(r),
     })),
@@ -144,7 +151,7 @@ export async function toggleLike(postId: number, userId: number): Promise<{ like
 
 export async function listComments(postId: number): Promise<PostComment[]> {
   const rows = await queryRows<Row>(sql`
-    SELECT c.id, c.post_id, c.body, c.created_at,
+    SELECT c.id, c.post_id, c.body, UNIX_TIMESTAMP(c.created_at) AS created_at,
            u.id AS author_id, u.username, u.display_name, u.avatar, u.level
     FROM community_post_comments c
     JOIN users u ON u.id = c.user_id
@@ -152,7 +159,7 @@ export async function listComments(postId: number): Promise<PostComment[]> {
     ORDER BY c.id ASC
     LIMIT 200
   `);
-  return rows.map((r) => ({ id: Number(r.id), postId: Number(r.post_id), body: String(r.body), createdAt: String(r.created_at), author: author(r) }));
+  return rows.map((r) => ({ id: Number(r.id), postId: Number(r.post_id), body: String(r.body), createdAt: iso(r.created_at), author: author(r) }));
 }
 
 export async function addComment(postId: number, userId: number, username: string, text: unknown): Promise<number> {

@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { TeamSection } from "@/components/admin/sections/TeamSection";
 import { ActivitySection } from "@/components/admin/sections/ActivitySection";
 import { BrandSection } from "@/components/admin/sections/BrandSection";
+import { MenusSection } from "@/components/admin/sections/MenusSection";
 import { EmptyState, PageHeader } from "@/components/admin/kit";
 import { OverviewSection } from "@/components/admin/sections/OverviewSection";
 import { UsersSection } from "@/components/admin/sections/UsersSection";
@@ -59,6 +60,7 @@ const SECTIONS: Record<string, () => ReactNode> = {
   brand: () => <BrandSection />,
   email: () => <EmailCenter />,
   system: () => <SettingsSection />,
+  menus: () => <MenusSection />,
 };
 
 export default function Page() {

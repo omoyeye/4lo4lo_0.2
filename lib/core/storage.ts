@@ -121,7 +121,7 @@ export interface IStorage {
     claimableAmount: string;
     eligibleToClaim: boolean;
   }>;
-  createReferralRewardClaim(userId: number, referralCount: number, amount: string): Promise<ReferralRewardClaim>;
+  createReferralRewardClaim(userId: number, referralCount: number, amount: string, alreadyClaimed?: number): Promise<ReferralRewardClaim>;
   getReferralRewardClaims(userId: number): Promise<ReferralRewardClaim[]>;
 
   // Payout operations

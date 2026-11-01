@@ -24,19 +24,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    // Get all active tasks and user's completed task IDs in parallel
-    const [tasks, completedTaskIds] = await Promise.all([
-      storage.getTasks(),
-      storage.getCompletedTaskIds(userId),
-    ]);
-
-    // Use Set for O(1) lookup of completed tasks
-    const completedSet = new Set(completedTaskIds);
-
-    // Filter available tasks efficiently
-    const availableTasks = tasks.filter(
-      (task) => task.isActive && !completedSet.has(task.id)
-    );
+    // Active, unexpired, under-cap tasks the user hasn't done
+    const availableTasks = await storage.getAvailableTasks(userId);
 
     return NextResponse.json(availableTasks, { status: 200 });
   } catch (error) {

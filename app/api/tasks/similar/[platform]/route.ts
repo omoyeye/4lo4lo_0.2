@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage } from "@/lib/core/storage";
+import { isTaskOpen } from "@/lib/core/task-availability";
 
 export async function GET(
   _req: NextRequest,
@@ -9,7 +10,7 @@ export async function GET(
     const { platform } = await params;
     const tasks = await storage.getTasks();
     const similarTasks = tasks
-      .filter((task) => task.platform === platform && task.isActive)
+      .filter((task) => task.platform === platform && isTaskOpen(task))
       .slice(0, 5);
     return NextResponse.json(similarTasks, { status: 200 });
   } catch (error) {

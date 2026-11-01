@@ -1,5 +1,6 @@
 "use client";
 import { MemberLayout, PageHeader } from "@/components/member/kit";
+import { PlatformBadge } from "@/components/member/platform";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Rocket, CheckCircle, Loader2, Download, CreditCard, ClipboardList, Coins } from "lucide-react";
+import { Rocket, CheckCircle, Loader2, Download, CreditCard, ClipboardList, Coins, Check } from "lucide-react";
 import { 
   SiFacebook, 
   SiInstagram, 
@@ -414,102 +415,75 @@ function PromoteMeContent() {
               <PageHeader icon={Rocket} tone="pink" title="Promote Me" description="Get real engagement on your own posts from active members. Pick a plan to start." />
             </div>
 
-            {/* Pricing Tiers */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+            {/* Plans: compact selectable tiles */}
+            <div className="mb-8">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-base font-semibold">1. Choose a plan</h2>
+                <span className="text-xs text-muted-foreground">
+                  You have <span className="font-semibold text-foreground">{userPoints.toLocaleString()}</span> pts
+                </span>
+              </div>
               {isLoading ? (
-                // Loading state for plans
-                Array(3).fill(null).map((_, i) => (
-                  <Card key={i} className="flex flex-col items-center justify-center p-4 md:p-6">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-                    <p className="text-sm text-muted-foreground">Loading plans...</p>
-                  </Card>
-                ))
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-36 animate-pulse rounded-2xl border bg-muted/40" />
+                  ))}
+                </div>
               ) : error ? (
-                // Error state
-                <div className="col-span-1 md:col-span-3 p-4 md:p-6 text-center">
-                  <p className="text-sm md:text-base text-red-500 mb-2">Failed to load promotion plans</p>
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => queryClient.invalidateQueries({ queryKey: ['/api/promotion/plans'] })}
-                  >
-                    Try Again
+                <div className="rounded-2xl border p-6 text-center">
+                  <p className="mb-2 text-sm text-red-500">Failed to load promotion plans</p>
+                  <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/promotion/plans"] })}>
+                    Try again
                   </Button>
                 </div>
-              ) : plans && plans.length > 0 ? (
-                // Render plans from database with platform styling
-                plans
-                  .sort((a, b) => a.displayOrder - b.displayOrder)
-                  .filter(plan => plan.isActive)
-                  .map((plan) => {
-                    const platform = (plan as any).platform || "facebook";
-                    const config = platformConfig[platform] || platformConfig.facebook;
-                    
-                    return (
-                      <Card 
-                        key={plan.id} 
-                        className={`transition-all overflow-hidden ${config.bgGradient} ${
-                          selectedTier === plan.id 
-                            ? `${config.borderColor} border-2 shadow-lg scale-105` 
-                            : `${config.borderColor} border hover:shadow-md hover:scale-[1.02]`
-                        }`}
-                      >
-                        <CardHeader className="pb-3 relative">
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <div className={`w-10 h-10 ${config.iconBg} rounded-full flex items-center justify-center text-white`}>
-                              {config.icon}
-                            </div>
+              ) : plans && plans.some((p) => p.isActive) ? (
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  {plans
+                    .filter((plan) => plan.isActive)
+                    .sort((a, b) => a.displayOrder - b.displayOrder)
+                    .map((plan) => {
+                      const platform = (plan as { platform?: string }).platform || "facebook";
+                      const selected = selectedTier === plan.id;
+                      const pointsNeeded = calculateRequiredPoints(Number(plan.price));
+                      const canAfford = userPoints >= pointsNeeded;
+                      return (
+                        <button
+                          key={plan.id}
+                          type="button"
+                          onClick={() => setSelectedTier(plan.id)}
+                          aria-pressed={selected}
+                          className={`relative flex flex-col rounded-2xl border bg-card p-3.5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                            selected ? "border-purple-500 ring-2 ring-purple-500/30" : "hover:border-purple-300 dark:hover:border-purple-800"
+                          }`}
+                        >
+                          {selected && (
+                            <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white">
+                              <Check className="h-3 w-3" />
+                            </span>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <PlatformBadge platform={platform} size={30} />
+                            <span className="min-w-0 truncate pr-5 text-sm font-semibold">{plan.name}</span>
                           </div>
-                          <CardTitle className={`text-center text-lg md:text-xl ${config.textColor}`}>
-                            {plan.name}
-                          </CardTitle>
-                          <p className="text-xs text-center text-muted-foreground mt-1">
-                            {config.name}
+                          <p className="mt-2 text-xs text-muted-foreground">{plan.engagementCount.toLocaleString()} engagements</p>
+                          <p className="mt-0.5 text-xl font-bold tabular-nums">${Number(plan.price).toFixed(2)}</p>
+                          <p className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${canAfford ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                            <Coins className="h-3 w-3" />
+                            {pointsNeeded.toLocaleString()} pts{canAfford ? " ✓" : ""}
                           </p>
-                        </CardHeader>
-                        <CardContent className="text-center space-y-3 md:space-y-4">
-                          <div className="text-xs md:text-sm text-muted-foreground">
-                            {plan.engagementCount.toLocaleString()} Engagements
-                          </div>
-                          <div className={`text-2xl md:text-3xl font-bold ${config.textColor}`}>
-                            ${Number(plan.price).toFixed(2)}
-                          </div>
-                          {/* Point equivalent display */}
-                          {(() => {
-                            const pointsNeeded = calculateRequiredPoints(Number(plan.price));
-                            const canAfford = userPoints >= pointsNeeded;
-                            return (
-                              <div className={`text-xs px-2 py-1 rounded-full ${canAfford ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
-                                <Coins className="inline w-3 h-3 mr-1" />
-                                {pointsNeeded.toLocaleString()} pts
-                                {canAfford && ' ✓'}
-                              </div>
-                            );
-                          })()}
-                          <Button 
-                            variant={selectedTier === plan.id ? "default" : "outline"}
-                            className={`w-full ${selectedTier === plan.id ? '' : `hover:${config.borderColor}`}`}
-                            size="sm"
-                            onClick={() => setSelectedTier(plan.id)}
-                          >
-                            {selectedTier === plan.id ? "Selected" : "Select Plan"}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    );
-                  })
-              ) : (
-                // No plans available
-                <div className="col-span-1 md:col-span-3 p-4 md:p-6 text-center">
-                  <p className="text-sm md:text-base text-muted-foreground">No promotion plans available at the moment.</p>
+                        </button>
+                      );
+                    })}
                 </div>
+              ) : (
+                <div className="rounded-2xl border p-6 text-center text-sm text-muted-foreground">No promotion plans available right now.</div>
               )}
             </div>
 
             {/* Promotion Form */}
             <Card className="mb-6 md:mb-8">
               <CardHeader className="p-4 md:p-6">
-                <CardTitle className="text-lg md:text-xl">Submit Your Promotion Request</CardTitle>
+                <CardTitle className="text-base">2. Tell us what to promote</CardTitle>
               </CardHeader>
               <CardContent className="p-4 md:p-6 pt-0">
                 <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
@@ -650,50 +624,22 @@ function PromoteMeContent() {
               </CardContent>
             </Card>
 
-            {/* Benefits Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <Card>
-                <CardHeader className="p-4 md:p-6">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
-                    <CardTitle className="text-base md:text-lg">Real Engagement</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6 pt-0">
-                  <p className="text-muted-foreground text-xs md:text-sm">
-                    All engagement comes from real, active users to ensure authentic growth for your social media presence.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="p-4 md:p-6">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
-                    <CardTitle className="text-base md:text-lg">Fast Delivery</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6 pt-0">
-                  <p className="text-muted-foreground text-xs md:text-sm">
-                    See results within 24-48 hours of submitting your promotion request.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="p-4 md:p-6">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-500 flex-shrink-0" />
-                    <CardTitle className="text-base md:text-lg">Targeted Growth</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6 pt-0">
-                  <p className="text-muted-foreground text-xs md:text-sm">
-                    Engagement from users interested in your content niche for better conversion rates.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Benefits: one compact strip. Worded as what we do, not guarantees. */}
+            <ul className="grid gap-2 rounded-2xl border bg-card p-3 text-sm sm:grid-cols-3">
+              {[
+                ["Real people", "Engagement comes from active members, not bots."],
+                ["Quick start", "Most promotions start within 24 to 48 hours."],
+                ["Refund if we can't start", "Full refund, or your points back."],
+              ].map(([title, body]) => (
+                <li key={title} className="flex items-start gap-2 rounded-xl p-2">
+                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                  <span>
+                    <span className="font-medium">{title}</span>
+                    <span className="block text-xs text-muted-foreground">{body}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
     </MemberLayout>
 

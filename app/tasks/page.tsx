@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Clock, Coins, Eye, Heart, History, ListChecks, MessageSquare, RefreshCcw, Search, Share2, SlidersHorizontal, Star, UserPlus, X } from "lucide-react";
+import { Eye, Heart, History, ListChecks, MessageSquare, RefreshCcw, Search, Share2, SlidersHorizontal, Star, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,7 +13,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useTaskNotifications } from "@/hooks/use-task-notifications";
 import { ProtectedRoute } from "@/lib/protected-route";
-import { EmptyState, MemberLayout, PageHeader, Pills, Section, StatTile } from "@/components/member/kit";
+import { EmptyState, MemberLayout, Pills, Section } from "@/components/member/kit";
 import { PLATFORMS, PlatformBadge } from "@/components/member/platform";
 import { cn } from "@/lib/utils";
 
@@ -124,91 +124,87 @@ function TasksContent() {
 
   return (
     <MemberLayout wide>
-      <PageHeader
-        icon={ListChecks}
-        title="Tasks"
-        description="Engage with real creators' posts and earn points for every task."
-        actions={
-          <Button variant="outline" className="rounded-xl" onClick={() => refetch()}>
-            <RefreshCcw className={cn("mr-1.5 h-4 w-4", isFetching && "animate-spin")} /> Refresh
-          </Button>
-        }
-      />
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Available now" value={tasks.length} icon={ListChecks} tone="sky" />
-        <StatTile label="Points up for grabs" value={totalAvailablePoints.toLocaleString()} icon={Coins} tone="purple" />
-        <StatTile label="Done today" value={doneToday} icon={CheckCircle2} tone="emerald" />
-        <StatTile label="In review" value={inReview} icon={Clock} tone="amber" hint={inReview ? "Waiting for proof approval" : "Nothing pending"} />
+      {/* Compact header: the tasks are the page. */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Tasks</h1>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{tasks.length}</span> available ·{" "}
+            <span className="font-semibold text-foreground">{totalAvailablePoints.toLocaleString()}</span> pts to earn
+            {doneToday > 0 && <> · {doneToday} done today</>}
+            {inReview > 0 && <> · <span className="text-amber-600">{inReview} in review</span></>}
+          </p>
+        </div>
+        <Pills<View>
+          value={view}
+          onChange={setView}
+          options={[
+            { value: "available", label: "Available", count: tasks.length },
+            { value: "history", label: "History", count: completed.length },
+          ]}
+        />
       </div>
-
-      <Pills<View>
-        value={view}
-        onChange={setView}
-        className="w-fit"
-        options={[
-          { value: "available", label: <><ListChecks className="h-4 w-4" /> Available</>, count: tasks.length },
-          { value: "history", label: <><History className="h-4 w-4" /> My history</>, count: completed.length },
-        ]}
-      />
 
       {view === "available" ? (
         <>
-          {/* Filters */}
-          <div className="sticky top-14 z-20 -mx-4 space-y-3 border-b bg-background/90 px-4 py-3 backdrop-blur md:static md:mx-0 md:rounded-2xl md:border md:bg-card md:p-4 md:shadow-sm" data-tutorial="platform-filters">
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks" className="rounded-xl pl-9" />
-              </div>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full rounded-xl sm:w-44">
-                  <SlidersHorizontal className="mr-2 h-4 w-4 text-muted-foreground" />
+          {/* One toolbar row instead of three rows of chips. */}
+          <div className="sticky top-14 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b bg-background/90 px-4 py-2.5 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0" data-tutorial="platform-filters">
+            <div className="relative min-w-[180px] flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks" className="h-10 rounded-xl pl-9" />
+            </div>
+            <Select value={platform ?? "all"} onValueChange={(v) => setPlatform(v === "all" ? null : v)}>
+              <SelectTrigger className="h-10 w-[150px] rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All platforms</SelectItem>
+                {PLATFORMS.filter((p) => presentPlatforms.has(p.key)).map((p) => {
+                  const Icon = p.icon;
+                  return (
+                    <SelectItem key={p.key} value={p.key}>
+                      <span className="flex items-center gap-2">
+                        <Icon className="h-3.5 w-3.5" style={{ color: p.color }} /> {p.label}
+                      </span>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            {(TYPES.some((t) => presentTypes.has(t.type)) || hasOther) && (
+              <Select value={type ?? "all"} onValueChange={(v) => setType(v === "all" ? null : v)}>
+                <SelectTrigger className="h-10 w-[130px] rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="most_points">Most points</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="least_points">Fewest points</SelectItem>
+                  <SelectItem value="all">All types</SelectItem>
+                  {TYPES.filter((t) => presentTypes.has(t.type)).map((t) => (
+                    <SelectItem key={t.type} value={t.type}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                  {hasOther && <SelectItem value="other">Other</SelectItem>}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              <Chip active={!platform} onClick={() => setPlatform(null)}>All platforms</Chip>
-              {PLATFORMS.filter((p) => presentPlatforms.has(p.key)).map((p) => {
-                const Icon = p.icon;
-                return (
-                  <Chip key={p.key} active={platform === p.key} onClick={() => setPlatform(platform === p.key ? null : p.key)} color={p.color}>
-                    <Icon className="h-3.5 w-3.5" style={{ color: platform === p.key ? undefined : p.color }} />
-                    {p.label}
-                  </Chip>
-                );
-              })}
-            </div>
-            {(TYPES.some((t) => presentTypes.has(t.type)) || hasOther) && (
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                <Chip small active={!type} onClick={() => setType(null)}>All types</Chip>
-                {TYPES.filter((t) => presentTypes.has(t.type)).map((t) => (
-                  <Chip small key={t.type} active={type === t.type} onClick={() => setType(type === t.type ? null : t.type)}>
-                    <t.icon className="h-3 w-3" /> {t.label}
-                  </Chip>
-                ))}
-                {hasOther && (
-                  <Chip small active={type === "other"} onClick={() => setType("other")}>
-                    Other
-                  </Chip>
-                )}
-              </div>
             )}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="h-10 w-[140px] rounded-xl">
+                <SlidersHorizontal className="mr-1 h-4 w-4 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="most_points">Most points</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="least_points">Fewest points</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl" onClick={() => refetch()} aria-label="Refresh tasks">
+              <RefreshCcw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+            </Button>
             {hasFilters && (
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>
-                  {filtered.length} of {tasks.length} tasks
-                </span>
-                <button onClick={clearFilters} className="inline-flex items-center gap-1 font-medium text-purple-600 hover:underline dark:text-purple-400">
-                  <X className="h-3.5 w-3.5" /> Clear filters
-                </button>
-              </div>
+              <button onClick={clearFilters} className="inline-flex items-center gap-1 text-sm font-medium text-purple-600 hover:underline dark:text-purple-400">
+                <X className="h-3.5 w-3.5" /> Clear ({filtered.length} shown)
+              </button>
             )}
           </div>
 
@@ -285,23 +281,6 @@ function TasksContent() {
         }}
       />
     </MemberLayout>
-  );
-}
-
-function Chip({ active, onClick, children, color, small }: { active: boolean; onClick: () => void; children: React.ReactNode; color?: string; small?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border font-medium transition-colors",
-        small ? "px-3 py-1 text-xs" : "px-3.5 py-1.5 text-sm",
-        active ? "border-transparent bg-foreground text-background" : "bg-background text-muted-foreground hover:text-foreground"
-      )}
-      style={active && color ? { background: color, color: "#fff" } : undefined}
-    >
-      {children}
-    </button>
   );
 }
 

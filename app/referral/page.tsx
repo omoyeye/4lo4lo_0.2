@@ -1,8 +1,8 @@
 "use client";
-import { MemberLayout, PageHeader } from "@/components/member/kit";
+import { EmptyState, MemberLayout, PageHeader, Section, StatTile } from "@/components/member/kit";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Copy, Share2, Download, User, TrendingUp, Star } from "lucide-react";
+import { Copy, Share2, Download, User, TrendingUp, Star, Users, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
@@ -73,7 +73,7 @@ function ReferralContent() {
           });
         });
     }
-  }, []);
+  }, [user?.id, toast]);
 
   // Fetch referral history
   useEffect(() => {
@@ -104,7 +104,7 @@ function ReferralContent() {
   }, [user?.id, toast]);
 
   // Use the referral code from the database
-  const referralLink = `${window.location.origin}/auth?ref=${referralStats.referralCode}`;
+  const referralLink = `${typeof window !== "undefined" ? window.location.origin : "https://4lo4lo.site"}/auth?ref=${referralStats.referralCode}`;
 
   // Update username from localStorage on component mount
   useEffect(() => {
@@ -136,7 +136,7 @@ function ReferralContent() {
   const handleShareLink = () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Join Social Growth Platform',
+        title: 'Join me on 4LO4LO',
         text: `Want to make money and grow your socials? Use my referral code ${referralStats.referralCode} on sign up or click this link to start your journey!`,
         url: referralLink,
       }).catch(() => {
@@ -181,267 +181,141 @@ function ReferralContent() {
     }
   };
 
+  const tier = userTierInfo?.tier ?? null;
+  const nextTier = userTierInfo?.nextTier ?? null;
+  const tierProgress = nextTier
+    ? Math.min(100, ((userTierInfo!.totalReferrals - (tier?.minReferrals ?? 0)) / Math.max(1, nextTier.minReferrals - (tier?.minReferrals ?? 0))) * 100)
+    : 100;
+
   return (
     <MemberLayout>
-          <PageHeader icon={Share2} tone="pink" title="Invite Friends" description="Share your link and earn when the people you invite join and take part." />
+      <PageHeader icon={Share2} tone="pink" title="Invite Friends" description="Share your link. When friends join and take part, you earn." />
 
-          {/* Stats */}
-          <div className="mb-6 md:mb-8 bg-card rounded-lg p-4 md:p-6">
-            <div className="grid grid-cols-2 gap-3 md:gap-4 text-center">
-              <div>
-                <p className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2">Total Referrals</p>
-                <p className="text-2xl md:text-3xl font-bold">{referralStats.totalReferrals}</p>
-              </div>
-
-              <div>
-                <p className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2">Coins Earned</p>
-                <p className="text-2xl md:text-3xl font-bold text-green-500 dark:text-green-400">{referralStats.coinsEarned}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Referral Tier Section */}
-          {allTiers.length > 0 && (
-            <div className="mb-6 md:mb-8 bg-card rounded-lg p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                <h2 className="text-base md:text-lg font-medium">Referral Tier</h2>
-              </div>
-
-              {/* Current tier badge + multiplier */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    userTierInfo?.tier ? "bg-primary/20" : "bg-muted"
-                  }`}>
-                    <Star className={`h-5 w-5 ${userTierInfo?.tier ? "text-primary" : "text-muted-foreground"}`} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm md:text-base">
-                      {userTierInfo?.tier ? userTierInfo.tier.label : "No tier yet"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {userTierInfo?.tier
-                        ? `${parseFloat(userTierInfo.tier.multiplier).toFixed(2)}× reward multiplier`
-                        : `Refer ${allTiers[0]?.minReferrals ?? 1} friend(s) to reach your first tier`}
-                    </p>
-                  </div>
-                </div>
-                {userTierInfo?.tier && (
-                  <span className="text-sm font-bold text-primary">
-                    {parseFloat(userTierInfo.tier.multiplier).toFixed(2)}×
-                  </span>
-                )}
-              </div>
-
-              {/* Progress to next tier */}
-              {userTierInfo?.nextTier && (
-                <div className="mb-4">
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-                    <span>{userTierInfo.totalReferrals} referrals</span>
-                    <span>Next tier: {userTierInfo.nextTier.label} ({userTierInfo.nextTier.minReferrals} needed)</span>
-                  </div>
-                  <Progress
-                    value={Math.min(
-                      ((userTierInfo.totalReferrals - (userTierInfo.tier?.minReferrals ?? 0)) /
-                        (userTierInfo.nextTier.minReferrals - (userTierInfo.tier?.minReferrals ?? 0))) * 100,
-                      100
-                    )}
-                    className="h-2"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    {Math.max(0, userTierInfo.nextTier.minReferrals - userTierInfo.totalReferrals)} more referral(s) to reach {userTierInfo.nextTier.label} ({parseFloat(userTierInfo.nextTier.multiplier).toFixed(2)}× multiplier)
-                  </p>
-                </div>
-              )}
-
-              {/* Tier table */}
-              <div className="border-t pt-4">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">All Tiers</p>
-                <div className="space-y-2">
-                  {allTiers.map((tier) => {
-                    const isActive = userTierInfo?.tier?.id === tier.id;
-                    return (
-                      <div
-                        key={tier.id}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
-                          isActive ? "bg-primary/10 border border-primary/30" : "bg-muted/40"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {isActive && <Star className="h-3.5 w-3.5 text-primary" />}
-                          <span className={`font-medium ${isActive ? "text-primary" : ""}`}>{tier.label}</span>
-                          <span className="text-muted-foreground text-xs">
-                            {tier.minReferrals}-{tier.maxReferrals ?? "∞"} referrals
-                          </span>
-                        </div>
-                        <span className={`font-bold text-xs px-2 py-0.5 rounded ${
-                          parseFloat(tier.multiplier) >= 2
-                            ? "bg-yellow-500/20 text-yellow-600"
-                            : parseFloat(tier.multiplier) >= 1.5
-                            ? "bg-blue-500/20 text-blue-600"
-                            : "bg-muted text-muted-foreground"
-                        }`}>
-                          {parseFloat(tier.multiplier).toFixed(2)}×
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Digital ID Card */}
-          <div className="mb-6 md:mb-8 bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-lg p-4 md:p-6 border-2 border-primary/20">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base md:text-lg font-medium">Digital ID Card</h2>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleDownloadIdCard}
-                className="gap-2"
-                data-testid="button-download-id"
-              >
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Download</span>
+      {/* Share first: it's what people come here to do. */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-700 via-purple-600 to-pink-600 p-5 text-white shadow-xl md:p-7">
+        <div className="pointer-events-none absolute -right-12 -top-16 h-52 w-52 rounded-full bg-white/10" />
+        <div className="relative grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
+          <div className="min-w-0">
+            <p className="text-sm text-white/80">Your referral code</p>
+            <p className="text-3xl font-extrabold tracking-widest md:text-4xl">{referralStats.referralCode || "…"}</p>
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/15 p-1.5 pl-3">
+              <p className="min-w-0 flex-1 truncate text-sm text-white/90">{referralLink}</p>
+              <Button size="sm" onClick={handleCopyLink} className="shrink-0 rounded-lg bg-white text-purple-700 hover:bg-white/90">
+                <Copy className="mr-1.5 h-4 w-4" /> Copy
               </Button>
             </div>
-            
-            <div 
-              ref={idCardRef} 
-              className="bg-white dark:bg-gray-900 rounded-xl p-6 md:p-8 shadow-xl border-2 border-primary/30"
-            >
-              {/* Card Header */}
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-primary/10 rounded-full mb-3">
-                  <User className="h-8 w-8 md:h-10 md:w-10 text-primary" />
-                </div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                  {user?.username || username}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">4LO4LO Member</p>
-              </div>
+          </div>
+          <div className="flex gap-2 md:flex-col">
+            <Button onClick={handleShareLink} className="flex-1 rounded-xl bg-white text-purple-700 hover:bg-white/90">
+              <Share2 className="mr-1.5 h-4 w-4" /> Share invite
+            </Button>
+            <Button variant="outline" onClick={handleDownloadIdCard} className="flex-1 rounded-xl border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white" data-testid="button-download-id">
+              <Download className="mr-1.5 h-4 w-4" /> ID card
+            </Button>
+          </div>
+        </div>
+      </section>
 
-              {/* QR Code */}
-              <div className="flex justify-center mb-6">
-                <div className="bg-white p-3 rounded-lg">
-                  <QRCodeSVG 
-                    value={referralLink} 
-                    size={160}
-                    level="H"
-                    includeMargin={false}
-                  />
-                </div>
-              </div>
-
-              {/* Referral Details */}
-              <div className="space-y-3">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Referral Code</p>
-                  <p className="text-lg md:text-xl font-bold text-primary text-center tracking-wider">
-                    {referralStats.referralCode || 'Loading...'}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Referral URL</p>
-                  <p className="text-xs md:text-sm text-gray-900 dark:text-white break-all text-center">
-                    {referralLink}
-                  </p>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Scan QR code or use referral code to join
-                </p>
-              </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          ["1", "Share your link", "Send it to friends or post it with your share card."],
+          ["2", "They join", "They sign up with your link or type your code."],
+          ["3", "You earn", "Rewards land as they take part, boosted by your tier."],
+        ].map(([n, title, body]) => (
+          <div key={n} className="flex gap-3 rounded-2xl border bg-card p-4 shadow-sm">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-sm font-bold text-white">{n}</span>
+            <div>
+              <p className="font-semibold">{title}</p>
+              <p className="text-sm text-muted-foreground">{body}</p>
             </div>
           </div>
+        ))}
+      </div>
 
-          {/* Referral Link */}
-          <div className="mb-6 md:mb-8 bg-card rounded-lg p-4 md:p-6">
-            <h2 className="text-base md:text-lg font-medium mb-3 md:mb-4">Your Referral Link</h2>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatTile label="Friends invited" value={referralStats.totalReferrals ?? 0} icon={Users} tone="pink" />
+        <StatTile label="Rewards earned" value={Number(referralStats.coinsEarned ?? 0).toLocaleString()} icon={Coins} tone="emerald" />
+        <StatTile label="Current tier" value={tier?.label ?? "None yet"} icon={Star} tone="purple" />
+        <StatTile label="Multiplier" value={`${tier ? parseFloat(tier.multiplier).toFixed(2) : "1.00"}×`} icon={TrendingUp} tone="amber" />
+      </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-              <div className="bg-muted rounded p-2 flex-1 overflow-hidden">
-                <p className="text-muted-foreground text-xs sm:text-sm truncate break-all">{referralLink}</p>
-              </div>
-
-              <div className="flex gap-2 sm:gap-0">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex-1 min-w-0 sm:flex-none text-xs sm:text-sm gap-2"
-                  onClick={handleCopyLink}
-                >
-                  <Copy className="h-4 w-4" />
-                  <span className="sm:hidden">Copy</span>
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex-1 min-w-0 sm:flex-none text-xs sm:text-sm gap-2"
-                  onClick={handleShareLink}
-                >
-                  <Share2 className="h-4 w-4" />
-                  <span className="sm:hidden">Share</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Referral History */}
-          <div className="bg-card rounded-lg p-4 md:p-6">
-            <h2 className="text-base md:text-lg font-medium mb-3 md:mb-4">Referral History</h2>
-
-            {isLoadingHistory ? (
-              <div className="text-center py-6 md:py-8">
-                <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-primary mx-auto"></div>
-                <p className="text-xs md:text-sm text-muted-foreground mt-2">Loading referral history...</p>
-              </div>
-            ) : referralHistory.length > 0 ? (
-              <div className="space-y-3">
-                {referralHistory.map((referral) => (
-                  <div 
-                    key={referral.id} 
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border"
-                  >
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-primary font-medium text-sm md:text-base">
-                          {referral.referredUsername.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground text-sm md:text-base truncate">
-                          {referral.referredUsername}
-                        </p>
-                        <p className="text-xs md:text-sm text-muted-foreground">
-                          Joined {referral.referredAt.toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-green-500 dark:text-green-400 font-medium">
-                        +{referral.pointsEarned} coins
-                      </p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {referral.status}
-                      </p>
-                    </div>
+      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="space-y-6">
+          {allTiers.length > 0 && (
+            <Section title="Your tier" description={nextTier ? `${Math.max(0, nextTier.minReferrals - (userTierInfo?.totalReferrals ?? 0))} more to reach ${nextTier.label}` : tier ? "You're on the top tier" : undefined}>
+              {nextTier && (
+                <div className="mb-4">
+                  <div className="mb-1.5 flex justify-between text-xs text-muted-foreground">
+                    <span>{tier?.label ?? "Start"}</span>
+                    <span>
+                      {nextTier.label} · {parseFloat(nextTier.multiplier).toFixed(2)}×
+                    </span>
                   </div>
-                ))}
+                  <Progress value={tierProgress} className="h-2.5" />
+                </div>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {allTiers.map((t) => {
+                  const active = tier?.id === t.id;
+                  return (
+                    <span
+                      key={t.id}
+                      className={`rounded-xl border px-3 py-1.5 text-xs ${active ? "border-purple-400 bg-purple-500/10 font-semibold text-purple-700 dark:text-purple-300" : "text-muted-foreground"}`}
+                    >
+                      {t.label} · {t.minReferrals}
+                      {t.maxReferrals ? `–${t.maxReferrals}` : "+"} · {parseFloat(t.multiplier).toFixed(2)}×
+                    </span>
+                  );
+                })}
               </div>
+            </Section>
+          )}
+
+          <Section title="People you invited" bodyClassName="p-2 sm:p-3">
+            {isLoadingHistory ? (
+              <p className="p-4 text-sm text-muted-foreground">Loading…</p>
+            ) : referralHistory.length === 0 ? (
+              <EmptyState icon={Users} title="No referrals yet" description="Share your link above. Everyone who joins with it shows up here." />
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No referrals yet. Share your link to start earning!</p>
-              </div>
+              <ul className="divide-y">
+                {referralHistory.map((r) => (
+                  <li key={r.id} className="flex items-center gap-3 px-3 py-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-sm font-semibold text-purple-700 dark:text-purple-300">
+                      {r.referredUsername.charAt(0).toUpperCase()}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{r.referredUsername}</p>
+                      <p className="text-xs text-muted-foreground">Joined {r.referredAt.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-emerald-600">+{r.pointsEarned}</p>
+                      <p className="text-xs capitalize text-muted-foreground">{r.status}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
+          </Section>
+        </div>
+
+        <Section title="Your ID card" description="Download it and share it anywhere." action={<Button variant="ghost" size="sm" onClick={handleDownloadIdCard}><Download className="h-4 w-4" /></Button>}>
+          <div ref={idCardRef} className="rounded-2xl border bg-white p-5 text-center shadow-sm dark:bg-gray-900">
+            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+              <User className="h-7 w-7" />
+            </div>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">{user?.username || username}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">4LO4LO member</p>
+            <div className="my-4 flex justify-center">
+              <div className="rounded-xl bg-white p-2.5">
+                <QRCodeSVG value={referralLink} size={132} level="H" includeMargin={false} />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Code</p>
+            <p className="text-lg font-bold tracking-widest text-purple-700">{referralStats.referralCode || "…"}</p>
+            <p className="mt-3 text-[11px] text-gray-500 dark:text-gray-400">Scan or enter the code when you sign up</p>
           </div>
+        </Section>
+      </div>
     </MemberLayout>
   );
 }

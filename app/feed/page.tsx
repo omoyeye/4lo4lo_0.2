@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { auth } from "@/auth";
+import { auth, hasAdminAccess } from "@/auth";
 import { getActivityFeed } from "@/lib/core/community";
 import { ActivityFeed } from "@/components/community/ActivityFeed";
 import { pageMetadata } from "@/lib/seo";
 import { BrandLogo } from "@/components/BrandLogo";
-import Sidebar from "@/components/layout/Sidebar";
-import DesktopTopBar from "@/components/layout/DesktopTopBar";
+import { MemberLayout, PageHeader } from "@/components/member/kit";
+import { CommunityTabs } from "@/components/community/CommunityTabs";
 import { Users, Sparkles, ArrowRight, Info } from "lucide-react";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Community Activity",
+  title: "Community",
   description:
     "See what creators on 4lo4lo are completing, earning and unlocking right now.",
   path: "/feed",
@@ -46,12 +46,34 @@ export default async function Page() {
    */
   const signedIn = Boolean(session?.user?.id);
 
+  // Members: posts, comments and likes, with the activity feed as a second tab.
+  if (signedIn) {
+    return (
+      <MemberLayout>
+        <div className="mx-auto max-w-2xl space-y-6">
+          <PageHeader icon={Users} tone="pink" title="Community" description="Share tips and wins, and see what other creators are up to." />
+          <CommunityTabs
+            canModerate={hasAdminAccess(session?.user)}
+            activity={
+              <>
+                {!communityEnabled && (
+                  <p className="mb-4 rounded-xl border border-dashed p-3 text-sm text-muted-foreground">
+                    Following isn&apos;t switched on yet, so this shows activity from across the platform.
+                  </p>
+                )}
+                <ActivityFeed events={events} />
+              </>
+            }
+          />
+        </div>
+      </MemberLayout>
+    );
+  }
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background">
-      {signedIn && <Sidebar />}
       <div className="flex-1 min-w-0 flex flex-col min-h-screen pb-20 md:pb-0">
-      {signedIn && <DesktopTopBar />}
-      {!signedIn && (
+      {(
       <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
           <BrandLogo priority />

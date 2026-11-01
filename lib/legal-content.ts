@@ -245,7 +245,7 @@ export function privacySections(brand: BrandProfile = DEFAULT_BRAND): LegalSecti
           "Account: username, email address, password (stored only as a salted hash), display name, country, and optionally a profile photo, bio and social media handles.",
           "Payout details: your PayPal email or bank details when you request a withdrawal.",
           "Task proofs: screenshots and notes you upload to show you completed a task.",
-          "Content: Marketplace listings, comments, profile links and support messages.",
+          "Content: community posts, comments and likes, Marketplace listings, profile links and support messages.",
           "Purchases: Promote Me orders. Card payments are handled by Stripe; we never see or store your full card number.",
         ],
       },

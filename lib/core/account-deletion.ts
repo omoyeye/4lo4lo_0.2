@@ -33,6 +33,13 @@ const OPTIONAL_DELETES = [
   // Proof screenshots and notes go with the account (Privacy Policy §7); the
   // completions themselves stay, anonymised, in user_tasks.
   (id: number) => sql`DELETE FROM task_proofs WHERE user_id = ${id}`,
+  // Community posts and comments are personal content; other members'
+  // comments on a deleted post go with it.
+  (id: number) => sql`DELETE FROM community_post_likes WHERE user_id = ${id}`,
+  (id: number) => sql`DELETE c FROM community_post_comments c JOIN community_posts p ON p.id = c.post_id WHERE p.user_id = ${id}`,
+  (id: number) => sql`DELETE l FROM community_post_likes l JOIN community_posts p ON p.id = l.post_id WHERE p.user_id = ${id}`,
+  (id: number) => sql`DELETE FROM community_post_comments WHERE user_id = ${id}`,
+  (id: number) => sql`DELETE FROM community_posts WHERE user_id = ${id}`,
   (id: number) => sql`UPDATE payout_holds SET released = 1 WHERE user_id = ${id}`,
 ];
 

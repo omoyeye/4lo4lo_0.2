@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTransport, defaultFrom, isEmailConfigured } from "@/lib/core/services/mailer";
+import { getBrand } from "@/lib/brand";
 import { rateLimit, LIMITS } from "@/lib/rate-limit";
 import { z } from "zod";
 
@@ -10,7 +11,7 @@ const contactSchema = z.object({
   message: z.string().min(1).max(5000),
 });
 
-/** Strip anything that could inject extra SMTP headers via a form field. */
+/** Strip anything that could inject extra email headers via a form field. */
 function headerSafe(value: string): string {
   return value.replace(/[\r\n]+/g, " ").trim();
 }
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const { name, email, subject, message } = parsed.data;
 
-    const destination = process.env.SUPPORT_INBOX || process.env.EMAIL_USER;
+    const destination = process.env.SUPPORT_INBOX || (await getBrand()).supportEmail;
 
     if (!isEmailConfigured() || !destination) {
       // Fail loudly rather than telling the user their message was delivered.

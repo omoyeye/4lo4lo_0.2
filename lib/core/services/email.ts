@@ -1,5 +1,4 @@
-import { Transporter } from "nodemailer";
-import { getTransport } from "./mailer";
+import { getTransport, type MailTransport } from "./mailer";
 import {
   emailFrom,
   esc,
@@ -168,7 +167,7 @@ export interface BulkEmailData {
  * Yahoo require for bulk senders and CAN-SPAM / PECR require for marketing.
  */
 export async function sendBulkEmail(data: BulkEmailData): Promise<{ success: number; failed: number; errors: string[] }> {
-  const transporter: Transporter = getTransport();
+  const transporter: MailTransport = getTransport();
   const brand = await getBrand();
   let success = 0;
   let failed = 0;

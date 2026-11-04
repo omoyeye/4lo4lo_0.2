@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
         } catch (err) {
           console.error("Admin code email failed:", err);
           return NextResponse.json(
-            { message: "We couldn't email your sign-in code. Check the email settings (EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD) on Vercel and try again." },
+            { message: "We couldn't email your sign-in code. Check BREVO_API_KEY on Vercel and try again." },
             { status: 502 }
           );
         }

@@ -228,7 +228,7 @@ export default async function Page({ params }: Params) {
         {related.length > 0 && (
           <section className="mt-14">
             <h2 className="text-xl font-bold tracking-tight">Keep reading</h2>
-            <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {related.map((g) => (
                 <Link
                   key={g.slug}

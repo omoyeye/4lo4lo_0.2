@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useAppSettings } from "@/contexts/AppSettingsContext";
 import { Award, CalendarClock, ExternalLink, Loader2, MoreHorizontal, Pencil, Plus, Power, RefreshCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -273,12 +274,14 @@ function toLocalInput(iso: string | null) {
 
 function TaskDialog({ task, onClose }: { task: AdminTask | null; onClose: () => void }) {
   const { toast } = useToast();
+  const { raw: settings } = useAppSettings();
   const [form, setForm] = useState({
     title: task?.title ?? "",
     description: task?.description ?? "",
     platform: task?.platform ?? "facebook",
     type: task?.type ?? "like",
-    points: String(task?.points ?? 50),
+    // New tasks start from the value in Admin > Settings; existing ones keep theirs.
+    points: String(task?.points ?? (parseInt(settings?.points_per_task_completion ?? "", 10) || 50)),
     taskUrl: task?.taskUrl ?? "",
     maxCompletions: task?.maxCompletions ? String(task.maxCompletions) : "",
     isActive: task?.isActive ?? true,

@@ -70,8 +70,12 @@ import { queuePush } from "@/lib/push";
 import { eq, and, desc, sql, gte, count, inArray, or, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { ukDate, ukMidnight } from "@/lib/uk-time";
+import { countryValues } from "@/lib/countries";
 import { isTaskOpen, TaskClosedError, taskClosedReason } from "./task-availability";
 // Session store imports removed
+
+/** Deleted accounts keep their rows for history but never appear in member rankings. */
+const notDeleted = sql`(${users.role} IS NULL OR ${users.role} <> 'deleted')`;
 
 export class DatabaseStorage implements IStorage {
   constructor() {
@@ -747,7 +751,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTopEarners(limit: number): Promise<User[]> {
-    return db.select().from(users).orderBy(desc(users.points)).limit(limit);
+    return db.select().from(users).where(notDeleted).orderBy(desc(users.points)).limit(limit);
   }
 
   async getLeaderboard(options: { period: 'alltime' | 'weekly' | 'monthly'; country?: string; limit?: number; requestingUserId?: number }): Promise<{ entries: LeaderboardEntry[]; userEntry: LeaderboardEntry | null }> {
@@ -771,9 +775,9 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(users.points))
         .$dynamic();
 
-      if (options.country) {
-        query = query.where(eq(users.country, options.country));
-      }
+      query = query.where(
+        options.country ? and(notDeleted, inArray(users.country, countryValues(options.country))) : notDeleted
+      );
 
       const rows = await query.limit(500);
       const entries: LeaderboardEntry[] = rows.slice(0, limit).map((r, i) => ({
@@ -817,7 +821,9 @@ export class DatabaseStorage implements IStorage {
       startDate.setDate(now.getDate() - 30);
     }
 
-    const countryClause = options.country ? sql`AND u.country = ${options.country}` : sql``;
+    const countryClause = options.country
+      ? sql`AND u.country IN (${sql.join(countryValues(options.country).map((c) => sql`${c}`), sql`, `)})`
+      : sql``;
 
     type RawRow = {
       id: number;
@@ -848,6 +854,7 @@ export class DatabaseStorage implements IStorage {
         FROM classroom_completions
         WHERE completed_at >= ${startDate}
       ) p ON u.id = p.user_id
+      AND (u.role IS NULL OR u.role <> 'deleted')
       ${countryClause}
       GROUP BY u.id, u.username, u.display_name, u.avatar, u.country, u.streak_count
       ORDER BY points DESC
@@ -1016,16 +1023,17 @@ export class DatabaseStorage implements IStorage {
   // Referral operations
   async getReferralStats(
     userId: number): Promise<{ totalReferrals: number; totalPoints: number }> {
-    const referrals = await db
-      .select()
+    const referred = await db
+      .select({ pointsAwarded: referrals.pointsAwarded })
       .from(users)
+      .leftJoin(referrals, eq(referrals.referredId, users.id))
       .where(eq(users.referredBy, userId));
 
-    // Calculate total points earned from referrals (1 point per referral)
-    const totalPoints = referrals.length;
+    // What was actually awarded; accounts with no referral record earned the original 1.
+    const totalPoints = referred.reduce((sum, r) => sum + (r.pointsAwarded ?? 1), 0);
 
     return {
-      totalReferrals: referrals.length,
+      totalReferrals: referred.length,
       totalPoints,
     };
   }
@@ -1039,22 +1047,24 @@ export class DatabaseStorage implements IStorage {
       status: string;
     }>
   > {
-    const referrals = await db
+    const referred = await db
       .select({
         id: users.id,
         username: users.username,
         createdAt: users.createdAt,
         level: users.level,
+        pointsAwarded: referrals.pointsAwarded,
       })
       .from(users)
+      .leftJoin(referrals, eq(referrals.referredId, users.id))
       .where(eq(users.referredBy, userId))
       .orderBy(desc(users.createdAt));
 
-    return referrals.map((referral) => ({
+    return referred.map((referral) => ({
       id: referral.id,
       referredUsername: referral.username,
       referredAt: referral.createdAt,
-      pointsEarned: 10, // Standard referral bonus points
+      pointsEarned: referral.pointsAwarded ?? 1,
       status: referral.level > 1 ? "active" : "new",
     }));
   }
@@ -1077,8 +1087,11 @@ export class DatabaseStorage implements IStorage {
       .set({ referredBy: referrerIdInt })
       .where(eq(users.id, referredIdInt));
 
-    // Award points to the referrer (1 point per referral)
-    await this.updateUserPoints(referrerIdInt, 1);
+    // Award the bonus set in Admin > Settings (referral_bonus_points).
+    const [bonusSetting] = await db.select().from(appSettings).where(eq(appSettings.key, "referral_bonus_points"));
+    const parsedBonus = parseInt(bonusSetting?.value ?? "", 10);
+    const bonus = Number.isFinite(parsedBonus) && parsedBonus >= 0 ? parsedBonus : 1;
+    if (bonus > 0) await this.updateUserPoints(referrerIdInt, bonus);
 
     // Create a referral record
     const [refInsert] = await db
@@ -1086,7 +1099,7 @@ export class DatabaseStorage implements IStorage {
       .values({
         referrerId: referrerIdInt,
         referredId: referredIdInt,
-        pointsAwarded: 1,
+        pointsAwarded: bonus,
         isProcessed: true,
         processedAt: new Date(),
       });

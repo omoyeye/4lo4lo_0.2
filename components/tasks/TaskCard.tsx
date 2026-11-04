@@ -55,7 +55,7 @@ export default function TaskCard({ id, title, description, points, platform, typ
 
   return (
     <>
-      <article className="group flex h-full flex-col rounded-2xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-purple-300 hover:shadow-md dark:hover:border-purple-800">
+      <article className="group flex h-full flex-col rounded-2xl border bg-card p-4 shadow-sm sm:p-5 transition-all hover:-translate-y-0.5 hover:border-purple-300 hover:shadow-md dark:hover:border-purple-800">
         <div className="flex items-start gap-3">
           <PlatformBadge platform={platform} size={44} />
           <div className="min-w-0 flex-1">

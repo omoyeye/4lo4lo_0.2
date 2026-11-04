@@ -39,7 +39,7 @@ export default function EmailVerificationBanner({ showVerified = false }: { show
       <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm">
         <MailCheck className="h-5 w-5 shrink-0 text-emerald-600" />
         <span>
-          <span className="font-medium">{data.email}</span> is confirmed.
+          <span className="break-all font-medium">{data.email}</span> is confirmed.
         </span>
       </div>
     );
@@ -66,13 +66,13 @@ export default function EmailVerificationBanner({ showVerified = false }: { show
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-amber-400/40 bg-amber-500/5 p-4 sm:flex-row sm:items-center">
-      <div className="flex flex-1 items-start gap-3">
+      <div className="flex min-w-0 flex-1 items-start gap-3">
         <MailWarning className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
-        <div className="text-sm">
+        <div className="min-w-0 text-sm">
           <p className="font-medium">Confirm your email address</p>
           <p className="text-muted-foreground">
             {data.required ? "You need a confirmed email to request payouts. " : ""}
-            We&apos;ll send a link to <span className="font-medium text-foreground">{data.email}</span>.
+            We&apos;ll send a link to <span className="break-all font-medium text-foreground">{data.email}</span>.
           </p>
         </div>
       </div>

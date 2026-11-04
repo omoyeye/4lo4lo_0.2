@@ -71,7 +71,7 @@ function DashboardContent() {
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-700 via-purple-600 to-pink-600 p-6 text-white shadow-xl md:p-8">
         <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-white/5" />
-        <div className="relative grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+        <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-end">
           <div>
             <p className="text-sm text-white/80">{greeting()},</p>
             <h1 className="text-2xl font-bold md:text-3xl">{me?.displayName || me?.username} 👋</h1>
@@ -126,8 +126,8 @@ function DashboardContent() {
         <StatTile label="Level" value={level} icon={Star} tone="purple" hint={`${progress}% to next`} href="/rewards" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
           <Section
             title="Tasks for you"
             description="The best-paying tasks right now"

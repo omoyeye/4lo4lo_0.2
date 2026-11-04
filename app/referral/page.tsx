@@ -26,7 +26,7 @@ type UserTierInfo = {
 
 function ReferralContent() {
   const { toast } = useToast();
-  const [username, setUsername] = useState<string>("uniquegram");
+  const [username, setUsername] = useState<string>("");
   const [referralStats, setReferralStats] = useState({
     totalReferrals: 0,
     coinsEarned: 0,
@@ -194,7 +194,7 @@ function ReferralContent() {
       {/* Share first: it's what people come here to do. */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-700 via-purple-600 to-pink-600 p-5 text-white shadow-xl md:p-7">
         <div className="pointer-events-none absolute -right-12 -top-16 h-52 w-52 rounded-full bg-white/10" />
-        <div className="relative grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
+        <div className="relative grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
           <div className="min-w-0">
             <p className="text-sm text-white/80">Your referral code</p>
             <p className="text-3xl font-extrabold tracking-widest md:text-4xl">{referralStats.referralCode || "…"}</p>
@@ -216,7 +216,7 @@ function ReferralContent() {
         </div>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           ["1", "Share your link", "Send it to friends or post it with your share card."],
           ["2", "They join", "They sign up with your link or type your code."],
@@ -239,7 +239,7 @@ function ReferralContent() {
         <StatTile label="Multiplier" value={`${tier ? parseFloat(tier.multiplier).toFixed(2) : "1.00"}×`} icon={TrendingUp} tone="amber" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
           {allTiers.length > 0 && (
             <Section title="Your tier" description={nextTier ? `${Math.max(0, nextTier.minReferrals - (userTierInfo?.totalReferrals ?? 0))} more to reach ${nextTier.label}` : tier ? "You're on the top tier" : undefined}>

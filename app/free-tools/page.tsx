@@ -293,7 +293,7 @@ function FreeToolsContent() {
 
       {/* Main content */}
       <div className="flex-1 max-w-6xl mx-auto w-full px-4 pb-16">
-        <div className="grid lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
           {/* Left Ad + Join CTA */}
           <div className="hidden lg:block lg:col-span-1 space-y-4">

@@ -25,6 +25,7 @@ import {
   SiGoogle
 } from "react-icons/si";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 import { PromotionPlan } from "@shared/schema.mysql";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -163,7 +164,9 @@ function PromoteMeContent() {
     additionalDetails: ""
   });
   const { toast } = useToast();
-  const userId = (typeof window !== 'undefined' ? localStorage.getItem("userId") : null) ? parseInt((typeof window !== 'undefined' ? localStorage.getItem("userId") : null)!) : null;
+  // From the session, not browser storage: storage is empty after some sign-ins, which showed 0 points.
+  const { user: authUser } = useAuth();
+  const userId = authUser?.id ?? null;
   
   // Check URL params for payment status
   useEffect(() => {
@@ -633,7 +636,7 @@ function PromoteMeContent() {
             </Card>
 
             {/* Benefits: one compact strip. Worded as what we do, not guarantees. */}
-            <ul className="grid gap-2 rounded-2xl border bg-card p-3 text-sm sm:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-2 rounded-2xl border bg-card p-3 text-sm sm:grid-cols-3">
               {[
                 ["Real people", "Engagement comes from active members, not bots."],
                 ["Quick start", "Most promotions start within 24 to 48 hours."],
@@ -825,7 +828,7 @@ function PromoteMeContent() {
 
 
 
-﻿import { ProtectedRoute } from "@/lib/protected-route";
+import { ProtectedRoute } from "@/lib/protected-route";
 export default function Page() {
   return (
     <ProtectedRoute>

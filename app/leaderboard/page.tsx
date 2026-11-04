@@ -1,4 +1,5 @@
 "use client";
+import { countryFlag } from "@/lib/countries";
 import { MemberLayout, PageHeader } from "@/components/member/kit";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -53,21 +54,13 @@ const PERIOD_LABELS: Record<string, string> = {
   monthly: "This Month",
 };
 
-function countryFlag(countryCode: string): string {
-  return countryCode
-    .toUpperCase()
-    .split("")
-    .map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
-    .join("");
-}
-
 function getLevelProgress(points: number): number {
   return (points % 1000) / 10;
 }
 
 function LevelBadge({ level }: { level: number }) {
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/15 text-primary leading-none flex-shrink-0">
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold bg-primary/15 text-primary leading-none flex-shrink-0">
       Lv {level}
     </span>
   );

@@ -216,7 +216,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      className="h-6 w-6 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteNotificationMutation.mutate(notification.id);

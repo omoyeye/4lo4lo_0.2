@@ -8,7 +8,7 @@ const CONSENT_KEY = "cookie_consent";
 
 type ConsentValue = "accepted" | "rejected";
 
-function getStoredConsent(): ConsentValue | null {
+export function getStoredConsent(): ConsentValue | null {
   try {
     const v = localStorage.getItem(CONSENT_KEY);
     return v === "accepted" || v === "rejected" ? v : null;
@@ -79,6 +79,8 @@ export default function CookieConsent() {
   function choose(value: ConsentValue) {
     try {
       localStorage.setItem(CONSENT_KEY, value);
+      // Other first-visit popups wait for this so they don't stack on the banner.
+      window.dispatchEvent(new Event("cookie-consent-chosen"));
     } catch {}
     setAnalytics(value === "accepted");
     if (value === "rejected") clearAnalyticsCookies();
@@ -93,7 +95,7 @@ export default function CookieConsent() {
   const button = "flex-1 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors";
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 p-4 sm:p-6" role="dialog" aria-live="polite" aria-label="Cookie preferences">
+    <div className="fixed inset-x-0 bottom-0 z-[60] p-4 sm:p-6" role="dialog" aria-live="polite" aria-label="Cookie preferences">
       <div className="mx-auto max-w-xl rounded-2xl border border-border bg-background/95 p-5 shadow-xl backdrop-blur-sm">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 h-5 w-5 shrink-0 text-primary" />

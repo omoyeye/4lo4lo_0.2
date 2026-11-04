@@ -177,7 +177,7 @@ function ToolsContent() {
       </section>
 
       <div className="max-w-6xl mx-auto px-6 pb-16">
-        <div className="grid lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Ad */}
           <div className="hidden lg:block lg:col-span-1 space-y-4">
             <AdSlot position="left" />

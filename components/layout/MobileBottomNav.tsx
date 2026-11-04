@@ -47,7 +47,7 @@ const NavTab = ({ icon, label, href, isActive }: NavTabProps) => (
   <Link href={href}>
     <motion.div
       className={cn(
-        "flex flex-col items-center justify-center py-2 px-3 min-w-[64px] transition-colors",
+        "flex flex-col items-center justify-center py-2 px-1 min-w-0 transition-colors",
         isActive
           ? "text-primary"
           : "text-muted-foreground"
@@ -132,7 +132,7 @@ export default function MobileBottomNav() {
       >
         <div className="flex items-center justify-around px-2">
           {mainTabs.map((tab) => (
-            <div key={tab.href} className="relative flex-1">
+            <div key={tab.href} className="relative min-w-0 flex-1">
               <NavTab
                 icon={tab.icon}
                 label={tab.label}
@@ -146,7 +146,7 @@ export default function MobileBottomNav() {
             <SheetTrigger asChild>
               <motion.div
                 className={cn(
-                  "flex flex-col items-center justify-center py-2 px-3 min-w-[64px] cursor-pointer relative flex-1 transition-colors",
+                  "flex flex-col items-center justify-center py-2 px-1 min-w-0 cursor-pointer relative flex-1 transition-colors",
                   isMoreActive
                     ? "text-primary"
                     : "text-muted-foreground"

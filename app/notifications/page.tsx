@@ -176,7 +176,7 @@ function NotificationsContent() {
 
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader className="border-b border-border/30 pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
                 <Bell className="h-5 w-5 text-primary" />
@@ -257,9 +257,9 @@ function NotificationsContent() {
                             {getNotificationIcon(notification.type)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1 mb-1">
                               <h4 className={cn(
-                                "text-sm flex-1",
+                                "text-sm min-w-0 flex-1 basis-40 break-words",
                                 !notification.isRead ? "font-semibold" : "font-medium"
                               )}>
                                 {notification.title}
@@ -273,14 +273,14 @@ function NotificationsContent() {
                                 </Badge>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-2">
+                            <p className="text-sm text-muted-foreground mb-2 break-words">
                               {notification.message}
                             </p>
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-muted-foreground">
                                 {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                               </span>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-1 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100">
                                 {!notification.isRead && (
                                   <Button
                                     variant="ghost"

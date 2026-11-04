@@ -100,16 +100,14 @@ export default function PaymentRequests() {
   // Fetch all payouts with real-time polling
   const { data: payouts = [], isLoading } = useQuery<PayoutWithUser[]>({
     queryKey: ['/api/admin/payouts'],
-    refetchInterval: 3000 // Refetch every 3 seconds for real-time updates
+    refetchInterval: 30_000,
   });
   
   // Update payout status mutation
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      await apiRequest('PATCH', `/api/admin/payouts/${id}`, {
-        status,
-        processedBy: 1 // TODO: Get actual admin ID
-      });
+      // The server records the signed-in admin as the processor.
+      await apiRequest('PATCH', `/api/admin/payouts/${id}`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/payouts'] });

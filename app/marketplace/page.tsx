@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Store, Plus, MessageCircle, ShoppingBag, User, Clock, CheckCircle2, SlidersHorizontal, X, Trash2, LayoutGrid, AlertCircle } from "lucide-react";
+import { ChevronDown, Store, Plus, MessageCircle, ShoppingBag, User, Clock, CheckCircle2, SlidersHorizontal, X, Trash2, LayoutGrid, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { useAppSettings } from "@/contexts/AppSettingsContext";
@@ -47,6 +47,7 @@ function CreateListingCard({ userPoints, openListingsCount, maxOpenListings }: {
   const { toast } = useToast();
   const [pointsAmount, setPointsAmount] = useState("");
   const [note, setNote] = useState("");
+  const [open, setOpen] = useState(false);
   const atLimit = openListingsCount >= maxOpenListings;
 
   const mutation = useMutation({
@@ -92,12 +93,16 @@ function CreateListingCard({ userPoints, openListingsCount, maxOpenListings }: {
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Plus className="w-5 h-5 text-primary" />
-          Create a Listing
-        </CardTitle>
+        {/* Phones keep the form folded so the listings are on the first screen. */}
+        <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center gap-2 text-left md:pointer-events-none">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Plus className="w-5 h-5 text-primary" />
+            Create a Listing
+          </CardTitle>
+          <ChevronDown className={`ml-auto h-5 w-5 text-muted-foreground transition-transform md:hidden ${open ? "rotate-180" : ""}`} />
+        </button>
       </CardHeader>
-      <CardContent>
+      <CardContent className={open ? undefined : "hidden md:block"}>
         {/* Listing slots indicator */}
         <div className={`rounded-lg px-3 py-2 mb-4 text-sm ${
           atLimit

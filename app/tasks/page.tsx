@@ -151,65 +151,69 @@ function TasksContent() {
 
       {view === "available" ? (
         <>
-          {/* One toolbar row instead of three rows of chips. */}
-          <div className="sticky top-14 z-20 -mx-4 flex flex-wrap items-center gap-2 border-b bg-background/90 px-4 py-2.5 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0" data-tutorial="platform-filters">
-            <div className="relative min-w-[180px] flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks" className="h-10 rounded-xl pl-9" />
+          {/* Phones: search, then one swipeable row of filters, so the tasks stay on screen. Desktop: a single row. */}
+          <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center" data-tutorial="platform-filters">
+            <div className="flex items-center gap-2 md:contents">
+              <div className="relative min-w-0 flex-1 md:min-w-[180px]">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks" className="h-10 rounded-xl pl-9" />
+              </div>
+              <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0 rounded-xl md:order-last" onClick={() => refetch()} aria-label="Refresh tasks">
+                <RefreshCcw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+              </Button>
             </div>
-            <Select value={platform ?? "all"} onValueChange={(v) => setPlatform(v === "all" ? null : v)}>
-              <SelectTrigger className="h-10 w-[150px] rounded-xl">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All platforms</SelectItem>
-                {PLATFORMS.filter((p) => presentPlatforms.has(p.key)).map((p) => {
-                  const Icon = p.icon;
-                  return (
-                    <SelectItem key={p.key} value={p.key}>
-                      <span className="flex items-center gap-2">
-                        <Icon className="h-3.5 w-3.5" style={{ color: p.color }} /> {p.label}
-                      </span>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-            {(TYPES.some((t) => presentTypes.has(t.type)) || hasOther) && (
-              <Select value={type ?? "all"} onValueChange={(v) => setType(v === "all" ? null : v)}>
-                <SelectTrigger className="h-10 w-[130px] rounded-xl">
+            <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:contents [&::-webkit-scrollbar]:hidden">
+              <Select value={platform ?? "all"} onValueChange={(v) => setPlatform(v === "all" ? null : v)}>
+                <SelectTrigger className="h-10 w-[150px] shrink-0 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
-                  {TYPES.filter((t) => presentTypes.has(t.type)).map((t) => (
-                    <SelectItem key={t.type} value={t.type}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                  {hasOther && <SelectItem value="other">Other</SelectItem>}
+                  <SelectItem value="all">All platforms</SelectItem>
+                  {PLATFORMS.filter((p) => presentPlatforms.has(p.key)).map((p) => {
+                    const Icon = p.icon;
+                    return (
+                      <SelectItem key={p.key} value={p.key}>
+                        <span className="flex items-center gap-2">
+                          <Icon className="h-3.5 w-3.5" style={{ color: p.color }} /> {p.label}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
-            )}
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="h-10 w-[140px] rounded-xl">
-                <SlidersHorizontal className="mr-1 h-4 w-4 text-muted-foreground" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="most_points">Most points</SelectItem>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="least_points">Fewest points</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl" onClick={() => refetch()} aria-label="Refresh tasks">
-              <RefreshCcw className={cn("h-4 w-4", isFetching && "animate-spin")} />
-            </Button>
-            {hasFilters && (
-              <button onClick={clearFilters} className="inline-flex items-center gap-1 text-sm font-medium text-purple-600 hover:underline dark:text-purple-400">
-                <X className="h-3.5 w-3.5" /> Clear ({filtered.length} shown)
-              </button>
-            )}
+              {(TYPES.some((t) => presentTypes.has(t.type)) || hasOther) && (
+                <Select value={type ?? "all"} onValueChange={(v) => setType(v === "all" ? null : v)}>
+                  <SelectTrigger className="h-10 w-[130px] shrink-0 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All types</SelectItem>
+                    {TYPES.filter((t) => presentTypes.has(t.type)).map((t) => (
+                      <SelectItem key={t.type} value={t.type}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                    {hasOther && <SelectItem value="other">Other</SelectItem>}
+                  </SelectContent>
+                </Select>
+              )}
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="h-10 w-[150px] shrink-0 rounded-xl">
+                  <SlidersHorizontal className="mr-1 h-4 w-4 text-muted-foreground" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="most_points">Most points</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="least_points">Fewest points</SelectItem>
+                </SelectContent>
+              </Select>
+              {hasFilters && (
+                <button onClick={clearFilters} className="shrink-0 whitespace-nowrap inline-flex items-center gap-1 text-sm font-medium text-purple-600 hover:underline dark:text-purple-400">
+                  <X className="h-3.5 w-3.5" /> Clear ({filtered.length} shown)
+                </button>
+              )}
+            </div>
           </div>
 
           <div data-tutorial="task-list">
@@ -233,7 +237,7 @@ function TasksContent() {
                 />
               </Section>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {filtered.map((task) => (
                   <TaskCard key={task.id} {...task} completing={completingId === task.id} onComplete={(taskId, clickId) => complete.mutate({ taskId, clickId })} />
                 ))}

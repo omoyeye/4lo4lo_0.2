@@ -410,7 +410,7 @@ export function RewardsSettingsPanel() {
     points_to_currency_rate: "0.001",
     minimum_points_to_withdraw: "5000",
     points_per_task_completion: "10",
-    referral_bonus_points: "50"
+    referral_bonus_points: "1"
   });
 
   useEffect(() => {
@@ -421,7 +421,7 @@ export function RewardsSettingsPanel() {
         points_to_currency_rate: settings.points_to_currency_rate || "0.001",
         minimum_points_to_withdraw: settings.minimum_points_to_withdraw || "5000",
         points_per_task_completion: settings.points_per_task_completion || "10",
-        referral_bonus_points: settings.referral_bonus_points || "50"
+        referral_bonus_points: settings.referral_bonus_points || "1"
       });
     }
   }, [settings]);
@@ -496,14 +496,14 @@ export function RewardsSettingsPanel() {
     {
       key: "points_per_task_completion",
       label: "Points Per Task Completion",
-      description: "Base points awarded when completing a task",
+      description: "Starting value for new tasks. Each task then pays its own points, set on the task.",
       type: "number",
       step: "1"
     },
     {
       key: "referral_bonus_points",
       label: "Referral Bonus Points",
-      description: "Bonus points when a referred user signs up",
+      description: "Points the referrer gets when someone signs up with their code",
       type: "number",
       step: "1"
     }
@@ -584,7 +584,7 @@ export function RewardsSettingsPanel() {
                   points_to_currency_rate: settings.points_to_currency_rate || "0.001",
                   minimum_points_to_withdraw: settings.minimum_points_to_withdraw || "5000",
                   points_per_task_completion: settings.points_per_task_completion || "10",
-                  referral_bonus_points: settings.referral_bonus_points || "50"
+                  referral_bonus_points: settings.referral_bonus_points || "1"
                 });
               }
               setEditMode(false);

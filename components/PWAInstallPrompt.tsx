@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getStoredConsent } from "@/components/CookieConsent";
+import { isTutorialRoute } from "@/lib/tutorial-routes";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -32,7 +34,9 @@ export function PWAInstallPrompt() {
       // Show install prompt after a delay (less intrusive)
       setTimeout(() => {
         const dismissed = (typeof window !== 'undefined' ? localStorage.getItem('pwa-install-dismissed') : null);
-        if (!dismissed) {
+        // One popup at a time: not over the cookie banner or the new-member tour.
+        const tourPending = isTutorialRoute(window.location.pathname) && !localStorage.getItem('4lo4lo_tutorial_completed');
+        if (!dismissed && getStoredConsent() && !tourPending) {
           setShowPrompt(true);
         }
       }, 5000); // Show after 5 seconds
@@ -95,7 +99,7 @@ export function PWAInstallPrompt() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
-          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50"
+          className="fixed bottom-24 left-4 right-4 md:bottom-4 md:left-auto md:right-4 md:max-w-md z-50"
         >
           <Card className="shadow-lg border-2 border-primary/20">
             <CardContent className="p-4">

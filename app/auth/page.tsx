@@ -66,7 +66,11 @@ type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 const registerSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(30, "Username can be at most 30 characters")
+      .regex(/^[A-Za-z0-9_.-]+$/, "Usernames can use letters, numbers, dots, dashes and underscores"),
     email: z.string().email("Please enter a valid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),

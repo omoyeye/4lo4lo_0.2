@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTutorial } from "@/contexts/TutorialContext";
 import { useAuth } from "@/hooks/use-auth";
 import { isTutorialRoute } from "@/lib/tutorial-routes";
+import { getStoredConsent } from "@/components/CookieConsent";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, X, Play, HelpCircle } from "lucide-react";
 
@@ -14,7 +15,16 @@ export function NewUserTutorialPrompt() {
   const { hasCompletedTutorial, startTutorial, skipTutorial } = useTutorial();
   const [showPrompt, setShowPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [consentChosen, setConsentChosen] = useState(false);
   const pathname = usePathname();
+
+  // Wait for the cookie banner so the two don't stack on a first visit.
+  useEffect(() => {
+    const check = () => setConsentChosen(!!getStoredConsent());
+    check();
+    window.addEventListener("cookie-consent-chosen", check);
+    return () => window.removeEventListener("cookie-consent-chosen", check);
+  }, []);
 
   /*
    * Being signed in is not enough. This component is mounted in
@@ -26,7 +36,7 @@ export function NewUserTutorialPrompt() {
   const onAppRoute = isTutorialRoute(pathname);
 
   useEffect(() => {
-    if (user && onAppRoute && !hasCompletedTutorial && !dismissed) {
+    if (user && onAppRoute && consentChosen && !hasCompletedTutorial && !dismissed) {
       const timer = setTimeout(() => {
         setShowPrompt(true);
       }, 1500);
@@ -36,7 +46,7 @@ export function NewUserTutorialPrompt() {
     // Navigating away from the app (to a public page, or signing out) hides
     // the prompt rather than leaving it floating over marketing content.
     setShowPrompt(false);
-  }, [user, onAppRoute, hasCompletedTutorial, dismissed]);
+  }, [user, onAppRoute, consentChosen, hasCompletedTutorial, dismissed]);
 
   const handleStart = () => {
     setShowPrompt(false);
@@ -58,7 +68,7 @@ export function NewUserTutorialPrompt() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 50, scale: 0.9 }}
         transition={{ duration: 0.4, type: "spring" }}
-        className="fixed bottom-6 right-6 z-50 max-w-sm"
+        className="fixed bottom-24 left-4 right-4 z-50 md:bottom-6 md:left-auto md:right-6 md:max-w-sm"
         data-testid="tutorial-prompt"
       >
         <div className="bg-card border border-border rounded-xl shadow-lg p-6">

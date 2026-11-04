@@ -5,8 +5,8 @@ import { getActivityFeed } from "@/lib/core/community";
 import { ActivityFeed } from "@/components/community/ActivityFeed";
 import { pageMetadata } from "@/lib/seo";
 import { BrandLogo } from "@/components/BrandLogo";
-import { MemberLayout, PageHeader } from "@/components/member/kit";
-import { CommunityTabs } from "@/components/community/CommunityTabs";
+import { MemberLayout } from "@/components/member/kit";
+import { CommunityHeader, CommunityTabs } from "@/components/community/CommunityTabs";
 import { Users, Sparkles, ArrowRight, Info } from "lucide-react";
 
 export const metadata: Metadata = pageMetadata({
@@ -51,7 +51,7 @@ export default async function Page() {
     return (
       <MemberLayout>
         <div className="mx-auto max-w-2xl space-y-6">
-          <PageHeader icon={Users} tone="pink" title="Community" description="Share tips and wins, and see what other creators are up to." />
+          <CommunityHeader />
           <CommunityTabs
             canModerate={hasAdminAccess(session?.user)}
             activity={
